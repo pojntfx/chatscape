@@ -5,8 +5,8 @@ build:
 	zip -j out/hello-world.zip src/hello-world.js
 
 run: build
-	terraform apply -auto-approve
+	terraform apply --auto-approve
 
 clean:
-	terraform destroy -auto-approve
+	terraform destroy --auto-approve
 	rm -rf out
