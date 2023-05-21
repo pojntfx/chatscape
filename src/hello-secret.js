@@ -3,5 +3,5 @@ exports.handler = async () => ({
   headers: {
     "Access-Control-Allow-Origin": "https://d3bgrasa0w7u0x.cloudfront.net",
   },
-  body: JSON.stringify("Hello from Lambda!"),
+  body: JSON.stringify("Welcome to the secret Lambda!"),
 });

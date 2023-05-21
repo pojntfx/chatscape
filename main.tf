@@ -47,6 +47,50 @@ resource "aws_lambda_permission" "hello_world" {
   source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
 }
 
+# Hello Secret
+resource "aws_lambda_function" "hello_secret" {
+  function_name = "hello_secret"
+  runtime       = "nodejs18.x"
+
+  filename         = "out/hello-secret.zip"
+  source_code_hash = filebase64sha256("out/hello-secret.zip")
+  handler          = "hello-secret.handler"
+
+  role = aws_iam_role.lambda.arn
+}
+
+resource "aws_api_gateway_resource" "hello_secret" {
+  path_part   = "hello-secret"
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
+}
+
+resource "aws_api_gateway_method" "hello_secret" {
+  http_method   = "GET"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+
+  resource_id = aws_api_gateway_resource.hello_secret.id
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+}
+
+resource "aws_api_gateway_integration" "hello_secret" {
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.hello_secret.invoke_arn
+  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
+  resource_id             = aws_api_gateway_resource.hello_secret.id
+  http_method             = aws_api_gateway_method.hello_secret.http_method
+}
+
+resource "aws_lambda_permission" "hello_secret" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = aws_lambda_function.hello_secret.function_name
+  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
+}
+
 # Lambda
 resource "aws_iam_role" "lambda" {
   name = "lambda"
@@ -76,8 +120,37 @@ resource "aws_api_gateway_rest_api" "chatscape" {
   name = "chatscape"
 }
 
-# Enable OPTIONS dummy method for CORS
-resource "aws_api_gateway_method" "cors" {
+resource "aws_api_gateway_deployment" "chatscape" {
+  stage_name = "test"
+
+  depends_on = [
+    aws_api_gateway_integration.hello_world,
+    aws_api_gateway_integration.hello_world_cors,
+
+    aws_api_gateway_integration.hello_secret,
+    aws_api_gateway_integration.hello_secret_cors,
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+
+  # We need this because otherwise the stage itself would not be deployed when we add new lambdas
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_integration.hello_world,
+      aws_api_gateway_integration.hello_world_cors,
+
+      aws_api_gateway_integration.hello_secret,
+      aws_api_gateway_integration.hello_secret_cors,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Enable OPTIONS dummy methods for CORS
+resource "aws_api_gateway_method" "hello_world_cors" {
   http_method   = "OPTIONS"
   authorization = "NONE"
 
@@ -85,18 +158,18 @@ resource "aws_api_gateway_method" "cors" {
   resource_id = aws_api_gateway_resource.hello_world.id
 }
 
-resource "aws_api_gateway_integration" "cors" {
+resource "aws_api_gateway_integration" "hello_world_cors" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.hello_world.id
-  http_method = aws_api_gateway_method.cors.http_method
+  http_method = aws_api_gateway_method.hello_world_cors.http_method
 
   type = "MOCK"
 }
 
-resource "aws_api_gateway_method_response" "cors_ok" {
+resource "aws_api_gateway_method_response" "hello_world_cors_ok" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.hello_world.id
-  http_method = aws_api_gateway_method.cors.http_method
+  http_method = aws_api_gateway_method.hello_world_cors.http_method
   status_code = "200"
 
   response_models = {
@@ -110,11 +183,11 @@ resource "aws_api_gateway_method_response" "cors_ok" {
   }
 }
 
-resource "aws_api_gateway_integration_response" "cors" {
+resource "aws_api_gateway_integration_response" "hello_world_cors" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.hello_world.id
-  http_method = aws_api_gateway_method.cors.http_method
-  status_code = aws_api_gateway_method_response.cors_ok.status_code
+  http_method = aws_api_gateway_method.hello_world_cors.http_method
+  status_code = aws_api_gateway_method_response.hello_world_cors_ok.status_code
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'*'"
@@ -123,16 +196,50 @@ resource "aws_api_gateway_integration_response" "cors" {
   }
 }
 
-resource "aws_api_gateway_deployment" "chatscape" {
-  stage_name = "test"
-
-  depends_on = [
-    aws_api_gateway_integration.cors,
-    aws_api_gateway_integration_response.cors,
-    aws_api_gateway_integration.hello_world,
-  ]
+resource "aws_api_gateway_method" "hello_secret_cors" {
+  http_method   = "OPTIONS"
+  authorization = "NONE"
 
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+}
+
+resource "aws_api_gateway_integration" "hello_secret_cors" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+  http_method = aws_api_gateway_method.hello_secret_cors.http_method
+
+  type = "MOCK"
+}
+
+resource "aws_api_gateway_method_response" "hello_secret_cors_ok" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+  http_method = aws_api_gateway_method.hello_secret_cors.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "hello_secret_cors" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+  http_method = aws_api_gateway_method.hello_secret_cors.http_method
+  status_code = aws_api_gateway_method_response.hello_secret_cors_ok.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'*'"
+    "method.response.header.Access-Control-Allow-Methods" = "'*'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://${aws_cloudfront_distribution.spa.domain_name}'"
+  }
 }
 
 # S3
@@ -246,6 +353,28 @@ data "aws_iam_policy_document" "spa" {
   }
 }
 
+# Cognito
+resource "aws_cognito_user_pool" "chatscape" {
+  name = "chatscape"
+}
+
+resource "aws_api_gateway_authorizer" "cognito" {
+  name          = "authorizer"
+  type          = "COGNITO_USER_POOLS"
+  rest_api_id   = aws_api_gateway_rest_api.chatscape.id
+  provider_arns = [aws_cognito_user_pool.chatscape.arn]
+}
+
+resource "aws_cognito_user_pool_client" "spa" {
+  name = "Chatscape"
+
+  user_pool_id = aws_cognito_user_pool.chatscape.id
+
+  generate_secret = false
+
+  explicit_auth_flows = ["ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_ADMIN_USER_PASSWORD_AUTH"]
+}
+
 # Outputs
 output "api_endpoint" {
   value = aws_api_gateway_deployment.chatscape.invoke_url
@@ -253,4 +382,12 @@ output "api_endpoint" {
 
 output "spa_endpoint" {
   value = "https://${aws_cloudfront_distribution.spa.domain_name}/"
+}
+
+output "user_pool_id" {
+  value = aws_cognito_user_pool.chatscape.id
+}
+
+output "client_id" {
+  value = aws_cognito_user_pool_client.spa.id
 }
