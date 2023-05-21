@@ -14,7 +14,7 @@
 
     <script>
       fetch(
-        "https://zm4xv5hv71.execute-api.eu-north-1.amazonaws.com/test/hello-world"
+        "https://90a5hnq5j9.execute-api.eu-north-1.amazonaws.com/test/hello-world"
       )
         .then((response) => response.json())
         .then((data) => {
@@ -25,7 +25,7 @@
         });
 
       fetch(
-        "https://zm4xv5hv71.execute-api.eu-north-1.amazonaws.com/test/hello-secret",
+        "https://90a5hnq5j9.execute-api.eu-north-1.amazonaws.com/test/hello-secret",
         {
           headers: {
             Authorization: `Bearer ${prompt("ID token")}`,

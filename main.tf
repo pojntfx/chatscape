@@ -164,13 +164,20 @@ resource "aws_api_gateway_integration" "hello_world_cors" {
   http_method = aws_api_gateway_method.hello_world_cors.http_method
 
   type = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode(
+      {
+        statusCode = 200
+      }
+    )
+  }
 }
 
 resource "aws_api_gateway_method_response" "hello_world_cors_ok" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.hello_world.id
   http_method = aws_api_gateway_method.hello_world_cors.http_method
-  status_code = "200"
+  status_code = 200
 
   response_models = {
     "application/json" = "Empty"
@@ -201,22 +208,29 @@ resource "aws_api_gateway_method" "hello_secret_cors" {
   authorization = "NONE"
 
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+  resource_id = aws_api_gateway_resource.hello_secret.id
 }
 
 resource "aws_api_gateway_integration" "hello_secret_cors" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+  resource_id = aws_api_gateway_resource.hello_secret.id
   http_method = aws_api_gateway_method.hello_secret_cors.http_method
 
   type = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode(
+      {
+        statusCode = 200
+      }
+    )
+  }
 }
 
 resource "aws_api_gateway_method_response" "hello_secret_cors_ok" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+  resource_id = aws_api_gateway_resource.hello_secret.id
   http_method = aws_api_gateway_method.hello_secret_cors.http_method
-  status_code = "200"
+  status_code = 200
 
   response_models = {
     "application/json" = "Empty"
@@ -231,7 +245,7 @@ resource "aws_api_gateway_method_response" "hello_secret_cors_ok" {
 
 resource "aws_api_gateway_integration_response" "hello_secret_cors" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret_cors.id
+  resource_id = aws_api_gateway_resource.hello_secret.id
   http_method = aws_api_gateway_method.hello_secret_cors.http_method
   status_code = aws_api_gateway_method_response.hello_secret_cors_ok.status_code
 
