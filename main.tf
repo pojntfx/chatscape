@@ -138,14 +138,27 @@ resource "aws_api_gateway_deployment" "chatscape" {
 # S3
 resource "aws_s3_bucket" "spa" {
   bucket = "chatscape-spa"
-  acl    = "private"
+}
 
-  versioning {
-    enabled = false
+resource "aws_s3_bucket_ownership_controls" "spa" {
+  bucket = aws_s3_bucket.spa.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
   }
+}
 
-  website {
-    index_document = "index.html"
+resource "aws_s3_bucket_acl" "spa" {
+  depends_on = [aws_s3_bucket_ownership_controls.spa]
+
+  bucket = aws_s3_bucket.spa.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_website_configuration" "spa" {
+  bucket = aws_s3_bucket.spa.id
+
+  index_document {
+    suffix = "index.html"
   }
 }
 
