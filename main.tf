@@ -14,7 +14,7 @@ resource "aws_lambda_function" "hello_world" {
 
   filename         = "out/hello-world.zip"
   source_code_hash = filebase64sha256("out/hello-world.zip")
-  handler          = "hello-world.handler"
+  handler          = "main.handler"
 
   role = aws_iam_role.lambda.arn
 
@@ -64,7 +64,7 @@ resource "aws_lambda_function" "hello_secret" {
 
   filename         = "out/hello-secret.zip"
   source_code_hash = filebase64sha256("out/hello-secret.zip")
-  handler          = "hello-secret.handler"
+  handler          = "main.handler"
 
   role = aws_iam_role.lambda.arn
 

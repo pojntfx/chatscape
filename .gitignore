@@ -3,3 +3,4 @@ out
 *.tfstate*
 *.tfvars
 override.tf
+node_modules
