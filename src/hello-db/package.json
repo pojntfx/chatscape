@@ -4,7 +4,7 @@
   "description": "",
   "main": "out/main.js",
   "scripts": {
-    "build": "esbuild main.js --format=cjs --bundle --outfile=out/main.js",
+    "build": "esbuild main.js --external:aws-sdk --format=cjs --bundle --outfile=out/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Felicitas Pojtinger <felicitas@pojtinger.com>",
