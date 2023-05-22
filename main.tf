@@ -1,5 +1,9 @@
+variable "region" {
+  default = "eu-north-1"
+}
+
 provider "aws" {
-  region  = "eu-north-1"
+  region  = var.region
   profile = "ChatScapeAdministrator-856591169022"
 }
 
@@ -379,6 +383,12 @@ resource "aws_api_gateway_authorizer" "cognito" {
   provider_arns = [aws_cognito_user_pool.chatscape.arn]
 }
 
+resource "aws_cognito_user_pool_domain" "chatscape" {
+  domain       = "chatscape"
+  user_pool_id = aws_cognito_user_pool.chatscape.id
+}
+
+
 resource "aws_cognito_user_pool_client" "spa" {
   name = "Chatscape"
 
@@ -386,20 +396,32 @@ resource "aws_cognito_user_pool_client" "spa" {
 
   generate_secret = false
 
-  explicit_auth_flows = ["ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_ADMIN_USER_PASSWORD_AUTH"]
+  callback_urls = ["https://${aws_cloudfront_distribution.spa.domain_name}"]
+
+  allowed_oauth_flows  = ["implicit"]
+  allowed_oauth_scopes = ["email", "openid", "profile"]
+
+  allowed_oauth_flows_user_pool_client = true
+  explicit_auth_flows                  = ["ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_ADMIN_USER_PASSWORD_AUTH"]
+
+  supported_identity_providers = ["COGNITO"]
 }
 
 # Outputs
-output "api_endpoint" {
+output "api_url" {
   value = aws_api_gateway_deployment.chatscape.invoke_url
 }
 
-output "spa_endpoint" {
+output "spa_url" {
   value = "https://${aws_cloudfront_distribution.spa.domain_name}/"
 }
 
 output "user_pool_id" {
   value = aws_cognito_user_pool.chatscape.id
+}
+
+output "hosted_ui_url" {
+  value = "https://${aws_cognito_user_pool_domain.chatscape.domain}.auth.${var.region}.amazoncognito.com"
 }
 
 output "client_id" {
