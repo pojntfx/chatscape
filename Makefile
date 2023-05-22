@@ -1,9 +1,12 @@
+obj = hello-world hello-secret hello-db
+
 all: build
 
-build:
+$(addprefix build-js/,$(obj)):
 	mkdir -p out
-	zip -j out/hello-world.zip src/hello-world.js
-	zip -j out/hello-secret.zip src/hello-secret.js
+	cd src/$(subst build-js/,,$@) && npm run build &&	zip -rj ../../out/$(subst build-js/,,$@).zip out/
+
+build: $(addprefix build-js/,$(obj))
 
 run: build
 	terraform apply --auto-approve
@@ -11,3 +14,8 @@ run: build
 clean:
 	terraform destroy --auto-approve
 	rm -rf out
+
+$(addprefix depend-js/,$(obj)):
+	cd src/$(subst depend-js/,,$@) && npm install
+
+depend: $(addprefix depend-js/,$(obj))
