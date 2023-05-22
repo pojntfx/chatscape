@@ -299,14 +299,36 @@ resource "aws_s3_bucket_website_configuration" "spa" {
   }
 }
 
+resource "local_file" "config_json" {
+  content = jsonencode({
+    "clientID" : aws_cognito_user_pool_client.spa.id,
+    "apiURL" : aws_api_gateway_deployment.chatscape.invoke_url,
+    "hostedUIURL" : "https://${aws_cognito_user_pool_domain.chatscape.domain}.auth.${var.region}.amazoncognito.com"
+  })
+  filename = "${path.module}/out/config.json"
+}
+
+resource "aws_s3_object" "config_json" {
+  depends_on = [local_file.config_json]
+
+  bucket = aws_s3_bucket.spa.bucket
+
+  key    = "config.json"
+  source = local_file.config_json.filename
+
+  content_type = "application/json"
+
+  bucket_key_enabled = true
+}
+
 resource "aws_s3_object" "index_html" {
   bucket = aws_s3_bucket.spa.bucket
 
   key    = "index.html"
-  source = "src/index.html"
+  source = "${path.module}/src/index.html"
+  etag   = filebase64sha256("src/index.html")
 
   content_type = "text/html"
-  etag         = filebase64sha256("src/index.html")
 
   bucket_key_enabled = true
 }

@@ -5,24 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChatScape</title>
-
-    <script>
-      const CLIENT_ID = "17jpnah623ckaon0i82ravuqge";
-      const HOSTED_UI_URL =
-        "https://chatscape.auth.eu-north-1.amazoncognito.com";
-      const API_URL =
-        "https://90a5hnq5j9.execute-api.eu-north-1.amazonaws.com/test";
-
-      const id_token = new URLSearchParams(
-        window.location.hash.substring(1)
-      ).get("id_token");
-
-      if (!id_token) {
-        window.location = `${HOSTED_UI_URL}/oauth2/authorize?client_id=${CLIENT_ID}&response_type=token&scope=email+openid+profile&redirect_uri=${window.location.origin}`;
-      }
-
-      window.location.replace("#");
-    </script>
   </head>
   <body>
     <h1>ChatScape</h1>
@@ -31,27 +13,40 @@
     <p>Private API path output: "<span id="private-api-output"></span>"</p>
 
     <script>
-      fetch(`${API_URL}/hello-world`)
+      fetch(window.location.href.split("#")[0] + "config.json")
         .then((response) => response.json())
-        .then((data) => {
-          document.getElementById("public-api-output").textContent = data;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+        .then((config) => {
+          const id_token = new URLSearchParams(
+            window.location.hash.substring(1)
+          ).get("id_token");
 
-      fetch(`${API_URL}/hello-secret`, {
-        headers: {
-          Authorization: `Bearer ${id_token}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          document.getElementById("private-api-output").textContent = data;
+          if (!id_token) {
+            window.location = `${config.hostedUIURL}/oauth2/authorize?client_id=${config.clientID}&response_type=token&scope=email+openid+profile&redirect_uri=${window.location.origin}`;
+
+            return;
+          }
+
+          window.location.replace("#");
+
+          fetch(`${config.apiURL}/hello-world`)
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("public-api-output").textContent = data;
+            })
+            .catch((error) => console.error(error));
+
+          fetch(`${config.apiURL}/hello-secret`, {
+            headers: {
+              Authorization: `Bearer ${id_token}`,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("private-api-output").textContent = data;
+            })
+            .catch((error) => console.error(error));
         })
-        .catch((error) => {
-          console.error(error);
-        });
+        .catch((error) => console.log(error));
     </script>
   </body>
 </html>
