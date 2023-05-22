@@ -107,6 +107,58 @@ resource "aws_lambda_permission" "hello_secret" {
   source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
 }
 
+# Hello DB
+resource "aws_lambda_function" "hello_db" {
+  function_name = "hello_db"
+  runtime       = "nodejs18.x"
+
+  filename         = "out/hello-db.zip"
+  source_code_hash = filebase64sha256("out/hello-db.zip")
+  handler          = "main.handler"
+
+  role = aws_iam_role.lambda_db.arn
+
+  environment {
+    variables = {
+      SPA_URL    = "https://${aws_cloudfront_distribution.spa.domain_name}",
+      TABLE_NAME = aws_dynamodb_table.chatscape.name
+      REGION     = var.region
+    }
+  }
+}
+
+resource "aws_api_gateway_resource" "hello_db" {
+  path_part   = "hello-db"
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
+}
+
+resource "aws_api_gateway_method" "hello_db" {
+  http_method   = "GET"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+
+  resource_id = aws_api_gateway_resource.hello_db.id
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+}
+
+resource "aws_api_gateway_integration" "hello_db" {
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.hello_db.invoke_arn
+  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
+  resource_id             = aws_api_gateway_resource.hello_db.id
+  http_method             = aws_api_gateway_method.hello_db.http_method
+}
+
+resource "aws_lambda_permission" "hello_db" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = aws_lambda_function.hello_db.function_name
+  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
+}
+
 # Lambda
 resource "aws_iam_role" "lambda" {
   name = "lambda"
@@ -131,6 +183,57 @@ resource "aws_iam_role_policy_attachment" "lambda" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_policy" "lambda_db" {
+  name = "lambda_db"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem"
+        ]
+        Resource = [
+          aws_dynamodb_table.chatscape.arn
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource" : "arn:aws:logs:*:*:*"
+      },
+    ]
+  })
+}
+
+
+resource "aws_iam_role" "lambda_db" {
+  name = "lambda_db"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-policy-attachment" {
+  role       = aws_iam_role.lambda_db.name
+  policy_arn = aws_iam_policy.lambda_db.arn
+}
+
 # API Gateway
 resource "aws_api_gateway_rest_api" "chatscape" {
   name = "chatscape"
@@ -145,6 +248,9 @@ resource "aws_api_gateway_deployment" "chatscape" {
 
     aws_api_gateway_integration.hello_secret,
     aws_api_gateway_integration.hello_secret_cors,
+
+    aws_api_gateway_integration.hello_db,
+    aws_api_gateway_integration.hello_db_cors,
   ]
 
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
@@ -157,6 +263,9 @@ resource "aws_api_gateway_deployment" "chatscape" {
 
       aws_api_gateway_integration.hello_secret,
       aws_api_gateway_integration.hello_secret_cors,
+
+      aws_api_gateway_integration.hello_db,
+      aws_api_gateway_integration.hello_db_cors,
     ]))
   }
 
@@ -264,6 +373,59 @@ resource "aws_api_gateway_integration_response" "hello_secret_cors" {
   resource_id = aws_api_gateway_resource.hello_secret.id
   http_method = aws_api_gateway_method.hello_secret_cors.http_method
   status_code = aws_api_gateway_method_response.hello_secret_cors_ok.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'*'"
+    "method.response.header.Access-Control-Allow-Methods" = "'*'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://${aws_cloudfront_distribution.spa.domain_name}'"
+  }
+}
+
+resource "aws_api_gateway_method" "hello_db_cors" {
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_db.id
+}
+
+resource "aws_api_gateway_integration" "hello_db_cors" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_db.id
+  http_method = aws_api_gateway_method.hello_db_cors.http_method
+
+  type = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode(
+      {
+        statusCode = 200
+      }
+    )
+  }
+}
+
+resource "aws_api_gateway_method_response" "hello_db_cors_ok" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_db.id
+  http_method = aws_api_gateway_method.hello_db_cors.http_method
+  status_code = 200
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "hello_db_cors" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.hello_db.id
+  http_method = aws_api_gateway_method.hello_db_cors.http_method
+  status_code = aws_api_gateway_method_response.hello_db_cors_ok.status_code
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'*'"
@@ -439,6 +601,21 @@ resource "aws_cognito_user_pool_client" "spa" {
   explicit_auth_flows                  = ["ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_ADMIN_USER_PASSWORD_AUTH"]
 
   supported_identity_providers = ["COGNITO"]
+}
+
+# DynamoDB
+resource "aws_dynamodb_table" "chatscape" {
+  name         = "chatscape"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "Id"
+
+  attribute {
+    name = "Id"
+    type = "S"
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
 }
 
 # Outputs

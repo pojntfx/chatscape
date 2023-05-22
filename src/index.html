@@ -9,8 +9,14 @@
   <body>
     <h1>ChatScape</h1>
 
-    <p>Public API path output: "<span id="public-api-output"></span>"</p>
-    <p>Private API path output: "<span id="private-api-output"></span>"</p>
+    <p>Public Hello API path output: "<span id="public-api-output"></span>"</p>
+    <p>
+      Private Hello API path output: "<span id="private-api-hello-output"></span
+      >"
+    </p>
+    <p>
+      Private DB API path output: "<span id="private-api-db-output"></span>"
+    </p>
 
     <script>
       fetch(window.location.href.split("#")[0] + "config.json")
@@ -28,23 +34,40 @@
 
           window.location.replace("#");
 
-          fetch(`${config.apiURL}/hello-world`)
-            .then((response) => response.json())
-            .then((data) => {
-              document.getElementById("public-api-output").textContent = data;
-            })
-            .catch((error) => console.error(error));
+          Promise.all([
+            fetch(`${config.apiURL}/hello-world`)
+              .then((response) => response.json())
+              .then((data) => {
+                document.getElementById("public-api-output").textContent =
+                  JSON.stringify(data);
+              })
+              .catch((error) => console.error(error)),
 
-          fetch(`${config.apiURL}/hello-secret`, {
-            headers: {
-              Authorization: `Bearer ${id_token}`,
-            },
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              document.getElementById("private-api-output").textContent = data;
+            fetch(`${config.apiURL}/hello-secret`, {
+              headers: {
+                Authorization: `Bearer ${id_token}`,
+              },
             })
-            .catch((error) => console.error(error));
+              .then((response) => response.json())
+              .then((data) => {
+                document.getElementById(
+                  "private-api-hello-output"
+                ).textContent = JSON.stringify(data);
+              })
+              .catch((error) => console.error(error)),
+
+            fetch(`${config.apiURL}/hello-db`, {
+              headers: {
+                Authorization: `Bearer ${id_token}`,
+              },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                document.getElementById("private-api-db-output").textContent =
+                  JSON.stringify(data);
+              })
+              .catch((error) => console.error(error)),
+          ]);
         })
         .catch((error) => console.log(error));
     </script>
