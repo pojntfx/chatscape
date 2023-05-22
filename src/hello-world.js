@@ -1,4 +1,4 @@
-SPA_URL = "https://d3bgrasa0w7u0x.cloudfront.net";
+const SPA_URL = process.env.SPA_URL;
 
 exports.handler = async () => ({
   statusCode: 200,

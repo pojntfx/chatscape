@@ -17,6 +17,12 @@ resource "aws_lambda_function" "hello_world" {
   handler          = "hello-world.handler"
 
   role = aws_iam_role.lambda.arn
+
+  environment {
+    variables = {
+      SPA_URL = "https://${aws_cloudfront_distribution.spa.domain_name}"
+    }
+  }
 }
 
 resource "aws_api_gateway_resource" "hello_world" {
@@ -61,6 +67,12 @@ resource "aws_lambda_function" "hello_secret" {
   handler          = "hello-secret.handler"
 
   role = aws_iam_role.lambda.arn
+
+  environment {
+    variables = {
+      SPA_URL = "https://${aws_cloudfront_distribution.spa.domain_name}"
+    }
+  }
 }
 
 resource "aws_api_gateway_resource" "hello_secret" {
