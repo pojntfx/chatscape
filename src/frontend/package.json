@@ -1,0 +1,30 @@
+{
+  "name": "@chatscape/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@patternfly/patternfly": "^4.224.2",
+    "@patternfly/react-core": "^4.276.8",
+    "@patternfly/react-icons": "^4.93.6",
+    "@types/node": "20.2.3",
+    "@types/react": "18.2.6",
+    "@types/react-dom": "18.2.4",
+    "eslint": "8.41.0",
+    "eslint-config-next": "13.4.3",
+    "moment": "^2.29.4",
+    "next": "13.4.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.0.4"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^8.8.0",
+    "sass": "^1.62.1"
+  }
+}

@@ -1,5 +1,7 @@
 # ChatScape
 
+![Logo](./docs/logo-readme.png)
+
 Scalable serverless chat, a uni project for the HdM cloud course.
 
 ## Overview
