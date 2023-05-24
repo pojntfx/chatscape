@@ -8,6 +8,23 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 @import "~@patternfly/patternfly/patternfly.scss";
 @import "~@patternfly/patternfly/patternfly-addons.scss";
 
-.pf-c-brand--padding {
-  padding: 0.3rem;
+.pf-c-page--background::before {
+  content: "";
+  background: url("/bg.webp");
+  background-position: 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(7.5px);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  transform: scale(1.1);
+}
+
+.pf-c-page__main-section--transparent {
+  background: transparent !important;
+}
+
+.pf-c-drawer__panel--transparent {
+  background: rgb(255 255 255 / 0.75) !important;
 }

@@ -1,64 +1,66 @@
-import Link from "next/link";
-import { ReactNode } from "react";
-import icon from "../public/logo-header.png";
 import {
-  Brand,
+  Avatar,
   Button,
-  ButtonVariant,
+  Drawer,
+  DrawerContent,
+  DrawerContentBody,
+  DrawerPanelBody,
+  DrawerPanelContent,
   Page,
-  PageHeader,
-  PageHeaderTools,
-  PageHeaderToolsGroup,
-  PageHeaderToolsItem,
   PageSection,
+  SearchInput,
   SkipToContent,
-  ToggleGroup,
-  ToggleGroupItem,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
 } from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons";
+import { EditIcon } from "@patternfly/react-icons";
 
 export default function Home() {
   return (
     <Page
-      header={
-        <PageHeader
-          logo={
-            <Brand
-              src={icon.src}
-              alt="ChatScape logo"
-              className="pf-c-brand--padding"
-            />
-          }
-          logoComponent={Link as unknown as ReactNode}
-          logoProps={{
-            href: "/",
-          }}
-          headerTools={
-            <PageHeaderTools>
-              <PageHeaderToolsGroup>
-                <PageHeaderToolsItem>
-                  <Button
-                    href="https://github.com/pojntfx/chatscape"
-                    component="a"
-                    target="_blank"
-                    aria-label="Help"
-                    variant={ButtonVariant.plain}
-                  >
-                    <HelpIcon />
-                  </Button>
-                </PageHeaderToolsItem>
-              </PageHeaderToolsGroup>
-            </PageHeaderTools>
-          }
-        />
-      }
+      className="pf-c-page--background"
       skipToContent={
         <SkipToContent href="#main">Skip to content</SkipToContent>
       }
       mainContainerId="main"
     >
-      <PageSection>
-        <h1>ChatScape</h1>
+      <PageSection
+        className="pf-u-p-0 pf-c-page__main-section--transparent"
+        id="main"
+      >
+        <Drawer isExpanded isInline position="left">
+          <DrawerContent
+            panelContent={
+              <DrawerPanelContent
+                className="pf-c-drawer__panel--transparent"
+                widths={{ default: "width_33" }}
+              >
+                <Toolbar className="pf-u-m-0" isSticky>
+                  <ToolbarContent className="pf-u-px-lg">
+                    <ToolbarItem className="pf-u-display-flex">
+                      <Avatar src="/avatar.svg" alt="avatar" />
+                    </ToolbarItem>
+
+                    <ToolbarItem className="pf-u-flex-1">
+                      <SearchInput aria-label="Search" placeholder="Search" />
+                    </ToolbarItem>
+
+                    <ToolbarItem>
+                      <Button variant="plain" aria-label="edit">
+                        <EditIcon />
+                      </Button>
+                    </ToolbarItem>
+                  </ToolbarContent>
+                </Toolbar>
+
+                <DrawerPanelBody>Hi!</DrawerPanelBody>
+              </DrawerPanelContent>
+            }
+          >
+            <DrawerContentBody className="pf-u-p-lg">Body</DrawerContentBody>
+          </DrawerContent>
+        </Drawer>
       </PageSection>
     </Page>
   );
