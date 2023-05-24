@@ -22,6 +22,26 @@ import {
 } from "@patternfly/react-core";
 import { EditIcon, EllipsisVIcon } from "@patternfly/react-icons";
 
+const contacts = [
+  {
+    name: "Jane Doe",
+    intro: "Optio, voluptate accus",
+    avatar: "/avatar.svg",
+  },
+  {
+    name: "Jean Doe",
+    intro: "Quas iste doloribus",
+    avatar: "/avatar.svg",
+  },
+  {
+    name: "Luo Wenzao",
+    intro: "Dolor sit amet",
+    avatar: "/avatar.svg",
+  },
+];
+
+const activeContactID = 0;
+
 export default function Home() {
   return (
     <Page
@@ -64,8 +84,34 @@ export default function Home() {
                   </ToolbarContent>
                 </Toolbar>
 
-                <DrawerPanelBody className="pf-c-overflow-y">
-                  Hi!
+                <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0">
+                  <List isPlain>
+                    {contacts.map((contact, id) => (
+                      <ListItem key={id}>
+                        <Button
+                          variant="plain"
+                          className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
+                          isActive={id === activeContactID}
+                        >
+                          <Avatar
+                            src={contact.avatar}
+                            alt="avatar"
+                            className="pf-u-mr-md"
+                          />
+
+                          <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
+                            <div className="pf-u-font-family-heading-sans-serif">
+                              {contact.name}
+                            </div>
+
+                            <div className="pf-u-icon-color-light">
+                              {contact.intro} ...
+                            </div>
+                          </div>
+                        </Button>
+                      </ListItem>
+                    ))}
+                  </List>
                 </DrawerPanelBody>
               </DrawerPanelContent>
             }

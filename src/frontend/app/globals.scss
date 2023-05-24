@@ -62,3 +62,12 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 .pf-c-search--main input {
   min-width: 0;
 }
+
+.pf-u-contact-selector {
+  width: calc(100% - 1rem);
+
+  &.pf-m-active {
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.075) !important;
+  }
+}
