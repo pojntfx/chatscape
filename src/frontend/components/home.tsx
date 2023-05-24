@@ -49,7 +49,11 @@ export default function Home() {
                     </ToolbarItem>
 
                     <ToolbarItem className="pf-u-flex-1">
-                      <SearchInput aria-label="Search" placeholder="Search" />
+                      <SearchInput
+                        aria-label="Search"
+                        placeholder="Search"
+                        className="pf-c-search--main"
+                      />
                     </ToolbarItem>
 
                     <ToolbarItem>
