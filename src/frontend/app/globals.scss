@@ -28,3 +28,22 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 .pf-c-drawer__panel--transparent {
   background: rgb(255 255 255 / 0.75) !important;
 }
+
+.pf-c-card--them,
+.pf-c-card--us {
+  max-width: 66%;
+  width: fit-content;
+}
+
+.pf-c-card--us {
+  margin-left: auto;
+  background: var(--pf-global--palette--blue-400) !important;
+  color: var(--pf-global--BackgroundColor--100);
+}
+
+.pf-c-date {
+  @extend .pf-u-icon-color-light;
+  @extend .pf-u-mr-xs;
+
+  width: fit-content;
+}

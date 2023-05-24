@@ -1,20 +1,25 @@
 import {
   Avatar,
   Button,
+  Card,
+  CardBody,
   Drawer,
   DrawerContent,
   DrawerContentBody,
   DrawerPanelBody,
   DrawerPanelContent,
+  List,
+  ListItem,
   Page,
   PageSection,
   SearchInput,
   SkipToContent,
   Toolbar,
   ToolbarContent,
+  ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { EditIcon } from "@patternfly/react-icons";
+import { EditIcon, EllipsisVIcon } from "@patternfly/react-icons";
 
 export default function Home() {
   return (
@@ -58,7 +63,70 @@ export default function Home() {
               </DrawerPanelContent>
             }
           >
-            <DrawerContentBody className="pf-u-p-lg">Body</DrawerContentBody>
+            <Toolbar className="pf-u-m-0" isSticky>
+              <ToolbarContent className="pf-u-px-lg">
+                <ToolbarGroup>
+                  <ToolbarItem className="pf-u-display-flex">
+                    <span className="pf-u-icon-color-light pf-u-mr-xs">
+                      To:
+                    </span>{" "}
+                    Jane Doe
+                  </ToolbarItem>
+                </ToolbarGroup>
+
+                <ToolbarGroup
+                  alignment={{
+                    default: "alignRight",
+                  }}
+                >
+                  <Button variant="plain" aria-label="edit">
+                    <EllipsisVIcon />
+                  </Button>
+                </ToolbarGroup>
+              </ToolbarContent>
+            </Toolbar>
+
+            <DrawerContentBody className="pf-u-p-lg">
+              <List isPlain>
+                <ListItem>
+                  <Card isCompact isFlat isRounded className="pf-c-card--them">
+                    <CardBody>
+                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                      Blanditiis dolor hic temporibus nesciunt enim optio,
+                      voluptate accusamus, sit eum cumque suscipit rerum, vel
+                      quae quas iste doloribus modi ipsa fugit.
+                    </CardBody>
+                  </Card>
+                </ListItem>
+                <ListItem>
+                  <span className="pf-c-date">Today 16:02</span>
+                </ListItem>
+                <ListItem>
+                  <Card isCompact isFlat isRounded className="pf-c-card--us">
+                    <CardBody>
+                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                      Blanditiis dolor hic temporibus nesciunt enim optio.
+                    </CardBody>
+                  </Card>
+                </ListItem>
+                <ListItem>
+                  <Card isCompact isFlat isRounded className="pf-c-card--us">
+                    <CardBody>Lorem!</CardBody>
+                  </Card>
+                </ListItem>
+                <ListItem>
+                  <Card isCompact isFlat isRounded className="pf-c-card--them">
+                    <CardBody>
+                      Optio, voluptate accusamus, sit eum cumque suscipit rerum,
+                      vel quae quas iste doloribus modi ipsa fugit.
+                    </CardBody>
+                  </Card>
+                </ListItem>
+                <ListItem>
+                  <span className="pf-c-date">Today 16:10</span>
+                </ListItem>
+              </List>
+            </DrawerContentBody>
           </DrawerContent>
         </Drawer>
       </PageSection>
