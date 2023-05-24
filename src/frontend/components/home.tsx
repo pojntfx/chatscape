@@ -14,6 +14,7 @@ import {
   PageSection,
   SearchInput,
   SkipToContent,
+  TextInput,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -59,7 +60,9 @@ export default function Home() {
                   </ToolbarContent>
                 </Toolbar>
 
-                <DrawerPanelBody>Hi!</DrawerPanelBody>
+                <DrawerPanelBody className="pf-c-overflow-y">
+                  Hi!
+                </DrawerPanelBody>
               </DrawerPanelContent>
             }
           >
@@ -86,7 +89,7 @@ export default function Home() {
               </ToolbarContent>
             </Toolbar>
 
-            <DrawerContentBody className="pf-u-p-lg">
+            <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
               <List isPlain>
                 <ListItem>
                   <Card isCompact isFlat isRounded className="pf-c-card--them">
@@ -127,6 +130,18 @@ export default function Home() {
                 </ListItem>
               </List>
             </DrawerContentBody>
+
+            <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
+              <ToolbarContent className="pf-u-px-lg">
+                <ToolbarItem className="pf-u-flex-1">
+                  <TextInput
+                    type="text"
+                    aria-label="Message to send"
+                    placeholder="Your message"
+                  />
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
           </DrawerContent>
         </Drawer>
       </PageSection>

@@ -23,6 +23,7 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 
 .pf-c-page__main-section--transparent {
   background: transparent !important;
+  max-height: 100%;
 }
 
 .pf-c-drawer__panel--transparent {
@@ -46,4 +47,12 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
   @extend .pf-u-mr-xs;
 
   width: fit-content;
+}
+
+.pf-c-toolbar--sticky-bottom {
+  margin-top: auto !important;
+}
+
+.pf-c-overflow-y {
+  overflow-y: auto;
 }
