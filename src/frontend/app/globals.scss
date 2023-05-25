@@ -40,7 +40,7 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 
 .pf-c-card--us {
   margin-left: auto;
-  background: var(--pf-global--palette--blue-400) !important;
+  background: var(--pf-global--BackgroundColor--dark-300) !important;
   color: var(--pf-global--BackgroundColor--100);
 }
 
@@ -106,4 +106,24 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+
+.pf-x-footer a {
+  color: unset;
+}
+
+.pf-m-primary {
+  background: var(--pf-global--BackgroundColor--dark-300) !important;
+
+  &:hover {
+    background: var(--pf-global--BackgroundColor--dark-200) !important;
+  }
+}
+
+.pf-m-link {
+  color: var(--pf-global--BackgroundColor--dark-300) !important;
+
+  &:hover {
+    color: var(--pf-global--BackgroundColor--dark-200) !important;
+  }
 }
