@@ -12,6 +12,8 @@ import {
   DropdownItem,
   DropdownPosition,
   DropdownToggle,
+  Form,
+  FormGroup,
   InputGroup,
   KebabToggle,
   List,
@@ -23,6 +25,7 @@ import {
   Popover,
   SearchInput,
   SkipToContent,
+  TextArea,
   TextInput,
   Title,
   Toolbar,
@@ -30,12 +33,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  DownloadIcon,
-  EllipsisVIcon,
-  GlobeIcon,
-  PlusIcon,
-} from "@patternfly/react-icons";
+import { DownloadIcon, GlobeIcon, PlusIcon } from "@patternfly/react-icons";
 import Image from "next/image";
 import { useState } from "react";
 import logo from "../public/logo-light.png";
@@ -62,11 +60,12 @@ const activeContactID = 0;
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
   const [accountActionsOpen, setAccountActionsOpen] = useState(false);
   const [userActionsOpen, setUserActionsOpen] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [blockModalOpen, setBlockModalOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   return (
     <Page
@@ -141,9 +140,9 @@ export default function Home() {
                             aria-label="Add a content"
                             hasAutoWidth
                             showClose={false}
-                            isVisible={popoverOpen}
-                            shouldOpen={() => setPopoverOpen(true)}
-                            shouldClose={() => setPopoverOpen(false)}
+                            isVisible={addContactPopoverOpen}
+                            shouldOpen={() => setContactPopoverOpen(true)}
+                            shouldClose={() => setContactPopoverOpen(false)}
                             bodyContent={() => (
                               <div>
                                 <div className="pf-c-title pf-m-md">
@@ -238,7 +237,11 @@ export default function Home() {
                           >
                             Block
                           </DropdownItem>,
-                          <DropdownItem key="2" component="button">
+                          <DropdownItem
+                            key="2"
+                            component="button"
+                            onClick={() => setReportModalOpen(true)}
+                          >
                             Report
                           </DropdownItem>,
                         ]}
@@ -348,7 +351,15 @@ export default function Home() {
                     target="_blank"
                   >
                     pojntfx/chatscape
+                  </a>{" "}
+                  (
+                  <a
+                    href="https://felicitas.pojtinger.com/imprint"
+                    target="_blank"
+                  >
+                    Imprint
                   </a>
+                  )
                 </p>
               </div>
             </Modal>
@@ -379,6 +390,50 @@ export default function Home() {
             >
               Are you sure you want to block Jean Doe? You will have to manually
               add them as a contact if you want to contact them again.
+            </Modal>
+
+            <Modal
+              bodyAriaLabel="Report modal"
+              variant={ModalVariant.small}
+              title="Report Jean Doe"
+              isOpen={reportModalOpen}
+              onClose={() => setReportModalOpen(false)}
+              actions={[
+                <Button
+                  key="report"
+                  variant="danger"
+                  type="submit"
+                  form="report-form"
+                >
+                  Report
+                </Button>,
+                <Button
+                  key="cancel"
+                  variant="link"
+                  onClick={() => setReportModalOpen(false)}
+                >
+                  Cancel
+                </Button>,
+              ]}
+            >
+              <Form
+                id="report-form"
+                onSubmit={() => setReportModalOpen(false)}
+                noValidate={false}
+              >
+                <FormGroup
+                  label="Your comment and the messages in violations of our policy"
+                  isRequired
+                  fieldId="report-form-comment"
+                >
+                  <TextArea
+                    isRequired
+                    required
+                    id="report-form-comment"
+                    name="report-form-comment"
+                  />
+                </FormGroup>
+              </Form>
             </Modal>
           </>
         ) : (
