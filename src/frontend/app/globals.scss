@@ -91,3 +91,19 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
   flex-wrap: wrap;
   justify-content: center;
 }
+
+.pf-x-account-actions {
+  display: flex;
+
+  span {
+    display: flex;
+  }
+}
+
+.pf-x-logo--about {
+  width: 100%;
+  max-width: 22.5rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
