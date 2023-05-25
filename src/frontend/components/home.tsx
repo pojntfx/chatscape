@@ -8,7 +8,11 @@ import {
   DrawerContentBody,
   DrawerPanelBody,
   DrawerPanelContent,
+  Dropdown,
+  DropdownItem,
+  DropdownPosition,
   InputGroup,
+  KebabToggle,
   List,
   ListItem,
   Page,
@@ -56,6 +60,7 @@ const activeContactID = 0;
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isUserActionsOpen, setIsUserActionsOpen] = useState(false);
 
   return (
     <Page
@@ -174,9 +179,34 @@ export default function Home() {
                       default: "alignRight",
                     }}
                   >
-                    <Button variant="plain" aria-label="edit">
-                      <EllipsisVIcon />
-                    </Button>
+                    <Dropdown
+                      position={DropdownPosition.right}
+                      onSelect={() => setIsUserActionsOpen((v) => !v)}
+                      toggle={
+                        <KebabToggle
+                          id="toggle-kebab"
+                          onToggle={() => setIsUserActionsOpen((v) => !v)}
+                        />
+                      }
+                      isOpen={isUserActionsOpen}
+                      isPlain
+                      dropdownItems={[
+                        <DropdownItem
+                          key="1"
+                          component="button"
+                          onClick={() =>
+                            confirm(
+                              "Are you sure you want to block this user? You will have to manually add them as a contact if you want to contact them again."
+                            )
+                          }
+                        >
+                          Block
+                        </DropdownItem>,
+                        <DropdownItem key="2" component="button">
+                          Report
+                        </DropdownItem>,
+                      ]}
+                    />
                   </ToolbarGroup>
                 </ToolbarContent>
               </Toolbar>
