@@ -66,6 +66,7 @@ export default function Home() {
   const [accountActionsOpen, setAccountActionsOpen] = useState(false);
   const [userActionsOpen, setUserActionsOpen] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
+  const [blockModalOpen, setBlockModalOpen] = useState(false);
 
   return (
     <Page
@@ -233,11 +234,7 @@ export default function Home() {
                           <DropdownItem
                             key="1"
                             component="button"
-                            onClick={() =>
-                              confirm(
-                                "Are you sure you want to block this user? You will have to manually add them as a contact if you want to contact them again."
-                              )
-                            }
+                            onClick={() => setBlockModalOpen(true)}
                           >
                             Block
                           </DropdownItem>,
@@ -354,6 +351,34 @@ export default function Home() {
                   </a>
                 </p>
               </div>
+            </Modal>
+
+            <Modal
+              bodyAriaLabel="Block modal"
+              tabIndex={0}
+              variant={ModalVariant.small}
+              title="Block Jean Doe"
+              isOpen={blockModalOpen}
+              onClose={() => setBlockModalOpen(false)}
+              actions={[
+                <Button
+                  key="confirm"
+                  variant="danger"
+                  onClick={() => setBlockModalOpen(false)}
+                >
+                  Block
+                </Button>,
+                <Button
+                  key="cancel"
+                  variant="link"
+                  onClick={() => setBlockModalOpen(false)}
+                >
+                  Cancel
+                </Button>,
+              ]}
+            >
+              Are you sure you want to block Jean Doe? You will have to manually
+              add them as a contact if you want to contact them again.
             </Modal>
           </>
         ) : (
