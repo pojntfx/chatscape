@@ -71,3 +71,23 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
     background: rgba(0, 0, 0, 0.075) !important;
   }
 }
+
+.pf-x-login-page {
+  background: rgb(255 255 255 / 0.6) !important;
+}
+
+.pf-x-logo {
+  max-width: 22.5rem;
+  width: 100%;
+}
+
+.pf-x-subtitle {
+  color: #414346;
+  text-align: center;
+}
+
+.pf-x-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}

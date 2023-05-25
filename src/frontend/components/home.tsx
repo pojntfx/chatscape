@@ -15,12 +15,21 @@ import {
   SearchInput,
   SkipToContent,
   TextInput,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { EditIcon, EllipsisVIcon } from "@patternfly/react-icons";
+import {
+  DownloadIcon,
+  EditIcon,
+  EllipsisVIcon,
+  GlobeIcon,
+} from "@patternfly/react-icons";
+import Image from "next/image";
+import { useState } from "react";
+import logo from "../public/logo-light.png";
 
 const contacts = [
   {
@@ -43,6 +52,8 @@ const contacts = [
 const activeContactID = 0;
 
 export default function Home() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
   return (
     <Page
       className="pf-c-page--background"
@@ -55,145 +66,187 @@ export default function Home() {
         className="pf-u-p-0 pf-c-page__main-section--transparent"
         id="main"
       >
-        <Drawer isExpanded isInline position="left">
-          <DrawerContent
-            panelContent={
-              <DrawerPanelContent
-                className="pf-c-drawer__panel--transparent"
-                widths={{ default: "width_33" }}
-              >
-                <Toolbar className="pf-u-m-0" isSticky>
-                  <ToolbarContent className="pf-u-px-lg">
-                    <ToolbarItem className="pf-u-display-flex">
-                      <Avatar src="/avatar.svg" alt="avatar" />
-                    </ToolbarItem>
-
-                    <ToolbarItem className="pf-u-flex-1">
-                      <SearchInput
-                        aria-label="Search"
-                        placeholder="Search"
-                        className="pf-c-search--main"
-                      />
-                    </ToolbarItem>
-
-                    <ToolbarItem>
-                      <Button variant="plain" aria-label="edit">
-                        <EditIcon />
-                      </Button>
-                    </ToolbarItem>
-                  </ToolbarContent>
-                </Toolbar>
-
-                <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0">
-                  <List isPlain>
-                    {contacts.map((contact, id) => (
-                      <ListItem key={id}>
-                        <Button
-                          variant="plain"
-                          className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
-                          isActive={id === activeContactID}
-                        >
-                          <Avatar
-                            src={contact.avatar}
-                            alt="avatar"
-                            className="pf-u-mr-md"
-                          />
-
-                          <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
-                            <div className="pf-u-font-family-heading-sans-serif">
-                              {contact.name}
-                            </div>
-
-                            <div className="pf-u-icon-color-light">
-                              {contact.intro} ...
-                            </div>
-                          </div>
-                        </Button>
-                      </ListItem>
-                    ))}
-                  </List>
-                </DrawerPanelBody>
-              </DrawerPanelContent>
-            }
-          >
-            <Toolbar className="pf-u-m-0" isSticky>
-              <ToolbarContent className="pf-u-px-lg">
-                <ToolbarGroup>
-                  <ToolbarItem className="pf-u-display-flex">
-                    <span className="pf-u-icon-color-light pf-u-mr-xs">
-                      To:
-                    </span>{" "}
-                    Jane Doe
-                  </ToolbarItem>
-                </ToolbarGroup>
-
-                <ToolbarGroup
-                  alignment={{
-                    default: "alignRight",
-                  }}
+        {loggedIn ? (
+          <Drawer isExpanded isInline position="left">
+            <DrawerContent
+              panelContent={
+                <DrawerPanelContent
+                  className="pf-c-drawer__panel--transparent"
+                  widths={{ default: "width_33" }}
                 >
-                  <Button variant="plain" aria-label="edit">
-                    <EllipsisVIcon />
-                  </Button>
-                </ToolbarGroup>
-              </ToolbarContent>
-            </Toolbar>
+                  <Toolbar className="pf-u-m-0" isSticky>
+                    <ToolbarContent className="pf-u-px-lg">
+                      <ToolbarItem className="pf-u-display-flex">
+                        <Avatar src="/avatar.svg" alt="avatar" />
+                      </ToolbarItem>
 
-            <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
-              <List isPlain>
-                <ListItem>
-                  <Card isCompact isFlat isRounded className="pf-c-card--them">
-                    <CardBody>
-                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                      Blanditiis dolor hic temporibus nesciunt enim optio,
-                      voluptate accusamus, sit eum cumque suscipit rerum, vel
-                      quae quas iste doloribus modi ipsa fugit.
-                    </CardBody>
-                  </Card>
-                </ListItem>
-                <ListItem>
-                  <span className="pf-c-date">Today 16:02</span>
-                </ListItem>
-                <ListItem>
-                  <Card isCompact isFlat isRounded className="pf-c-card--us">
-                    <CardBody>
-                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                      Blanditiis dolor hic temporibus nesciunt enim optio.
-                    </CardBody>
-                  </Card>
-                </ListItem>
-                <ListItem>
-                  <Card isCompact isFlat isRounded className="pf-c-card--us">
-                    <CardBody>Lorem!</CardBody>
-                  </Card>
-                </ListItem>
-                <ListItem>
-                  <Card isCompact isFlat isRounded className="pf-c-card--them">
-                    <CardBody>
-                      Optio, voluptate accusamus, sit eum cumque suscipit rerum,
-                      vel quae quas iste doloribus modi ipsa fugit.
-                    </CardBody>
-                  </Card>
-                </ListItem>
-                <ListItem>
-                  <span className="pf-c-date">Today 16:10</span>
-                </ListItem>
-              </List>
-            </DrawerContentBody>
+                      <ToolbarItem className="pf-u-flex-1">
+                        <SearchInput
+                          aria-label="Search"
+                          placeholder="Search"
+                          className="pf-c-search--main"
+                        />
+                      </ToolbarItem>
 
-            <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
-              <ToolbarContent className="pf-u-px-lg">
-                <ToolbarItem className="pf-u-flex-1">
-                  <TextInput
-                    type="text"
-                    aria-label="Message to send"
-                    placeholder="Your message"
-                  />
-                </ToolbarItem>
-              </ToolbarContent>
-            </Toolbar>
-          </DrawerContent>
-        </Drawer>
+                      <ToolbarItem>
+                        <Button variant="plain" aria-label="edit">
+                          <EditIcon />
+                        </Button>
+                      </ToolbarItem>
+                    </ToolbarContent>
+                  </Toolbar>
+
+                  <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0">
+                    <List isPlain>
+                      {contacts.map((contact, id) => (
+                        <ListItem key={id}>
+                          <Button
+                            variant="plain"
+                            className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
+                            isActive={id === activeContactID}
+                          >
+                            <Avatar
+                              src={contact.avatar}
+                              alt="avatar"
+                              className="pf-u-mr-md"
+                            />
+
+                            <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
+                              <div className="pf-u-font-family-heading-sans-serif">
+                                {contact.name}
+                              </div>
+
+                              <div className="pf-u-icon-color-light">
+                                {contact.intro} ...
+                              </div>
+                            </div>
+                          </Button>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </DrawerPanelBody>
+                </DrawerPanelContent>
+              }
+            >
+              <Toolbar className="pf-u-m-0" isSticky>
+                <ToolbarContent className="pf-u-px-lg">
+                  <ToolbarGroup>
+                    <ToolbarItem className="pf-u-display-flex">
+                      <span className="pf-u-icon-color-light pf-u-mr-xs">
+                        To:
+                      </span>{" "}
+                      Jane Doe
+                    </ToolbarItem>
+                  </ToolbarGroup>
+
+                  <ToolbarGroup
+                    alignment={{
+                      default: "alignRight",
+                    }}
+                  >
+                    <Button variant="plain" aria-label="edit">
+                      <EllipsisVIcon />
+                    </Button>
+                  </ToolbarGroup>
+                </ToolbarContent>
+              </Toolbar>
+
+              <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
+                <List isPlain>
+                  <ListItem>
+                    <Card
+                      isCompact
+                      isFlat
+                      isRounded
+                      className="pf-c-card--them"
+                    >
+                      <CardBody>
+                        Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit. Blanditiis dolor hic temporibus nesciunt enim
+                        optio, voluptate accusamus, sit eum cumque suscipit
+                        rerum, vel quae quas iste doloribus modi ipsa fugit.
+                      </CardBody>
+                    </Card>
+                  </ListItem>
+                  <ListItem>
+                    <span className="pf-c-date">Today 16:02</span>
+                  </ListItem>
+                  <ListItem>
+                    <Card isCompact isFlat isRounded className="pf-c-card--us">
+                      <CardBody>
+                        Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit. Blanditiis dolor hic temporibus nesciunt enim
+                        optio.
+                      </CardBody>
+                    </Card>
+                  </ListItem>
+                  <ListItem>
+                    <Card isCompact isFlat isRounded className="pf-c-card--us">
+                      <CardBody>Lorem!</CardBody>
+                    </Card>
+                  </ListItem>
+                  <ListItem>
+                    <Card
+                      isCompact
+                      isFlat
+                      isRounded
+                      className="pf-c-card--them"
+                    >
+                      <CardBody>
+                        Optio, voluptate accusamus, sit eum cumque suscipit
+                        rerum, vel quae quas iste doloribus modi ipsa fugit.
+                      </CardBody>
+                    </Card>
+                  </ListItem>
+                  <ListItem>
+                    <span className="pf-c-date">Today 16:10</span>
+                  </ListItem>
+                </List>
+              </DrawerContentBody>
+
+              <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
+                <ToolbarContent className="pf-u-px-lg">
+                  <ToolbarItem className="pf-u-flex-1">
+                    <TextInput
+                      type="text"
+                      aria-label="Message to send"
+                      placeholder="Your message"
+                    />
+                  </ToolbarItem>
+                </ToolbarContent>
+              </Toolbar>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-md">
+            <Image src={logo} alt="ChatScape logo" className="pf-x-logo" />
+
+            <Title
+              headingLevel="h3"
+              className="pf-u-mt-sm pf-u-mb-lg pf-x-subtitle"
+            >
+              Scalable Serverless Chat
+            </Title>
+
+            <div className="pf-x-ctas">
+              <Button
+                variant="primary"
+                icon={<DownloadIcon />}
+                className="pf-u-mr-0 pf-u-mr-sm-on-sm pf-u-mb-sm pf-u-mb-0-on-sm"
+                onClick={() => setLoggedIn(true)}
+              >
+                Download the app
+              </Button>{" "}
+              <Button
+                variant="link"
+                className="pf-u-mb-sm pf-u-mb-0-on-sm"
+                onClick={() => setLoggedIn(true)}
+              >
+                Open in browser <GlobeIcon />
+              </Button>
+            </div>
+          </div>
+        )}
       </PageSection>
     </Page>
   );
