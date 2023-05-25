@@ -8,10 +8,12 @@ import {
   DrawerContentBody,
   DrawerPanelBody,
   DrawerPanelContent,
+  InputGroup,
   List,
   ListItem,
   Page,
   PageSection,
+  Popover,
   SearchInput,
   SkipToContent,
   TextInput,
@@ -23,9 +25,9 @@ import {
 } from "@patternfly/react-core";
 import {
   DownloadIcon,
-  EditIcon,
   EllipsisVIcon,
   GlobeIcon,
+  PlusIcon,
 } from "@patternfly/react-icons";
 import Image from "next/image";
 import { useState } from "react";
@@ -53,6 +55,7 @@ const activeContactID = 0;
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   return (
     <Page
@@ -89,9 +92,36 @@ export default function Home() {
                       </ToolbarItem>
 
                       <ToolbarItem>
-                        <Button variant="plain" aria-label="edit">
-                          <EditIcon />
-                        </Button>
+                        <Popover
+                          aria-label="Add a content"
+                          hasAutoWidth
+                          showClose={false}
+                          isVisible={isPopoverOpen}
+                          shouldOpen={() => setIsPopoverOpen(true)}
+                          shouldClose={() => setIsPopoverOpen(false)}
+                          bodyContent={() => (
+                            <div>
+                              <div className="pf-c-title pf-m-md">
+                                Add a contact
+                              </div>
+
+                              <InputGroup className="pf-u-mt-md">
+                                <TextInput
+                                  aria-label="Email of the account to add"
+                                  type="email"
+                                  placeholder="jean.doe@example.com"
+                                />
+                                <Button variant="control">
+                                  <PlusIcon />
+                                </Button>
+                              </InputGroup>
+                            </div>
+                          )}
+                        >
+                          <Button variant="plain" aria-label="edit">
+                            <PlusIcon />
+                          </Button>
+                        </Popover>
                       </ToolbarItem>
                     </ToolbarContent>
                   </Toolbar>
