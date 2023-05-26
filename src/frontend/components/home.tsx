@@ -43,20 +43,134 @@ const contacts = [
     name: "Jane Doe",
     intro: "Optio, voluptate accus",
     avatar: "/avatar.svg",
+    messages: [
+      {
+        them: true,
+        body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis dolor hic temporibus nesciunt enim optio, voluptate accusamus, sit eum cumque suscipit rerum, vel quae quas iste doloribus modi ipsa fugit.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 5);
+
+          return now;
+        })(),
+      },
+      {
+        them: false,
+        body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis dolor hic temporibus nesciunt enim optio.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 2);
+
+          return now;
+        })(),
+      },
+      {
+        them: false,
+        body: "Lorem!",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 2);
+
+          return now;
+        })(),
+      },
+      {
+        them: true,
+        body: "Optio, voluptate accusamus, sit eum cumque suscipit rerum, vel quae quas iste doloribus modi ipsa fugit.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 1);
+
+          return now;
+        })(),
+      },
+    ],
   },
   {
     name: "Jean Doe",
     intro: "Quas iste doloribus",
     avatar: "/avatar.svg",
+    messages: [
+      {
+        them: false,
+        body: "Pharetra sit amet magna. Sed sollicitudin quam eu malesuada dapibus. Nullam risus nibh, aliquet vitae faucibus sit amet, pretium ac mi. Vivamus vulputate gravida enim, non finibus justo pretium commodo.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 5);
+
+          return now;
+        })(),
+      },
+      {
+        them: true,
+        body: "Fusce vestibulum porttitor nibh, non pellentesque lacus lobortis non. Pellentesque tincidunt et ipsum quis iaculis. Sed vulputate imperdiet facilisis.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 5);
+
+          return now;
+        })(),
+      },
+    ],
   },
   {
     name: "Luo Wenzao",
     intro: "Dolor sit amet",
     avatar: "/avatar.svg",
+    messages: [
+      {
+        them: true,
+        body: "Suspendisse vulputate, ipsum consectetur lacinia rhoncus, ante lacus pharetra quam, eget accumsan felis justo eget leo.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 5);
+
+          return now;
+        })(),
+      },
+      {
+        them: true,
+        body: "Interdum et malesuada fames ac ante ipsum primis in faucibus.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 5);
+
+          return now;
+        })(),
+      },
+      {
+        them: true,
+        body: "Donec aliquam nibh eu risus sollicitudin",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours() - 3);
+
+          return now;
+        })(),
+      },
+      {
+        them: false,
+        body: "Maecenas rhoncus sapien et varius pulvinar.",
+        date: (() => {
+          const now = new Date();
+
+          now.setHours(now.getHours());
+
+          return now;
+        })(),
+      },
+    ],
   },
 ];
-
-const activeContactID = 0;
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -66,6 +180,7 @@ export default function Home() {
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [blockModalOpen, setBlockModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [activeContactID, setActiveContactID] = useState(0);
 
   return (
     <Page
@@ -178,6 +293,7 @@ export default function Home() {
                               variant="plain"
                               className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
                               isActive={id === activeContactID}
+                              onClick={() => setActiveContactID(id)}
                             >
                               <Avatar
                                 src={contact.avatar}
@@ -252,64 +368,44 @@ export default function Home() {
 
                 <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
                   <List isPlain>
-                    <ListItem>
-                      <Card
-                        isCompact
-                        isFlat
-                        isRounded
-                        className="pf-c-card--them"
-                      >
-                        <CardBody>
-                          Lorem ipsum, dolor sit amet consectetur adipisicing
-                          elit. Blanditiis dolor hic temporibus nesciunt enim
-                          optio, voluptate accusamus, sit eum cumque suscipit
-                          rerum, vel quae quas iste doloribus modi ipsa fugit.
-                        </CardBody>
-                      </Card>
-                    </ListItem>
-                    <ListItem>
-                      <span className="pf-c-date">Today 16:02</span>
-                    </ListItem>
-                    <ListItem>
-                      <Card
-                        isCompact
-                        isFlat
-                        isRounded
-                        className="pf-c-card--us"
-                      >
-                        <CardBody>
-                          Lorem ipsum, dolor sit amet consectetur adipisicing
-                          elit. Blanditiis dolor hic temporibus nesciunt enim
-                          optio.
-                        </CardBody>
-                      </Card>
-                    </ListItem>
-                    <ListItem>
-                      <Card
-                        isCompact
-                        isFlat
-                        isRounded
-                        className="pf-c-card--us"
-                      >
-                        <CardBody>Lorem!</CardBody>
-                      </Card>
-                    </ListItem>
-                    <ListItem>
-                      <Card
-                        isCompact
-                        isFlat
-                        isRounded
-                        className="pf-c-card--them"
-                      >
-                        <CardBody>
-                          Optio, voluptate accusamus, sit eum cumque suscipit
-                          rerum, vel quae quas iste doloribus modi ipsa fugit.
-                        </CardBody>
-                      </Card>
-                    </ListItem>
-                    <ListItem>
-                      <span className="pf-c-date">Today 16:10</span>
-                    </ListItem>
+                    {contacts[activeContactID].messages.map((message, id) => (
+                      <>
+                        <ListItem key={id}>
+                          <Card
+                            isCompact
+                            isFlat
+                            isRounded
+                            className={
+                              message.them ? "pf-c-card--them" : "pf-c-card--us"
+                            }
+                          >
+                            <CardBody>{message.body}</CardBody>
+                          </Card>
+                        </ListItem>
+
+                        {contacts[activeContactID].messages[id + 1] &&
+                          Math.abs(
+                            message.date.getTime() -
+                              contacts[activeContactID].messages[
+                                id + 1
+                              ].date.getTime()
+                          ) /
+                            (1000 * 60 * 60) >
+                            2 && (
+                            <ListItem>
+                              <span className="pf-c-date">
+                                {`Today ${message.date
+                                  .getHours()
+                                  .toString()
+                                  .padStart(2, "0")}:${message.date
+                                  .getMinutes()
+                                  .toString()
+                                  .padStart(2, "0")}`}
+                              </span>
+                            </ListItem>
+                          )}
+                      </>
+                    ))}
                   </List>
                 </DrawerContentBody>
 
