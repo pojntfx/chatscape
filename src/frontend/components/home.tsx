@@ -35,7 +35,7 @@ import {
 } from "@patternfly/react-core";
 import { DownloadIcon, GlobeIcon, PlusIcon } from "@patternfly/react-icons";
 import Image from "next/image";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import logo from "../public/logo-light.png";
 
 const contacts = [
@@ -369,8 +369,8 @@ export default function Home() {
                 <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
                   <List isPlain>
                     {contacts[activeContactID].messages.map((message, id) => (
-                      <>
-                        <ListItem key={id}>
+                      <Fragment key={id}>
+                        <ListItem>
                           <Card
                             isCompact
                             isFlat
@@ -383,7 +383,7 @@ export default function Home() {
                           </Card>
                         </ListItem>
 
-                        {contacts[activeContactID].messages[id + 1] &&
+                        {(contacts[activeContactID].messages[id + 1] &&
                           Math.abs(
                             message.date.getTime() -
                               contacts[activeContactID].messages[
@@ -391,20 +391,21 @@ export default function Home() {
                               ].date.getTime()
                           ) /
                             (1000 * 60 * 60) >
-                            2 && (
-                            <ListItem>
-                              <span className="pf-c-date">
-                                {`Today ${message.date
-                                  .getHours()
-                                  .toString()
-                                  .padStart(2, "0")}:${message.date
-                                  .getMinutes()
-                                  .toString()
-                                  .padStart(2, "0")}`}
-                              </span>
-                            </ListItem>
-                          )}
-                      </>
+                            2) ||
+                        id === contacts[activeContactID].messages.length - 1 ? (
+                          <ListItem>
+                            <span className="pf-c-date">
+                              {`Today ${message.date
+                                .getHours()
+                                .toString()
+                                .padStart(2, "0")}:${message.date
+                                .getMinutes()
+                                .toString()
+                                .padStart(2, "0")}`}
+                            </span>
+                          </ListItem>
+                        ) : null}
+                      </Fragment>
                     ))}
                   </List>
                 </DrawerContentBody>
