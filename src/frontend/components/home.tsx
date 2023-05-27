@@ -37,6 +37,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import {
+  ChevronLeftIcon,
   DownloadIcon,
   GlobeIcon,
   InfoCircleIcon,
@@ -194,6 +195,7 @@ export default function Home() {
   const [activeContactID, setActiveContactID] = useState(0);
   const [contacts, setContacts] = useState<typeof api>();
   const [showContactEmailOpen, setShowContactEmailOpen] = useState(false);
+  const [drawerExpanded, setDrawerExpanded] = useState(true);
 
   useEffect(() => {
     if (loggedIn) setTimeout(() => setContacts(api), 2000);
@@ -213,7 +215,7 @@ export default function Home() {
       >
         {loggedIn ? (
           <>
-            <Drawer isExpanded isInline position="left">
+            <Drawer isExpanded={drawerExpanded} isInline position="left">
               <DrawerContent
                 panelContent={
                   <DrawerPanelContent
@@ -298,7 +300,7 @@ export default function Home() {
                               </div>
                             )}
                           >
-                            <Button variant="plain" aria-label="edit">
+                            <Button variant="plain" aria-label="Add a contact">
                               <PlusIcon />
                             </Button>
                           </Popover>
@@ -315,7 +317,10 @@ export default function Home() {
                                 variant="plain"
                                 className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
                                 isActive={id === activeContactID}
-                                onClick={() => setActiveContactID(id)}
+                                onClick={() => {
+                                  setActiveContactID(id);
+                                  setDrawerExpanded(false);
+                                }}
                               >
                                 <Avatar
                                   src={contact.avatar}
@@ -348,8 +353,18 @@ export default function Home() {
                 }
               >
                 <Toolbar className="pf-u-m-0" isSticky>
-                  <ToolbarContent className="pf-u-px-lg">
+                  <ToolbarContent>
                     <ToolbarGroup>
+                      <ToolbarItem>
+                        <Button
+                          variant="plain"
+                          aria-label="Back"
+                          onClick={() => setDrawerExpanded(true)}
+                        >
+                          <ChevronLeftIcon />
+                        </Button>
+                      </ToolbarItem>
+
                       <ToolbarItem className="pf-u-display-flex">
                         <span className="pf-u-icon-color-light pf-u-mr-xs">
                           To:
@@ -445,7 +460,6 @@ export default function Home() {
                           <ListItem>
                             <Card
                               isCompact
-                              isFlat
                               isRounded
                               className={
                                 message.them
@@ -533,7 +547,7 @@ export default function Home() {
                 </DrawerContentBody>
 
                 <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
-                  <ToolbarContent className="pf-u-px-lg">
+                  <ToolbarContent>
                     <ToolbarItem className="pf-u-flex-1">
                       {contacts ? (
                         <TextInput
