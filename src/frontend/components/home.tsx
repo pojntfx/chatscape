@@ -217,7 +217,11 @@ export default function Home() {
               <DrawerContent
                 panelContent={
                   <DrawerPanelContent
-                    className="pf-c-drawer__panel--transparent"
+                    className={
+                      contacts
+                        ? "pf-c-drawer__panel--transparent"
+                        : "pf-c-drawer__panel--loading"
+                    }
                     widths={{ default: "width_33" }}
                   >
                     <Toolbar className="pf-u-m-0" isSticky>
@@ -303,44 +307,42 @@ export default function Home() {
                     </Toolbar>
 
                     <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0">
-                      <List isPlain>
-                        {contacts
-                          ? contacts.map((contact, id) => (
-                              <ListItem key={id}>
-                                <Button
-                                  variant="plain"
-                                  className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
-                                  isActive={id === activeContactID}
-                                  onClick={() => setActiveContactID(id)}
-                                >
-                                  <Avatar
-                                    src={contact.avatar}
-                                    alt="avatar"
-                                    className="pf-u-mr-md"
-                                  />
-
-                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
-                                    <div className="pf-u-font-family-heading-sans-serif">
-                                      {contact.name}
-                                    </div>
-
-                                    <div className="pf-u-icon-color-light">
-                                      {contact.intro} ...
-                                    </div>
-                                  </div>
-                                </Button>
-                              </ListItem>
-                            ))
-                          : [0, 1, 2].map((_, id) => (
-                              <ListItem key={id}>
-                                <Skeleton
-                                  screenreaderText="Loading contacts"
-                                  height="80px"
-                                  className="pf-u-p-md pf-u-m-sm pf-u-contact-selector pf-x-skeleton--transparent"
+                      {contacts ? (
+                        <List isPlain>
+                          {contacts.map((contact, id) => (
+                            <ListItem key={id}>
+                              <Button
+                                variant="plain"
+                                className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
+                                isActive={id === activeContactID}
+                                onClick={() => setActiveContactID(id)}
+                              >
+                                <Avatar
+                                  src={contact.avatar}
+                                  alt="avatar"
+                                  className="pf-u-mr-md"
                                 />
-                              </ListItem>
-                            ))}
-                      </List>
+
+                                <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
+                                  <div className="pf-u-font-family-heading-sans-serif">
+                                    {contact.name}
+                                  </div>
+
+                                  <div className="pf-u-icon-color-light">
+                                    {contact.intro} ...
+                                  </div>
+                                </div>
+                              </Button>
+                            </ListItem>
+                          ))}
+                        </List>
+                      ) : (
+                        <Skeleton
+                          screenreaderText="Loading contacts"
+                          height="100%"
+                          className="pf-x-skeleton--transparent"
+                        />
+                      )}
                     </DrawerPanelBody>
                   </DrawerPanelContent>
                 }
@@ -383,7 +385,7 @@ export default function Home() {
                           </div>
                         ) : (
                           <Skeleton
-                            screenreaderText="Loading contacts"
+                            screenreaderText="Loading info"
                             width="100px"
                           />
                         )}
@@ -426,7 +428,7 @@ export default function Home() {
                         />
                       ) : (
                         <Skeleton
-                          screenreaderText="Loading contacts"
+                          screenreaderText="Loading actions"
                           height="36px"
                           width="48px"
                         />
@@ -437,75 +439,96 @@ export default function Home() {
 
                 <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
                   <List isPlain>
-                    {contacts
-                      ? contacts[activeContactID].messages.map(
-                          (message, id) => (
-                            <Fragment key={id}>
-                              <ListItem>
-                                <Card
-                                  isCompact
-                                  isFlat
-                                  isRounded
-                                  className={
-                                    message.them
-                                      ? "pf-c-card--them"
-                                      : "pf-c-card--us"
-                                  }
-                                >
-                                  <CardBody>{message.body}</CardBody>
-                                </Card>
-                              </ListItem>
-
-                              {(contacts[activeContactID].messages[id + 1] &&
-                                Math.abs(
-                                  message.date.getTime() -
-                                    contacts[activeContactID].messages[
-                                      id + 1
-                                    ].date.getTime()
-                                ) /
-                                  (1000 * 60 * 60) >
-                                  2) ||
-                              id ===
-                                contacts[activeContactID].messages.length -
-                                  1 ? (
-                                <ListItem>
-                                  <span className="pf-c-date">
-                                    {`Today ${message.date
-                                      .getHours()
-                                      .toString()
-                                      .padStart(2, "0")}:${message.date
-                                      .getMinutes()
-                                      .toString()
-                                      .padStart(2, "0")}`}
-                                  </span>
-                                </ListItem>
-                              ) : null}
-                            </Fragment>
-                          )
-                        )
-                      : [0, 1, 2].map((_, id) => (
-                          <ListItem key={id}>
+                    {contacts ? (
+                      contacts[activeContactID].messages.map((message, id) => (
+                        <Fragment key={id}>
+                          <ListItem>
                             <Card
                               isCompact
                               isFlat
                               isRounded
                               className={
-                                "pf-u-w-100 " +
-                                (id % 2 == 0
+                                message.them
                                   ? "pf-c-card--them"
-                                  : "pf-c-card--us")
+                                  : "pf-c-card--us"
                               }
                             >
-                              <CardBody>
-                                <Skeleton
-                                  screenreaderText="Loading contacts"
-                                  height="42px"
-                                  className="pf-x-skeleton--transparent"
-                                />
-                              </CardBody>
+                              <CardBody>{message.body}</CardBody>
                             </Card>
                           </ListItem>
-                        ))}
+
+                          {(contacts[activeContactID].messages[id + 1] &&
+                            Math.abs(
+                              message.date.getTime() -
+                                contacts[activeContactID].messages[
+                                  id + 1
+                                ].date.getTime()
+                            ) /
+                              (1000 * 60 * 60) >
+                              2) ||
+                          id ===
+                            contacts[activeContactID].messages.length - 1 ? (
+                            <ListItem>
+                              <span className="pf-c-date">
+                                {`Today ${message.date
+                                  .getHours()
+                                  .toString()
+                                  .padStart(2, "0")}:${message.date
+                                  .getMinutes()
+                                  .toString()
+                                  .padStart(2, "0")}`}
+                              </span>
+                            </ListItem>
+                          ) : null}
+                        </Fragment>
+                      ))
+                    ) : (
+                      <>
+                        <ListItem>
+                          <Skeleton
+                            screenreaderText="Loading messages"
+                            width="90%"
+                          />
+                        </ListItem>
+
+                        <ListItem>
+                          <Skeleton
+                            screenreaderText="Loading messages"
+                            width="66%"
+                          />
+                        </ListItem>
+
+                        <ListItem>
+                          <Skeleton
+                            screenreaderText="Loading messages"
+                            width="77%"
+                          />
+                        </ListItem>
+
+                        <ListItem>
+                          <Skeleton
+                            screenreaderText="Loading messages"
+                            width="33%"
+                          />
+                        </ListItem>
+
+                        <ListItem className="pf-u-mt-3xl">
+                          <Skeleton
+                            screenreaderText="Loading messages"
+                            width="66%"
+                            className="pf-u-ml-auto"
+                          />
+                        </ListItem>
+
+                        <ListItem>
+                          <Skeleton
+                            screenreaderText="Loading messages"
+                            width="33%"
+                            className="pf-u-ml-auto"
+                          />
+                        </ListItem>
+                      </>
+                    )}
                   </List>
                 </DrawerContentBody>
 
@@ -520,7 +543,7 @@ export default function Home() {
                         />
                       ) : (
                         <Skeleton
-                          screenreaderText="Loading contacts"
+                          screenreaderText="Loading message input"
                           width="100%"
                           height="36px"
                         />
