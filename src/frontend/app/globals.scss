@@ -70,8 +70,7 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 }
 
 .pf-u-contact-selector {
-  width: calc(100% - 1rem);
-  border-radius: 8px !important;
+  border-radius: 0 !important;
 
   &.pf-m-active {
     background: rgba(0, 0, 0, 0.075) !important;
@@ -141,4 +140,10 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 
 .pf-x-popover--extra {
   cursor: pointer;
+}
+
+.pf-x-contact-list {
+  li {
+    margin-top: 0 !important;
+  }
 }

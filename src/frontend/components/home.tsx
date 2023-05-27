@@ -52,7 +52,7 @@ const api = [
     name: "Jane Doe",
     email: "jane@doe.com",
     intro: "Optio, voluptate accus",
-    avatar: "/avatar.svg",
+    avatar: "https://i.pravatar.cc/300?u=jane",
     messages: [
       {
         them: true,
@@ -104,7 +104,7 @@ const api = [
     name: "Jean Doe",
     email: "jean@doe.com",
     intro: "Quas iste doloribus",
-    avatar: "/avatar.svg",
+    avatar: "https://i.pravatar.cc/300?u=jean",
     messages: [
       {
         them: false,
@@ -134,7 +134,7 @@ const api = [
     name: "Luo Wenzao",
     email: "luo@wenzao.com",
     intro: "Dolor sit amet",
-    avatar: "/avatar.svg",
+    avatar: "https://i.pravatar.cc/300?u=luo",
     messages: [
       {
         them: true,
@@ -227,7 +227,7 @@ export default function Home() {
                     widths={{ default: "width_33" }}
                   >
                     <Toolbar className="pf-u-m-0" isSticky>
-                      <ToolbarContent className="pf-u-px-lg">
+                      <ToolbarContent>
                         <ToolbarItem className="pf-u-display-flex">
                           <Dropdown
                             onSelect={() => setAccountActionsOpen((v) => !v)}
@@ -241,7 +241,10 @@ export default function Home() {
                                 aria-label="Toggle account actions"
                                 className="pf-u-p-0 pf-x-account-actions"
                               >
-                                <Avatar src="/avatar.svg" alt="avatar" />
+                                <Avatar
+                                  src="https://i.pravatar.cc/300?u=raina"
+                                  alt="avatar"
+                                />
                               </DropdownToggle>
                             }
                             isOpen={accountActionsOpen}
@@ -308,14 +311,14 @@ export default function Home() {
                       </ToolbarContent>
                     </Toolbar>
 
-                    <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0">
+                    <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0 pf-x-contact-list">
                       {contacts ? (
                         <List isPlain>
                           {contacts.map((contact, id) => (
                             <ListItem key={id}>
                               <Button
                                 variant="plain"
-                                className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
+                                className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
                                 isActive={id === activeContactID}
                                 onClick={() => {
                                   setActiveContactID(id);
