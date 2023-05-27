@@ -242,11 +242,7 @@ export default function Home() {
               <DrawerContent
                 panelContent={
                   <DrawerPanelContent
-                    className={
-                      contacts
-                        ? "pf-c-drawer__panel--transparent"
-                        : "pf-c-drawer__panel--loading"
-                    }
+                    className="pf-c-drawer__panel--transparent"
                     widths={{ default: "width_33" }}
                   >
                     <Toolbar className="pf-u-m-0" isSticky>
@@ -335,48 +331,82 @@ export default function Home() {
                     </Toolbar>
 
                     <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0 pf-x-contact-list">
-                      {contacts ? (
-                        <List isPlain>
-                          {contacts.map((contact, id) => (
-                            <ListItem key={id}>
-                              <Button
-                                variant="plain"
-                                className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
-                                isActive={id === activeContactID}
-                                onClick={() => {
-                                  setActiveContactID(id);
+                      <List isPlain>
+                        {contacts
+                          ? contacts.map((contact, id) => (
+                              <ListItem key={id}>
+                                <Button
+                                  variant="plain"
+                                  className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
+                                  isActive={id === activeContactID}
+                                  onClick={() => {
+                                    setActiveContactID(id);
 
-                                  if (!(!width || width >= 768)) {
-                                    setDrawerExpanded(false);
-                                  }
-                                }}
-                              >
-                                <Avatar
-                                  src={contact.avatar}
-                                  alt="avatar"
-                                  className="pf-u-mr-md"
-                                />
+                                    if (!(!width || width >= 768)) {
+                                      setDrawerExpanded(false);
+                                    }
+                                  }}
+                                >
+                                  <Avatar
+                                    src={contact.avatar}
+                                    alt="avatar"
+                                    className="pf-u-mr-md"
+                                  />
 
-                                <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
-                                  <div className="pf-u-font-family-heading-sans-serif">
-                                    {contact.name}
+                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
+                                    <div className="pf-u-font-family-heading-sans-serif">
+                                      {contact.name}
+                                    </div>
+
+                                    <div className="pf-u-icon-color-light">
+                                      {contact.intro} ...
+                                    </div>
                                   </div>
+                                </Button>
+                              </ListItem>
+                            ))
+                          : [0, 1, 2].map((_, id) => (
+                              <ListItem key={id}>
+                                <Button
+                                  variant="plain"
+                                  className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
+                                  disabled
+                                >
+                                  <Skeleton
+                                    shape="circle"
+                                    width="36px"
+                                    height="36px"
+                                    screenreaderText="Loading avatar"
+                                    className="pf-u-mr-md"
+                                  />
 
-                                  <div className="pf-u-icon-color-light">
-                                    {contact.intro} ...
+                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center pf-u-flex-1">
+                                    <div className="pf-u-font-family-heading-sans-serif pf-u-w-100 pf-u-pb-sm">
+                                      <Skeleton
+                                        screenreaderText="Loading contact info"
+                                        width={
+                                          (id % 2 != 0 ? 33 : 66) +
+                                          (id % 2) * 10 +
+                                          "%"
+                                        }
+                                      />
+                                    </div>
+
+                                    <div className="pf-u-icon-color-light pf-u-w-100">
+                                      <Skeleton
+                                        screenreaderText="Loading contact info"
+                                        width={
+                                          (id % 2 == 0 ? 33 : 66) +
+                                          (id % 2) * 10 +
+                                          "%"
+                                        }
+                                      />
+                                    </div>
                                   </div>
-                                </div>
-                              </Button>
-                            </ListItem>
-                          ))}
-                        </List>
-                      ) : (
-                        <Skeleton
-                          screenreaderText="Loading contacts"
-                          height="100%"
-                          className="pf-x-skeleton--transparent"
-                        />
-                      )}
+                                </Button>
+                              </ListItem>
+                            ))}
+                      </List>
                     </DrawerPanelBody>
                   </DrawerPanelContent>
                 }
@@ -429,7 +459,7 @@ export default function Home() {
                           </div>
                         ) : (
                           <Skeleton
-                            screenreaderText="Loading info"
+                            screenreaderText="Loading contact info"
                             width="100px"
                           />
                         )}
