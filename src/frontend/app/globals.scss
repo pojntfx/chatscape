@@ -65,9 +65,9 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 
 .pf-u-contact-selector {
   width: calc(100% - 1rem);
+  border-radius: 8px !important;
 
   &.pf-m-active {
-    border-radius: 8px;
     background: rgba(0, 0, 0, 0.075) !important;
   }
 }
@@ -126,4 +126,8 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
   &:hover {
     color: var(--pf-global--BackgroundColor--dark-200) !important;
   }
+}
+
+.pf-x-skeleton--transparent {
+  opacity: 0.7;
 }
