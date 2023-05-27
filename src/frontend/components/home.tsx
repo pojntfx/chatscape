@@ -65,6 +65,19 @@ const useWindowWidth = () => {
   return windowSize;
 };
 
+interface IContact {
+  name: string;
+  email: string;
+  intro: string;
+  avatar: string;
+}
+
+interface IMessage {
+  them: boolean;
+  body: string;
+  date: Date;
+}
+
 const api = [
   {
     name: "Jane Doe",
@@ -211,10 +224,12 @@ export default function Home() {
   const [blockModalOpen, setBlockModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [activeContactID, setActiveContactID] = useState(0);
-  const [contacts, setContacts] = useState<typeof api>();
   const [showContactEmailOpen, setShowContactEmailOpen] = useState(false);
   const [drawerExpanded, setDrawerExpanded] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
+
+  const [contacts, setContacts] = useState<IContact[]>();
+  const [messages, setMessages] = useState<IMessage[]>();
 
   const width = useWindowWidth();
 
@@ -231,6 +246,10 @@ export default function Home() {
       setDrawerExpanded(true);
     }
   }, [width]);
+
+  useEffect(() => {
+    if (contacts) setMessages(api[activeContactID].messages);
+  }, [contacts, activeContactID]);
 
   return (
     <Page
@@ -535,8 +554,8 @@ export default function Home() {
 
                 <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
                   <List isPlain>
-                    {contacts ? (
-                      contacts[activeContactID].messages.map((message, id) => (
+                    {messages ? (
+                      messages.map((message, id) => (
                         <Fragment key={id}>
                           <ListItem>
                             <Card
@@ -552,17 +571,14 @@ export default function Home() {
                             </Card>
                           </ListItem>
 
-                          {(contacts[activeContactID].messages[id + 1] &&
+                          {(messages[id + 1] &&
                             Math.abs(
                               message.date.getTime() -
-                                contacts[activeContactID].messages[
-                                  id + 1
-                                ].date.getTime()
+                                messages[id + 1].date.getTime()
                             ) /
                               (1000 * 60 * 60) >
                               2) ||
-                          id ===
-                            contacts[activeContactID].messages.length - 1 ? (
+                          id === messages.length - 1 ? (
                             <ListItem>
                               <span className="pf-c-date">
                                 {`Today ${message.date
