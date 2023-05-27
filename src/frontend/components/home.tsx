@@ -42,6 +42,7 @@ import logo from "../public/logo-light.png";
 const api = [
   {
     name: "Jane Doe",
+    email: "jane@doe.com",
     intro: "Optio, voluptate accus",
     avatar: "/avatar.svg",
     messages: [
@@ -93,6 +94,7 @@ const api = [
   },
   {
     name: "Jean Doe",
+    email: "jean@doe.com",
     intro: "Quas iste doloribus",
     avatar: "/avatar.svg",
     messages: [
@@ -122,6 +124,7 @@ const api = [
   },
   {
     name: "Luo Wenzao",
+    email: "luo@wenzao.com",
     intro: "Dolor sit amet",
     avatar: "/avatar.svg",
     messages: [
@@ -342,7 +345,12 @@ export default function Home() {
                           To:
                         </span>{" "}
                         {contacts ? (
-                          "Jane Doe"
+                          <>
+                            {contacts[activeContactID].name}{" "}
+                            <span className="pf-u-icon-color-light pf-u-ml-xs">
+                              &lt;{contacts[activeContactID].email}&gt;
+                            </span>
+                          </>
                         ) : (
                           <Skeleton
                             screenreaderText="Loading contacts"
@@ -530,77 +538,82 @@ export default function Home() {
               </div>
             </Modal>
 
-            <Modal
-              bodyAriaLabel="Block modal"
-              tabIndex={0}
-              variant={ModalVariant.small}
-              title="Block Jean Doe"
-              isOpen={blockModalOpen}
-              onClose={() => setBlockModalOpen(false)}
-              actions={[
-                <Button
-                  key="confirm"
-                  variant="danger"
-                  onClick={() => setBlockModalOpen(false)}
-                >
-                  Block
-                </Button>,
-                <Button
-                  key="cancel"
-                  variant="link"
-                  onClick={() => setBlockModalOpen(false)}
-                >
-                  Cancel
-                </Button>,
-              ]}
-            >
-              Are you sure you want to block Jean Doe? You will have to manually
-              add them as a contact if you want to contact them again.
-            </Modal>
-
-            <Modal
-              bodyAriaLabel="Report modal"
-              variant={ModalVariant.small}
-              title="Report Jean Doe"
-              isOpen={reportModalOpen}
-              onClose={() => setReportModalOpen(false)}
-              actions={[
-                <Button
-                  key="report"
-                  variant="danger"
-                  type="submit"
-                  form="report-form"
-                >
-                  Report
-                </Button>,
-                <Button
-                  key="cancel"
-                  variant="link"
-                  onClick={() => setReportModalOpen(false)}
-                >
-                  Cancel
-                </Button>,
-              ]}
-            >
-              <Form
-                id="report-form"
-                onSubmit={() => setReportModalOpen(false)}
-                noValidate={false}
+            {contacts && (
+              <Modal
+                bodyAriaLabel="Block modal"
+                tabIndex={0}
+                variant={ModalVariant.small}
+                title={`Block ${contacts[activeContactID].name}`}
+                isOpen={blockModalOpen}
+                onClose={() => setBlockModalOpen(false)}
+                actions={[
+                  <Button
+                    key="confirm"
+                    variant="danger"
+                    onClick={() => setBlockModalOpen(false)}
+                  >
+                    Block
+                  </Button>,
+                  <Button
+                    key="cancel"
+                    variant="link"
+                    onClick={() => setBlockModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>,
+                ]}
               >
-                <FormGroup
-                  label="Your comment and the messages in violations of our policy"
-                  isRequired
-                  fieldId="report-form-comment"
+                Are you sure you want to block {contacts[activeContactID].name}?
+                You will have to manually add them as a contact if you want to
+                contact them again.
+              </Modal>
+            )}
+
+            {contacts && (
+              <Modal
+                bodyAriaLabel="Report modal"
+                variant={ModalVariant.small}
+                title={`Report ${contacts[activeContactID].name}`}
+                isOpen={reportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                actions={[
+                  <Button
+                    key="report"
+                    variant="danger"
+                    type="submit"
+                    form="report-form"
+                  >
+                    Report
+                  </Button>,
+                  <Button
+                    key="cancel"
+                    variant="link"
+                    onClick={() => setReportModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>,
+                ]}
+              >
+                <Form
+                  id="report-form"
+                  onSubmit={() => setReportModalOpen(false)}
+                  noValidate={false}
                 >
-                  <TextArea
+                  <FormGroup
+                    label="Your comment and the messages in violations of our policy"
                     isRequired
-                    required
-                    id="report-form-comment"
-                    name="report-form-comment"
-                  />
-                </FormGroup>
-              </Form>
-            </Modal>
+                    fieldId="report-form-comment"
+                  >
+                    <TextArea
+                      isRequired
+                      required
+                      id="report-form-comment"
+                      name="report-form-comment"
+                    />
+                  </FormGroup>
+                </Form>
+              </Modal>
+            )}
           </>
         ) : (
           <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
