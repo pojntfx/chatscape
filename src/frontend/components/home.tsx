@@ -24,6 +24,7 @@ import {
   PageSection,
   Popover,
   SearchInput,
+  Skeleton,
   SkipToContent,
   TextArea,
   TextInput,
@@ -35,10 +36,10 @@ import {
 } from "@patternfly/react-core";
 import { DownloadIcon, GlobeIcon, PlusIcon } from "@patternfly/react-icons";
 import Image from "next/image";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import logo from "../public/logo-light.png";
 
-const contacts = [
+const api = [
   {
     name: "Jane Doe",
     intro: "Optio, voluptate accus",
@@ -181,6 +182,11 @@ export default function Home() {
   const [blockModalOpen, setBlockModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [activeContactID, setActiveContactID] = useState(0);
+  const [contacts, setContacts] = useState<typeof api>();
+
+  useEffect(() => {
+    if (loggedIn) setTimeout(() => setContacts(api), 2000);
+  }, [loggedIn]);
 
   return (
     <Page
@@ -287,32 +293,42 @@ export default function Home() {
 
                     <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0">
                       <List isPlain>
-                        {contacts.map((contact, id) => (
-                          <ListItem key={id}>
-                            <Button
-                              variant="plain"
-                              className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
-                              isActive={id === activeContactID}
-                              onClick={() => setActiveContactID(id)}
-                            >
-                              <Avatar
-                                src={contact.avatar}
-                                alt="avatar"
-                                className="pf-u-mr-md"
-                              />
+                        {contacts
+                          ? contacts.map((contact, id) => (
+                              <ListItem key={id}>
+                                <Button
+                                  variant="plain"
+                                  className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-m-sm pf-u-contact-selector"
+                                  isActive={id === activeContactID}
+                                  onClick={() => setActiveContactID(id)}
+                                >
+                                  <Avatar
+                                    src={contact.avatar}
+                                    alt="avatar"
+                                    className="pf-u-mr-md"
+                                  />
 
-                              <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
-                                <div className="pf-u-font-family-heading-sans-serif">
-                                  {contact.name}
-                                </div>
+                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
+                                    <div className="pf-u-font-family-heading-sans-serif">
+                                      {contact.name}
+                                    </div>
 
-                                <div className="pf-u-icon-color-light">
-                                  {contact.intro} ...
-                                </div>
-                              </div>
-                            </Button>
-                          </ListItem>
-                        ))}
+                                    <div className="pf-u-icon-color-light">
+                                      {contact.intro} ...
+                                    </div>
+                                  </div>
+                                </Button>
+                              </ListItem>
+                            ))
+                          : [0, 1, 2].map((_, id) => (
+                              <ListItem key={id}>
+                                <Skeleton
+                                  screenreaderText="Loading contacts"
+                                  height="80px"
+                                  className="pf-u-p-md pf-u-m-sm pf-u-contact-selector pf-x-skeleton--transparent"
+                                />
+                              </ListItem>
+                            ))}
                       </List>
                     </DrawerPanelBody>
                   </DrawerPanelContent>
@@ -325,7 +341,14 @@ export default function Home() {
                         <span className="pf-u-icon-color-light pf-u-mr-xs">
                           To:
                         </span>{" "}
-                        Jane Doe
+                        {contacts ? (
+                          "Jane Doe"
+                        ) : (
+                          <Skeleton
+                            screenreaderText="Loading contacts"
+                            width="100px"
+                          />
+                        )}
                       </ToolbarItem>
                     </ToolbarGroup>
 
@@ -334,90 +357,136 @@ export default function Home() {
                         default: "alignRight",
                       }}
                     >
-                      <Dropdown
-                        position={DropdownPosition.right}
-                        onSelect={() => setUserActionsOpen((v) => !v)}
-                        toggle={
-                          <KebabToggle
-                            aria-label="Toggle user actions"
-                            onToggle={() => setUserActionsOpen((v) => !v)}
-                          />
-                        }
-                        isOpen={userActionsOpen}
-                        isPlain
-                        dropdownItems={[
-                          <DropdownItem
-                            key="1"
-                            component="button"
-                            onClick={() => setBlockModalOpen(true)}
-                          >
-                            Block
-                          </DropdownItem>,
-                          <DropdownItem
-                            key="2"
-                            component="button"
-                            onClick={() => setReportModalOpen(true)}
-                          >
-                            Report
-                          </DropdownItem>,
-                        ]}
-                      />
+                      {contacts ? (
+                        <Dropdown
+                          position={DropdownPosition.right}
+                          onSelect={() => setUserActionsOpen((v) => !v)}
+                          toggle={
+                            <KebabToggle
+                              aria-label="Toggle user actions"
+                              onToggle={() => setUserActionsOpen((v) => !v)}
+                            />
+                          }
+                          isOpen={userActionsOpen}
+                          isPlain
+                          dropdownItems={[
+                            <DropdownItem
+                              key="1"
+                              component="button"
+                              onClick={() => setBlockModalOpen(true)}
+                            >
+                              Block
+                            </DropdownItem>,
+                            <DropdownItem
+                              key="2"
+                              component="button"
+                              onClick={() => setReportModalOpen(true)}
+                            >
+                              Report
+                            </DropdownItem>,
+                          ]}
+                        />
+                      ) : (
+                        <Skeleton
+                          screenreaderText="Loading contacts"
+                          height="36px"
+                          width="48px"
+                        />
+                      )}
                     </ToolbarGroup>
                   </ToolbarContent>
                 </Toolbar>
 
                 <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
                   <List isPlain>
-                    {contacts[activeContactID].messages.map((message, id) => (
-                      <Fragment key={id}>
-                        <ListItem>
-                          <Card
-                            isCompact
-                            isFlat
-                            isRounded
-                            className={
-                              message.them ? "pf-c-card--them" : "pf-c-card--us"
-                            }
-                          >
-                            <CardBody>{message.body}</CardBody>
-                          </Card>
-                        </ListItem>
+                    {contacts
+                      ? contacts[activeContactID].messages.map(
+                          (message, id) => (
+                            <Fragment key={id}>
+                              <ListItem>
+                                <Card
+                                  isCompact
+                                  isFlat
+                                  isRounded
+                                  className={
+                                    message.them
+                                      ? "pf-c-card--them"
+                                      : "pf-c-card--us"
+                                  }
+                                >
+                                  <CardBody>{message.body}</CardBody>
+                                </Card>
+                              </ListItem>
 
-                        {(contacts[activeContactID].messages[id + 1] &&
-                          Math.abs(
-                            message.date.getTime() -
-                              contacts[activeContactID].messages[
-                                id + 1
-                              ].date.getTime()
-                          ) /
-                            (1000 * 60 * 60) >
-                            2) ||
-                        id === contacts[activeContactID].messages.length - 1 ? (
-                          <ListItem>
-                            <span className="pf-c-date">
-                              {`Today ${message.date
-                                .getHours()
-                                .toString()
-                                .padStart(2, "0")}:${message.date
-                                .getMinutes()
-                                .toString()
-                                .padStart(2, "0")}`}
-                            </span>
+                              {(contacts[activeContactID].messages[id + 1] &&
+                                Math.abs(
+                                  message.date.getTime() -
+                                    contacts[activeContactID].messages[
+                                      id + 1
+                                    ].date.getTime()
+                                ) /
+                                  (1000 * 60 * 60) >
+                                  2) ||
+                              id ===
+                                contacts[activeContactID].messages.length -
+                                  1 ? (
+                                <ListItem>
+                                  <span className="pf-c-date">
+                                    {`Today ${message.date
+                                      .getHours()
+                                      .toString()
+                                      .padStart(2, "0")}:${message.date
+                                      .getMinutes()
+                                      .toString()
+                                      .padStart(2, "0")}`}
+                                  </span>
+                                </ListItem>
+                              ) : null}
+                            </Fragment>
+                          )
+                        )
+                      : [0, 1, 2].map((_, id) => (
+                          <ListItem key={id}>
+                            <Card
+                              isCompact
+                              isFlat
+                              isRounded
+                              className={
+                                "pf-u-w-100 " +
+                                (id % 2 == 0
+                                  ? "pf-c-card--them"
+                                  : "pf-c-card--us")
+                              }
+                            >
+                              <CardBody>
+                                <Skeleton
+                                  screenreaderText="Loading contacts"
+                                  height="42px"
+                                  className="pf-x-skeleton--transparent"
+                                />
+                              </CardBody>
+                            </Card>
                           </ListItem>
-                        ) : null}
-                      </Fragment>
-                    ))}
+                        ))}
                   </List>
                 </DrawerContentBody>
 
                 <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
                   <ToolbarContent className="pf-u-px-lg">
                     <ToolbarItem className="pf-u-flex-1">
-                      <TextInput
-                        type="text"
-                        aria-label="Message to send"
-                        placeholder="Your message"
-                      />
+                      {contacts ? (
+                        <TextInput
+                          type="text"
+                          aria-label="Message to send"
+                          placeholder="Your message"
+                        />
+                      ) : (
+                        <Skeleton
+                          screenreaderText="Loading contacts"
+                          width="100%"
+                          height="36px"
+                        />
+                      )}
                     </ToolbarItem>
                   </ToolbarContent>
                 </Toolbar>
@@ -536,7 +605,12 @@ export default function Home() {
         ) : (
           <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
             <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-md">
-              <Image src={logo} alt="ChatScape logo" className="pf-x-logo" />
+              <Image
+                src={logo}
+                alt="ChatScape logo"
+                className="pf-x-logo"
+                priority
+              />
 
               <Title
                 headingLevel="h3"
