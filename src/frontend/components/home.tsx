@@ -47,6 +47,22 @@ import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 import logo from "../public/logo-light.png";
 
+const useWindowWidth = () => {
+  const [windowSize, setWindowSize] = useState<number | undefined>();
+
+  useEffect(() => {
+    const handleResize = () => setWindowSize(window.innerWidth);
+
+    window.addEventListener("resize", handleResize);
+
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowSize;
+};
+
 const api = [
   {
     name: "Jane Doe",
@@ -196,10 +212,17 @@ export default function Home() {
   const [contacts, setContacts] = useState<typeof api>();
   const [showContactEmailOpen, setShowContactEmailOpen] = useState(false);
   const [drawerExpanded, setDrawerExpanded] = useState(true);
+  const width = useWindowWidth();
 
   useEffect(() => {
     if (loggedIn) setTimeout(() => setContacts(api), 2000);
   }, [loggedIn]);
+
+  useEffect(() => {
+    if (!width || width >= 768) {
+      setDrawerExpanded(true);
+    }
+  }, [width]);
 
   return (
     <Page
@@ -322,7 +345,10 @@ export default function Home() {
                                 isActive={id === activeContactID}
                                 onClick={() => {
                                   setActiveContactID(id);
-                                  setDrawerExpanded(false);
+
+                                  if (!(!width || width >= 768)) {
+                                    setDrawerExpanded(false);
+                                  }
                                 }}
                               >
                                 <Avatar
@@ -358,7 +384,7 @@ export default function Home() {
                 <Toolbar className="pf-u-m-0" isSticky>
                   <ToolbarContent>
                     <ToolbarGroup>
-                      <ToolbarItem>
+                      <ToolbarItem className="pf-u-display-none-on-md">
                         <Button
                           variant="plain"
                           aria-label="Back"
