@@ -131,3 +131,7 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 .pf-x-skeleton--transparent {
   opacity: 0.7;
 }
+
+.pf-x-popover--extra {
+  cursor: pointer;
+}

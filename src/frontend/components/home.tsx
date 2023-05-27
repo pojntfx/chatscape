@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardBody,
+  ClipboardCopy,
   Drawer,
   DrawerContent,
   DrawerContentBody,
@@ -33,8 +34,14 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
-import { DownloadIcon, GlobeIcon, PlusIcon } from "@patternfly/react-icons";
+import {
+  DownloadIcon,
+  GlobeIcon,
+  InfoCircleIcon,
+  PlusIcon,
+} from "@patternfly/react-icons";
 import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 import logo from "../public/logo-light.png";
@@ -186,6 +193,7 @@ export default function Home() {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [activeContactID, setActiveContactID] = useState(0);
   const [contacts, setContacts] = useState<typeof api>();
+  const [showContactEmailOpen, setShowContactEmailOpen] = useState(false);
 
   useEffect(() => {
     if (loggedIn) setTimeout(() => setContacts(api), 2000);
@@ -261,7 +269,7 @@ export default function Home() {
 
                         <ToolbarItem>
                           <Popover
-                            aria-label="Add a content"
+                            aria-label="Add a contact"
                             hasAutoWidth
                             showClose={false}
                             isVisible={addContactPopoverOpen}
@@ -345,12 +353,34 @@ export default function Home() {
                           To:
                         </span>{" "}
                         {contacts ? (
-                          <>
+                          <div className="pf-u-display-flex pf-u-align-items-center">
                             {contacts[activeContactID].name}{" "}
-                            <span className="pf-u-icon-color-light pf-u-ml-xs">
-                              &lt;{contacts[activeContactID].email}&gt;
-                            </span>
-                          </>
+                            <Popover
+                              aria-label="Show contact email"
+                              hasAutoWidth
+                              showClose={false}
+                              isVisible={showContactEmailOpen}
+                              shouldOpen={() => setShowContactEmailOpen(true)}
+                              shouldClose={() => setShowContactEmailOpen(false)}
+                              bodyContent={() => (
+                                <ClipboardCopy
+                                  isReadOnly
+                                  hoverTip="Copy email"
+                                  clickTip="Copied"
+                                >
+                                  {contacts[activeContactID].email}
+                                </ClipboardCopy>
+                              )}
+                            >
+                              <Button
+                                variant="plain"
+                                aria-label="Show contact email"
+                                className="pf-u-ml-xs pf-u-p-0 pf-u-display-flex"
+                              >
+                                <InfoCircleIcon className="pf-u-icon-color-light pf-x-popover--extra" />
+                              </Button>
+                            </Popover>
+                          </div>
                         ) : (
                           <Skeleton
                             screenreaderText="Loading contacts"
