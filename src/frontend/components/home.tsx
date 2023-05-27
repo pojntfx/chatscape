@@ -13,6 +13,9 @@ import {
   DropdownItem,
   DropdownPosition,
   DropdownToggle,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateVariant,
   Form,
   FormGroup,
   InputGroup,
@@ -34,7 +37,6 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import {
   ChevronLeftIcon,
@@ -212,7 +214,13 @@ export default function Home() {
   const [contacts, setContacts] = useState<typeof api>();
   const [showContactEmailOpen, setShowContactEmailOpen] = useState(false);
   const [drawerExpanded, setDrawerExpanded] = useState(true);
+  const [searchInputValue, setSearchInputValue] = useState("");
+
   const width = useWindowWidth();
+
+  const contactList = contacts?.filter((c) =>
+    c.name.includes(searchInputValue)
+  );
 
   useEffect(() => {
     if (loggedIn) setTimeout(() => setContacts(api), 2000);
@@ -292,6 +300,8 @@ export default function Home() {
                             aria-label="Search"
                             placeholder="Search"
                             className="pf-c-search--main"
+                            value={searchInputValue}
+                            onChange={(_, v) => setSearchInputValue(v)}
                           />
                         </ToolbarItem>
 
@@ -332,8 +342,9 @@ export default function Home() {
 
                     <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0 pf-x-contact-list">
                       <List isPlain>
-                        {contacts
-                          ? contacts.map((contact, id) => (
+                        {contacts ? (
+                          contactList && contactList.length > 0 ? (
+                            contactList.map((contact, id) => (
                               <ListItem key={id}>
                                 <Button
                                   variant="plain"
@@ -365,47 +376,58 @@ export default function Home() {
                                 </Button>
                               </ListItem>
                             ))
-                          : [0, 1, 2].map((_, id) => (
-                              <ListItem key={id}>
-                                <Button
-                                  variant="plain"
-                                  className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
-                                  disabled
-                                >
-                                  <Skeleton
-                                    shape="circle"
-                                    width="36px"
-                                    height="36px"
-                                    screenreaderText="Loading avatar"
-                                    className="pf-u-mr-md"
-                                  />
+                          ) : (
+                            <ListItem>
+                              <EmptyState variant={EmptyStateVariant.xs}>
+                                <EmptyStateBody>
+                                  No contacts found
+                                </EmptyStateBody>
+                              </EmptyState>
+                            </ListItem>
+                          )
+                        ) : (
+                          [0, 1, 2].map((_, id) => (
+                            <ListItem key={id}>
+                              <Button
+                                variant="plain"
+                                className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
+                                disabled
+                              >
+                                <Skeleton
+                                  shape="circle"
+                                  width="36px"
+                                  height="36px"
+                                  screenreaderText="Loading avatar"
+                                  className="pf-u-mr-md"
+                                />
 
-                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center pf-u-flex-1">
-                                    <div className="pf-u-font-family-heading-sans-serif pf-u-w-100 pf-u-pb-sm">
-                                      <Skeleton
-                                        screenreaderText="Loading contact info"
-                                        width={
-                                          (id % 2 != 0 ? 33 : 66) +
-                                          (id % 2) * 10 +
-                                          "%"
-                                        }
-                                      />
-                                    </div>
-
-                                    <div className="pf-u-icon-color-light pf-u-w-100">
-                                      <Skeleton
-                                        screenreaderText="Loading contact info"
-                                        width={
-                                          (id % 2 == 0 ? 33 : 66) +
-                                          (id % 2) * 10 +
-                                          "%"
-                                        }
-                                      />
-                                    </div>
+                                <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center pf-u-flex-1">
+                                  <div className="pf-u-font-family-heading-sans-serif pf-u-w-100 pf-u-pb-sm">
+                                    <Skeleton
+                                      screenreaderText="Loading contact info"
+                                      width={
+                                        (id % 2 != 0 ? 33 : 66) +
+                                        (id % 2) * 10 +
+                                        "%"
+                                      }
+                                    />
                                   </div>
-                                </Button>
-                              </ListItem>
-                            ))}
+
+                                  <div className="pf-u-icon-color-light pf-u-w-100">
+                                    <Skeleton
+                                      screenreaderText="Loading contact info"
+                                      width={
+                                        (id % 2 == 0 ? 33 : 66) +
+                                        (id % 2) * 10 +
+                                        "%"
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              </Button>
+                            </ListItem>
+                          ))
+                        )}
                       </List>
                     </DrawerPanelBody>
                   </DrawerPanelContent>
