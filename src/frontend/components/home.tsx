@@ -95,6 +95,19 @@ const useAPI = () => {
     },
 
     messages,
+    addMessage: (body: string) =>
+      setMessages((old) =>
+        old
+          ? [
+              ...old,
+              {
+                them: false,
+                body,
+                date: new Date(),
+              },
+            ]
+          : []
+      ),
 
     activeContactID,
     setActiveContactID,
@@ -258,6 +271,7 @@ export default function Home() {
     addContact,
 
     messages,
+    addMessage,
 
     activeContactID,
     setActiveContactID,
@@ -292,6 +306,17 @@ export default function Home() {
       addContactEmailInputValueRef?.current?.focus();
     }
   }, [addContact, addContactEmailInputValue]);
+
+  const [addMessageInputValue, setAddMessageInputValue] = useState("");
+  const addMessageInputValueRef = useRef<HTMLInputElement>(null);
+  const submitAddMessageInput = useCallback(() => {
+    if (addMessageInputValue.trim() !== "") {
+      addMessage(addMessageInputValue);
+      setAddMessageInputValue("");
+    } else {
+      addMessageInputValueRef?.current?.focus();
+    }
+  }, [addMessage, addMessageInputValue]);
 
   const contactList = contacts?.filter((c) =>
     c.name.includes(searchInputValue)
@@ -719,6 +744,13 @@ export default function Home() {
                             type="text"
                             aria-label="Message to send"
                             placeholder="Your message"
+                            required
+                            value={addMessageInputValue}
+                            onChange={(v) => setAddMessageInputValue(v)}
+                            ref={addMessageInputValueRef}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" && submitAddMessageInput()
+                            }
                           />
                         ) : (
                           <Skeleton
