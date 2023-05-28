@@ -15,6 +15,7 @@ import {
   DropdownToggle,
   EmptyState,
   EmptyStateBody,
+  EmptyStateIcon,
   EmptyStateVariant,
   Form,
   FormGroup,
@@ -39,6 +40,7 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
+  AddressBookIcon,
   ChevronLeftIcon,
   DownloadIcon,
   GlobeIcon,
@@ -78,7 +80,11 @@ interface IMessage {
   date: Date;
 }
 
-const api = [
+interface IAPI extends IContact {
+  messages: IMessage[];
+}
+
+const apiData = [
   {
     name: "Jane Doe",
     email: "jane@doe.com",
@@ -90,9 +96,7 @@ const api = [
         body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis dolor hic temporibus nesciunt enim optio, voluptate accusamus, sit eum cumque suscipit rerum, vel quae quas iste doloribus modi ipsa fugit.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 5);
-
           return now;
         })(),
       },
@@ -101,9 +105,7 @@ const api = [
         body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis dolor hic temporibus nesciunt enim optio.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 2);
-
           return now;
         })(),
       },
@@ -112,9 +114,7 @@ const api = [
         body: "Lorem!",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 2);
-
           return now;
         })(),
       },
@@ -123,9 +123,7 @@ const api = [
         body: "Optio, voluptate accusamus, sit eum cumque suscipit rerum, vel quae quas iste doloribus modi ipsa fugit.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 1);
-
           return now;
         })(),
       },
@@ -142,9 +140,7 @@ const api = [
         body: "Pharetra sit amet magna. Sed sollicitudin quam eu malesuada dapibus. Nullam risus nibh, aliquet vitae faucibus sit amet, pretium ac mi. Vivamus vulputate gravida enim, non finibus justo pretium commodo.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 5);
-
           return now;
         })(),
       },
@@ -153,9 +149,7 @@ const api = [
         body: "Fusce vestibulum porttitor nibh, non pellentesque lacus lobortis non. Pellentesque tincidunt et ipsum quis iaculis. Sed vulputate imperdiet facilisis.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 5);
-
           return now;
         })(),
       },
@@ -172,9 +166,7 @@ const api = [
         body: "Suspendisse vulputate, ipsum consectetur lacinia rhoncus, ante lacus pharetra quam, eget accumsan felis justo eget leo.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 5);
-
           return now;
         })(),
       },
@@ -183,9 +175,7 @@ const api = [
         body: "Interdum et malesuada fames ac ante ipsum primis in faucibus.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 5);
-
           return now;
         })(),
       },
@@ -194,9 +184,7 @@ const api = [
         body: "Donec aliquam nibh eu risus sollicitudin",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours() - 3);
-
           return now;
         })(),
       },
@@ -205,15 +193,14 @@ const api = [
         body: "Maecenas rhoncus sapien et varius pulvinar.",
         date: (() => {
           const now = new Date();
-
           now.setHours(now.getHours());
-
           return now;
         })(),
       },
     ],
   },
 ];
+let api = [] as IAPI[];
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -233,6 +220,8 @@ export default function Home() {
 
   const width = useWindowWidth();
 
+  const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
+
   const contactList = contacts?.filter((c) =>
     c.name.includes(searchInputValue)
   );
@@ -248,8 +237,44 @@ export default function Home() {
   }, [width]);
 
   useEffect(() => {
-    if (contacts) setMessages(api[activeContactID].messages);
+    if (contacts) setMessages(api[activeContactID]?.messages);
   }, [contacts, activeContactID]);
+
+  const AvatarMenu = ({ right }: { right?: boolean }) => (
+    <Dropdown
+      position={right ? DropdownPosition.right : undefined}
+      onSelect={() => setAccountActionsOpen((v) => !v)}
+      className="pf-u-display-flex"
+      toggle={
+        <DropdownToggle
+          toggleIndicator={null}
+          onToggle={() => setAccountActionsOpen((v) => !v)}
+          aria-label="Toggle account actions"
+          className="pf-u-p-0 pf-x-account-actions pf-x-avatar"
+        >
+          <Avatar src={avatarURL} alt="avatar" />
+        </DropdownToggle>
+      }
+      isOpen={accountActionsOpen}
+      isPlain
+      dropdownItems={[
+        <DropdownItem
+          key="1"
+          component="button"
+          onClick={() => setLoggedIn(false)}
+        >
+          Logout
+        </DropdownItem>,
+        <DropdownItem
+          key="2"
+          component="button"
+          onClick={() => setAboutModalOpen(true)}
+        >
+          About
+        </DropdownItem>,
+      ]}
+    />
+  );
 
   return (
     <Page
@@ -264,521 +289,524 @@ export default function Home() {
         id="main"
       >
         {loggedIn ? (
-          <>
-            <Drawer isExpanded={drawerExpanded} isInline position="left">
-              <DrawerContent
-                panelContent={
-                  <DrawerPanelContent
-                    className="pf-c-drawer__panel--transparent"
-                    widths={{ default: "width_33" }}
-                  >
-                    <Toolbar className="pf-u-m-0" isSticky>
-                      <ToolbarContent>
-                        <ToolbarItem className="pf-u-display-flex">
-                          <Dropdown
-                            onSelect={() => setAccountActionsOpen((v) => !v)}
-                            className="pf-u-display-flex"
-                            toggle={
-                              <DropdownToggle
-                                toggleIndicator={null}
-                                onToggle={() =>
-                                  setAccountActionsOpen((v) => !v)
-                                }
-                                aria-label="Toggle account actions"
-                                className="pf-u-p-0 pf-x-account-actions"
-                              >
-                                <Avatar
-                                  src="https://i.pravatar.cc/300?u=raina"
-                                  alt="avatar"
-                                />
-                              </DropdownToggle>
-                            }
-                            isOpen={accountActionsOpen}
-                            isPlain
-                            dropdownItems={[
-                              <DropdownItem
-                                key="1"
-                                component="button"
-                                onClick={() => setLoggedIn(false)}
-                              >
-                                Logout
-                              </DropdownItem>,
-                              <DropdownItem
-                                key="2"
-                                component="button"
-                                onClick={() => setAboutModalOpen(true)}
-                              >
-                                About
-                              </DropdownItem>,
-                            ]}
-                          />
-                        </ToolbarItem>
+          contacts && contacts.length > 0 ? (
+            <>
+              <Drawer isExpanded={drawerExpanded} isInline position="left">
+                <DrawerContent
+                  panelContent={
+                    <DrawerPanelContent
+                      className="pf-c-drawer__panel--transparent"
+                      widths={{ default: "width_33" }}
+                    >
+                      <Toolbar className="pf-u-m-0" isSticky>
+                        <ToolbarContent>
+                          <ToolbarItem className="pf-u-display-flex">
+                            <AvatarMenu />
+                          </ToolbarItem>
 
-                        <ToolbarItem className="pf-u-flex-1">
-                          <SearchInput
-                            aria-label="Search"
-                            placeholder="Search"
-                            className="pf-c-search--main"
-                            value={searchInputValue}
-                            onChange={(_, v) => setSearchInputValue(v)}
-                          />
-                        </ToolbarItem>
+                          <ToolbarItem className="pf-u-flex-1">
+                            <SearchInput
+                              aria-label="Search"
+                              placeholder="Search"
+                              className="pf-c-search--main"
+                              value={searchInputValue}
+                              onChange={(_, v) => setSearchInputValue(v)}
+                            />
+                          </ToolbarItem>
 
-                        <ToolbarItem>
-                          <Popover
-                            aria-label="Add a contact"
-                            hasAutoWidth
-                            showClose={false}
-                            isVisible={addContactPopoverOpen}
-                            shouldOpen={() => setContactPopoverOpen(true)}
-                            shouldClose={() => setContactPopoverOpen(false)}
-                            bodyContent={() => (
-                              <div>
-                                <div className="pf-c-title pf-m-md">
-                                  Add a contact
+                          <ToolbarItem>
+                            <Popover
+                              aria-label="Add a contact"
+                              hasAutoWidth
+                              showClose={false}
+                              isVisible={addContactPopoverOpen}
+                              shouldOpen={() => setContactPopoverOpen(true)}
+                              shouldClose={() => setContactPopoverOpen(false)}
+                              bodyContent={() => (
+                                <div>
+                                  <div className="pf-c-title pf-m-md">
+                                    Add a contact
+                                  </div>
+
+                                  <InputGroup className="pf-u-mt-md">
+                                    <TextInput
+                                      aria-label="Email of the account to add"
+                                      type="email"
+                                      placeholder="jean.doe@example.com"
+                                    />
+                                    <Button variant="control">
+                                      <PlusIcon />
+                                    </Button>
+                                  </InputGroup>
                                 </div>
+                              )}
+                            >
+                              <Button
+                                variant="plain"
+                                aria-label="Add a contact"
+                              >
+                                <PlusIcon />
+                              </Button>
+                            </Popover>
+                          </ToolbarItem>
+                        </ToolbarContent>
+                      </Toolbar>
 
-                                <InputGroup className="pf-u-mt-md">
-                                  <TextInput
-                                    aria-label="Email of the account to add"
-                                    type="email"
-                                    placeholder="jean.doe@example.com"
-                                  />
-                                  <Button variant="control">
-                                    <PlusIcon />
+                      <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0 pf-x-contact-list">
+                        <List isPlain>
+                          {contacts ? (
+                            contactList && contactList.length > 0 ? (
+                              contactList.map((contact, id) => (
+                                <ListItem key={id}>
+                                  <Button
+                                    variant="plain"
+                                    className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
+                                    isActive={id === activeContactID}
+                                    onClick={() => {
+                                      setActiveContactID(id);
+
+                                      if (!(!width || width >= 768)) {
+                                        setDrawerExpanded(false);
+                                      }
+                                    }}
+                                  >
+                                    <Avatar
+                                      src={contact.avatar}
+                                      alt="avatar"
+                                      className="pf-u-mr-md"
+                                    />
+
+                                    <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
+                                      <div className="pf-u-font-family-heading-sans-serif">
+                                        {contact.name}
+                                      </div>
+
+                                      <div className="pf-u-icon-color-light">
+                                        {contact.intro} ...
+                                      </div>
+                                    </div>
                                   </Button>
-                                </InputGroup>
-                              </div>
-                            )}
-                          >
-                            <Button variant="plain" aria-label="Add a contact">
-                              <PlusIcon />
-                            </Button>
-                          </Popover>
-                        </ToolbarItem>
-                      </ToolbarContent>
-                    </Toolbar>
-
-                    <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0 pf-x-contact-list">
-                      <List isPlain>
-                        {contacts ? (
-                          contactList && contactList.length > 0 ? (
-                            contactList.map((contact, id) => (
+                                </ListItem>
+                              ))
+                            ) : (
+                              <ListItem>
+                                <EmptyState variant={EmptyStateVariant.xs}>
+                                  <EmptyStateBody>
+                                    No contacts found
+                                  </EmptyStateBody>
+                                </EmptyState>
+                              </ListItem>
+                            )
+                          ) : (
+                            [0, 1, 2].map((_, id) => (
                               <ListItem key={id}>
                                 <Button
                                   variant="plain"
                                   className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
-                                  isActive={id === activeContactID}
-                                  onClick={() => {
-                                    setActiveContactID(id);
-
-                                    if (!(!width || width >= 768)) {
-                                      setDrawerExpanded(false);
-                                    }
-                                  }}
+                                  disabled
                                 >
-                                  <Avatar
-                                    src={contact.avatar}
-                                    alt="avatar"
+                                  <Skeleton
+                                    shape="circle"
+                                    width="36px"
+                                    height="36px"
+                                    screenreaderText="Loading avatar"
                                     className="pf-u-mr-md"
                                   />
 
-                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
-                                    <div className="pf-u-font-family-heading-sans-serif">
-                                      {contact.name}
+                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center pf-u-flex-1">
+                                    <div className="pf-u-font-family-heading-sans-serif pf-u-w-100 pf-u-pb-sm">
+                                      <Skeleton
+                                        screenreaderText="Loading contact info"
+                                        width={
+                                          (id % 2 != 0 ? 33 : 66) +
+                                          (id % 2) * 10 +
+                                          "%"
+                                        }
+                                      />
                                     </div>
 
-                                    <div className="pf-u-icon-color-light">
-                                      {contact.intro} ...
+                                    <div className="pf-u-icon-color-light pf-u-w-100">
+                                      <Skeleton
+                                        screenreaderText="Loading contact info"
+                                        width={
+                                          (id % 2 == 0 ? 33 : 66) +
+                                          (id % 2) * 10 +
+                                          "%"
+                                        }
+                                      />
                                     </div>
                                   </div>
                                 </Button>
                               </ListItem>
                             ))
-                          ) : (
-                            <ListItem>
-                              <EmptyState variant={EmptyStateVariant.xs}>
-                                <EmptyStateBody>
-                                  No contacts found
-                                </EmptyStateBody>
-                              </EmptyState>
-                            </ListItem>
-                          )
-                        ) : (
-                          [0, 1, 2].map((_, id) => (
-                            <ListItem key={id}>
-                              <Button
-                                variant="plain"
-                                className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
-                                disabled
-                              >
-                                <Skeleton
-                                  shape="circle"
-                                  width="36px"
-                                  height="36px"
-                                  screenreaderText="Loading avatar"
-                                  className="pf-u-mr-md"
-                                />
+                          )}
+                        </List>
+                      </DrawerPanelBody>
+                    </DrawerPanelContent>
+                  }
+                >
+                  <Toolbar className="pf-u-m-0" isSticky>
+                    <ToolbarContent>
+                      <ToolbarGroup>
+                        <ToolbarItem className="pf-u-display-none-on-md">
+                          <Button
+                            variant="plain"
+                            aria-label="Back"
+                            onClick={() => setDrawerExpanded(true)}
+                          >
+                            <ChevronLeftIcon />
+                          </Button>
+                        </ToolbarItem>
 
-                                <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center pf-u-flex-1">
-                                  <div className="pf-u-font-family-heading-sans-serif pf-u-w-100 pf-u-pb-sm">
-                                    <Skeleton
-                                      screenreaderText="Loading contact info"
-                                      width={
-                                        (id % 2 != 0 ? 33 : 66) +
-                                        (id % 2) * 10 +
-                                        "%"
-                                      }
-                                    />
-                                  </div>
-
-                                  <div className="pf-u-icon-color-light pf-u-w-100">
-                                    <Skeleton
-                                      screenreaderText="Loading contact info"
-                                      width={
-                                        (id % 2 == 0 ? 33 : 66) +
-                                        (id % 2) * 10 +
-                                        "%"
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </Button>
-                            </ListItem>
-                          ))
-                        )}
-                      </List>
-                    </DrawerPanelBody>
-                  </DrawerPanelContent>
-                }
-              >
-                <Toolbar className="pf-u-m-0" isSticky>
-                  <ToolbarContent>
-                    <ToolbarGroup>
-                      <ToolbarItem className="pf-u-display-none-on-md">
-                        <Button
-                          variant="plain"
-                          aria-label="Back"
-                          onClick={() => setDrawerExpanded(true)}
-                        >
-                          <ChevronLeftIcon />
-                        </Button>
-                      </ToolbarItem>
-
-                      <ToolbarItem className="pf-u-display-flex">
-                        <span className="pf-u-icon-color-light pf-u-mr-xs">
-                          To:
-                        </span>{" "}
-                        {contacts ? (
-                          <div className="pf-u-display-flex pf-u-align-items-center">
-                            {contacts[activeContactID].name}{" "}
-                            <Popover
-                              aria-label="Show contact email"
-                              hasAutoWidth
-                              showClose={false}
-                              isVisible={showContactEmailOpen}
-                              shouldOpen={() => setShowContactEmailOpen(true)}
-                              shouldClose={() => setShowContactEmailOpen(false)}
-                              bodyContent={() => (
-                                <ClipboardCopy
-                                  isReadOnly
-                                  hoverTip="Copy email"
-                                  clickTip="Copied"
-                                >
-                                  {contacts[activeContactID].email}
-                                </ClipboardCopy>
-                              )}
-                            >
-                              <Button
-                                variant="plain"
+                        <ToolbarItem className="pf-u-display-flex">
+                          <span className="pf-u-icon-color-light pf-u-mr-xs">
+                            To:
+                          </span>{" "}
+                          {contacts ? (
+                            <div className="pf-u-display-flex pf-u-align-items-center">
+                              {contacts[activeContactID].name}{" "}
+                              <Popover
                                 aria-label="Show contact email"
-                                className="pf-u-ml-xs pf-u-p-0 pf-u-display-flex"
+                                hasAutoWidth
+                                showClose={false}
+                                isVisible={showContactEmailOpen}
+                                shouldOpen={() => setShowContactEmailOpen(true)}
+                                shouldClose={() =>
+                                  setShowContactEmailOpen(false)
+                                }
+                                bodyContent={() => (
+                                  <ClipboardCopy
+                                    isReadOnly
+                                    hoverTip="Copy email"
+                                    clickTip="Copied"
+                                  >
+                                    {contacts[activeContactID].email}
+                                  </ClipboardCopy>
+                                )}
                               >
-                                <InfoCircleIcon className="pf-u-icon-color-light pf-x-popover--extra" />
-                              </Button>
-                            </Popover>
-                          </div>
+                                <Button
+                                  variant="plain"
+                                  aria-label="Show contact email"
+                                  className="pf-u-ml-xs pf-u-p-0 pf-u-display-flex"
+                                >
+                                  <InfoCircleIcon className="pf-u-icon-color-light pf-x-popover--extra" />
+                                </Button>
+                              </Popover>
+                            </div>
+                          ) : (
+                            <Skeleton
+                              screenreaderText="Loading contact info"
+                              width="100px"
+                            />
+                          )}
+                        </ToolbarItem>
+                      </ToolbarGroup>
+
+                      <ToolbarGroup
+                        alignment={{
+                          default: "alignRight",
+                        }}
+                      >
+                        {contacts ? (
+                          <Dropdown
+                            position={DropdownPosition.right}
+                            onSelect={() => setUserActionsOpen((v) => !v)}
+                            toggle={
+                              <KebabToggle
+                                aria-label="Toggle user actions"
+                                onToggle={() => setUserActionsOpen((v) => !v)}
+                              />
+                            }
+                            isOpen={userActionsOpen}
+                            isPlain
+                            dropdownItems={[
+                              <DropdownItem
+                                key="1"
+                                component="button"
+                                onClick={() => setBlockModalOpen(true)}
+                              >
+                                Block
+                              </DropdownItem>,
+                              <DropdownItem
+                                key="2"
+                                component="button"
+                                onClick={() => setReportModalOpen(true)}
+                              >
+                                Report
+                              </DropdownItem>,
+                            ]}
+                          />
                         ) : (
                           <Skeleton
-                            screenreaderText="Loading contact info"
-                            width="100px"
+                            screenreaderText="Loading actions"
+                            height="36px"
+                            width="48px"
                           />
                         )}
-                      </ToolbarItem>
-                    </ToolbarGroup>
+                      </ToolbarGroup>
+                    </ToolbarContent>
+                  </Toolbar>
 
-                    <ToolbarGroup
-                      alignment={{
-                        default: "alignRight",
-                      }}
-                    >
-                      {contacts ? (
-                        <Dropdown
-                          position={DropdownPosition.right}
-                          onSelect={() => setUserActionsOpen((v) => !v)}
-                          toggle={
-                            <KebabToggle
-                              aria-label="Toggle user actions"
-                              onToggle={() => setUserActionsOpen((v) => !v)}
-                            />
-                          }
-                          isOpen={userActionsOpen}
-                          isPlain
-                          dropdownItems={[
-                            <DropdownItem
-                              key="1"
-                              component="button"
-                              onClick={() => setBlockModalOpen(true)}
-                            >
-                              Block
-                            </DropdownItem>,
-                            <DropdownItem
-                              key="2"
-                              component="button"
-                              onClick={() => setReportModalOpen(true)}
-                            >
-                              Report
-                            </DropdownItem>,
-                          ]}
-                        />
+                  <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
+                    <List isPlain>
+                      {messages ? (
+                        messages.map((message, id) => (
+                          <Fragment key={id}>
+                            <ListItem>
+                              <Card
+                                isCompact
+                                isRounded
+                                className={
+                                  message.them
+                                    ? "pf-c-card--them"
+                                    : "pf-c-card--us"
+                                }
+                              >
+                                <CardBody>{message.body}</CardBody>
+                              </Card>
+                            </ListItem>
+
+                            {(messages[id + 1] &&
+                              Math.abs(
+                                message.date.getTime() -
+                                  messages[id + 1].date.getTime()
+                              ) /
+                                (1000 * 60 * 60) >
+                                2) ||
+                            id === messages.length - 1 ? (
+                              <ListItem>
+                                <span className="pf-c-date">
+                                  {`Today ${message.date
+                                    .getHours()
+                                    .toString()
+                                    .padStart(2, "0")}:${message.date
+                                    .getMinutes()
+                                    .toString()
+                                    .padStart(2, "0")}`}
+                                </span>
+                              </ListItem>
+                            ) : null}
+                          </Fragment>
+                        ))
                       ) : (
-                        <Skeleton
-                          screenreaderText="Loading actions"
-                          height="36px"
-                          width="48px"
-                        />
-                      )}
-                    </ToolbarGroup>
-                  </ToolbarContent>
-                </Toolbar>
-
-                <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
-                  <List isPlain>
-                    {messages ? (
-                      messages.map((message, id) => (
-                        <Fragment key={id}>
+                        <>
                           <ListItem>
-                            <Card
-                              isCompact
-                              isRounded
-                              className={
-                                message.them
-                                  ? "pf-c-card--them"
-                                  : "pf-c-card--us"
-                              }
-                            >
-                              <CardBody>{message.body}</CardBody>
-                            </Card>
+                            <Skeleton
+                              screenreaderText="Loading messages"
+                              width="90%"
+                            />
                           </ListItem>
 
-                          {(messages[id + 1] &&
-                            Math.abs(
-                              message.date.getTime() -
-                                messages[id + 1].date.getTime()
-                            ) /
-                              (1000 * 60 * 60) >
-                              2) ||
-                          id === messages.length - 1 ? (
-                            <ListItem>
-                              <span className="pf-c-date">
-                                {`Today ${message.date
-                                  .getHours()
-                                  .toString()
-                                  .padStart(2, "0")}:${message.date
-                                  .getMinutes()
-                                  .toString()
-                                  .padStart(2, "0")}`}
-                              </span>
-                            </ListItem>
-                          ) : null}
-                        </Fragment>
-                      ))
-                    ) : (
-                      <>
-                        <ListItem>
-                          <Skeleton
-                            screenreaderText="Loading messages"
-                            width="90%"
-                          />
-                        </ListItem>
+                          <ListItem>
+                            <Skeleton
+                              screenreaderText="Loading messages"
+                              width="66%"
+                            />
+                          </ListItem>
 
-                        <ListItem>
-                          <Skeleton
-                            screenreaderText="Loading messages"
-                            width="66%"
-                          />
-                        </ListItem>
+                          <ListItem>
+                            <Skeleton
+                              screenreaderText="Loading messages"
+                              width="77%"
+                            />
+                          </ListItem>
 
-                        <ListItem>
-                          <Skeleton
-                            screenreaderText="Loading messages"
-                            width="77%"
-                          />
-                        </ListItem>
+                          <ListItem>
+                            <Skeleton
+                              screenreaderText="Loading messages"
+                              width="33%"
+                            />
+                          </ListItem>
 
-                        <ListItem>
-                          <Skeleton
-                            screenreaderText="Loading messages"
-                            width="33%"
-                          />
-                        </ListItem>
+                          <ListItem className="pf-u-mt-3xl">
+                            <Skeleton
+                              screenreaderText="Loading messages"
+                              width="66%"
+                              className="pf-u-ml-auto"
+                            />
+                          </ListItem>
 
-                        <ListItem className="pf-u-mt-3xl">
-                          <Skeleton
-                            screenreaderText="Loading messages"
-                            width="66%"
-                            className="pf-u-ml-auto"
-                          />
-                        </ListItem>
-
-                        <ListItem>
-                          <Skeleton
-                            screenreaderText="Loading messages"
-                            width="33%"
-                            className="pf-u-ml-auto"
-                          />
-                        </ListItem>
-                      </>
-                    )}
-                  </List>
-                </DrawerContentBody>
-
-                <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
-                  <ToolbarContent>
-                    <ToolbarItem className="pf-u-flex-1">
-                      {contacts ? (
-                        <TextInput
-                          type="text"
-                          aria-label="Message to send"
-                          placeholder="Your message"
-                        />
-                      ) : (
-                        <Skeleton
-                          screenreaderText="Loading message input"
-                          width="100%"
-                          height="36px"
-                        />
+                          <ListItem>
+                            <Skeleton
+                              screenreaderText="Loading messages"
+                              width="33%"
+                              className="pf-u-ml-auto"
+                            />
+                          </ListItem>
+                        </>
                       )}
-                    </ToolbarItem>
-                  </ToolbarContent>
-                </Toolbar>
-              </DrawerContent>
-            </Drawer>
+                    </List>
+                  </DrawerContentBody>
 
-            <Modal
-              bodyAriaLabel="About modal"
-              tabIndex={0}
-              variant={ModalVariant.small}
-              title="About"
-              isOpen={aboutModalOpen}
-              onClose={() => setAboutModalOpen(false)}
-            >
-              <div className="pf-u-text-align-center">
-                <Image
-                  src={logo}
-                  alt="ChatScape logo"
-                  className="pf-x-logo--about pf-u-mt-md pf-u-mb-lg"
-                />
+                  <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
+                    <ToolbarContent>
+                      <ToolbarItem className="pf-u-flex-1">
+                        {contacts ? (
+                          <TextInput
+                            type="text"
+                            aria-label="Message to send"
+                            placeholder="Your message"
+                          />
+                        ) : (
+                          <Skeleton
+                            screenreaderText="Loading message input"
+                            width="100%"
+                            height="36px"
+                          />
+                        )}
+                      </ToolbarItem>
+                    </ToolbarContent>
+                  </Toolbar>
+                </DrawerContent>
+              </Drawer>
 
-                <p>© AGPL-3.0 2023 Felicitas Pojtinger</p>
-
-                <p>
-                  Find the source code here:{" "}
-                  <a
-                    href="https://github.com/pojntfx/chatscape"
-                    target="_blank"
-                  >
-                    pojntfx/chatscape
-                  </a>{" "}
-                  (
-                  <a
-                    href="https://felicitas.pojtinger.com/imprint"
-                    target="_blank"
-                  >
-                    Imprint
-                  </a>
-                  )
-                </p>
-              </div>
-            </Modal>
-
-            {contacts && (
-              <Modal
-                bodyAriaLabel="Block modal"
-                tabIndex={0}
-                variant={ModalVariant.small}
-                title={`Block ${contacts[activeContactID].name}`}
-                isOpen={blockModalOpen}
-                onClose={() => setBlockModalOpen(false)}
-                actions={[
-                  <Button
-                    key="confirm"
-                    variant="danger"
-                    onClick={() => setBlockModalOpen(false)}
-                  >
-                    Block
-                  </Button>,
-                  <Button
-                    key="cancel"
-                    variant="link"
-                    onClick={() => setBlockModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>,
-                ]}
-              >
-                Are you sure you want to block {contacts[activeContactID].name}?
-                You will have to manually add them as a contact if you want to
-                contact them again.
-              </Modal>
-            )}
-
-            {contacts && (
-              <Modal
-                bodyAriaLabel="Report modal"
-                variant={ModalVariant.small}
-                title={`Report ${contacts[activeContactID].name}`}
-                isOpen={reportModalOpen}
-                onClose={() => setReportModalOpen(false)}
-                actions={[
-                  <Button
-                    key="report"
-                    variant="danger"
-                    type="submit"
-                    form="report-form"
-                  >
-                    Report
-                  </Button>,
-                  <Button
-                    key="cancel"
-                    variant="link"
-                    onClick={() => setReportModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>,
-                ]}
-              >
-                <Form
-                  id="report-form"
-                  onSubmit={() => setReportModalOpen(false)}
-                  noValidate={false}
+              {contacts && (
+                <Modal
+                  bodyAriaLabel="Block modal"
+                  tabIndex={0}
+                  variant={ModalVariant.small}
+                  title={`Block ${contacts[activeContactID].name}`}
+                  isOpen={blockModalOpen}
+                  onClose={() => setBlockModalOpen(false)}
+                  actions={[
+                    <Button
+                      key="confirm"
+                      variant="danger"
+                      onClick={() => setBlockModalOpen(false)}
+                    >
+                      Block
+                    </Button>,
+                    <Button
+                      key="cancel"
+                      variant="link"
+                      onClick={() => setBlockModalOpen(false)}
+                    >
+                      Cancel
+                    </Button>,
+                  ]}
                 >
-                  <FormGroup
-                    label="Your comment and the messages in violations of our policy"
-                    isRequired
-                    fieldId="report-form-comment"
+                  Are you sure you want to block{" "}
+                  {contacts[activeContactID].name}? You will have to manually
+                  add them as a contact if you want to contact them again.
+                </Modal>
+              )}
+
+              {contacts && (
+                <Modal
+                  bodyAriaLabel="Report modal"
+                  variant={ModalVariant.small}
+                  title={`Report ${contacts[activeContactID].name}`}
+                  isOpen={reportModalOpen}
+                  onClose={() => setReportModalOpen(false)}
+                  actions={[
+                    <Button
+                      key="report"
+                      variant="danger"
+                      type="submit"
+                      form="report-form"
+                    >
+                      Report
+                    </Button>,
+                    <Button
+                      key="cancel"
+                      variant="link"
+                      onClick={() => setReportModalOpen(false)}
+                    >
+                      Cancel
+                    </Button>,
+                  ]}
+                >
+                  <Form
+                    id="report-form"
+                    onSubmit={() => setReportModalOpen(false)}
+                    noValidate={false}
                   >
-                    <TextArea
+                    <FormGroup
+                      label="Your comment and the messages in violations of our policy"
                       isRequired
-                      required
-                      id="report-form-comment"
-                      name="report-form-comment"
+                      fieldId="report-form-comment"
+                    >
+                      <TextArea
+                        isRequired
+                        required
+                        id="report-form-comment"
+                        name="report-form-comment"
+                      />
+                    </FormGroup>
+                  </Form>
+                </Modal>
+              )}
+            </>
+          ) : (
+            <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
+              <div className="pf-u-w-100 pf-u-pt">
+                <div className="pf-u-display-flex pf-u-justify-content-space-between pf-u-align-items-center pf-x-footer">
+                  <Image
+                    src={logo}
+                    alt="ChatScape logo"
+                    className="pf-x-logo pf-x-logo--empty pf-u-mr-sm"
+                  />
+                  <AvatarMenu right />
+                </div>
+              </div>
+
+              <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-p-md">
+                <EmptyState>
+                  <EmptyStateIcon
+                    icon={AddressBookIcon}
+                    className="pf-x-text--intro"
+                  />
+
+                  <Title headingLevel="h1" size="lg">
+                    No contacts yet
+                  </Title>
+
+                  <EmptyStateBody className="pf-x-text--intro--subtitle">
+                    Add a friend&apos;s email address to chat with them!
+                  </EmptyStateBody>
+
+                  <InputGroup className="pf-u-mt-md">
+                    <TextInput
+                      aria-label="Email of the account to add"
+                      type="email"
+                      placeholder="jean.doe@example.com"
                     />
-                  </FormGroup>
-                </Form>
-              </Modal>
-            )}
-          </>
+                    <Button
+                      variant="control"
+                      onClick={() => {
+                        api = apiData;
+
+                        setContacts(api);
+                      }}
+                    >
+                      <PlusIcon />
+                    </Button>
+                  </InputGroup>
+                </EmptyState>
+              </div>
+
+              <div className="pf-u-w-100 pf-u-pt">
+                <div className="pf-l-flex pf-m-justify-content-space-between pf-x-footer">
+                  <div className="pf-l-flex__item">
+                    <a
+                      href="https://github.com/pojntfx/chatscape"
+                      target="_blank"
+                    >
+                      © AGPL-3.0 2023 Felicitas Pojtinger
+                    </a>
+                  </div>
+                  <div className="pf-l-flex__item">
+                    <a
+                      href="https://felicitas.pojtinger.com/imprint"
+                      target="_blank"
+                    >
+                      Imprint
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
         ) : (
           <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
             <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-md">
@@ -837,6 +865,37 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        <Modal
+          bodyAriaLabel="About modal"
+          tabIndex={0}
+          variant={ModalVariant.small}
+          title="About"
+          isOpen={aboutModalOpen}
+          onClose={() => setAboutModalOpen(false)}
+        >
+          <div className="pf-u-text-align-center">
+            <Image
+              src={logo}
+              alt="ChatScape logo"
+              className="pf-x-logo--about pf-u-mt-md pf-u-mb-lg"
+            />
+
+            <p>© AGPL-3.0 2023 Felicitas Pojtinger</p>
+
+            <p>
+              Find the source code here:{" "}
+              <a href="https://github.com/pojntfx/chatscape" target="_blank">
+                pojntfx/chatscape
+              </a>{" "}
+              (
+              <a href="https://felicitas.pojtinger.com/imprint" target="_blank">
+                Imprint
+              </a>
+              )
+            </p>
+          </div>
+        </Modal>
       </PageSection>
     </Page>
   );
