@@ -77,11 +77,8 @@ const useAPI = () => {
   const [activeContactID, setActiveContactID] = useState(0);
 
   useEffect(() => {
-    if (loggedIn) setTimeout(() => setContacts(api), 2000);
-  }, [loggedIn]);
-
-  useEffect(() => {
-    if (contacts) setMessages(api[activeContactID]?.messages);
+    if (contacts && contacts.length > 0)
+      setMessages(apiData[activeContactID]?.messages);
   }, [contacts, activeContactID]);
 
   return {
@@ -92,9 +89,9 @@ const useAPI = () => {
 
     contacts,
     addContact: (email: string) => {
-      api = apiData;
+      setContacts([]);
 
-      setContacts(api);
+      setTimeout(() => setContacts(apiData), 2000);
     },
 
     messages,
@@ -237,7 +234,6 @@ const apiData = [
     ],
   },
 ];
-let api = [] as IAPI[];
 
 export default function Home() {
   const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
@@ -270,9 +266,14 @@ export default function Home() {
   const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
   const initialEmailInputValueRef = useRef<HTMLInputElement>(null);
   const submitInitialEmailInput = useCallback(() => {
-    if (initialEmailInputValueRef?.current?.reportValidity()) {
+    if (
+      initialEmailInputValueRef?.current?.reportValidity() &&
+      initialEmailInputValue.trim() !== ""
+    ) {
       addContact(initialEmailInputValue);
       setInitialEmailInputValue("");
+    } else {
+      initialEmailInputValueRef?.current?.focus();
     }
   }, [addContact, initialEmailInputValue]);
 
@@ -280,10 +281,15 @@ export default function Home() {
     useState("");
   const addContactEmailInputValueRef = useRef<HTMLInputElement>(null);
   const submitAddContactEmailInput = useCallback(() => {
-    if (addContactEmailInputValueRef?.current?.reportValidity()) {
+    if (
+      addContactEmailInputValueRef?.current?.reportValidity() &&
+      addContactEmailInputValue.trim() !== ""
+    ) {
       addContact(addContactEmailInputValue);
       setAddContactEmailInputValue("");
       setContactPopoverOpen(false);
+    } else {
+      addContactEmailInputValueRef?.current?.focus();
     }
   }, [addContact, addContactEmailInputValue]);
 
@@ -342,7 +348,7 @@ export default function Home() {
         id="main"
       >
         {loggedIn ? (
-          contacts && contacts.length > 0 ? (
+          contacts ? (
             <>
               <Drawer isExpanded={drawerExpanded} isInline position="left">
                 <DrawerContent
@@ -421,7 +427,7 @@ export default function Home() {
 
                       <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0 pf-x-contact-list">
                         <List isPlain>
-                          {contacts ? (
+                          {contacts.length > 0 ? (
                             contactList && contactList.length > 0 ? (
                               contactList.map((contact, id) => (
                                 <ListItem key={id}>
@@ -529,7 +535,7 @@ export default function Home() {
                           <span className="pf-u-icon-color-light pf-u-mr-xs">
                             To:
                           </span>{" "}
-                          {contacts ? (
+                          {contacts.length > 0 ? (
                             <div className="pf-u-display-flex pf-u-align-items-center">
                               {contacts[activeContactID].name}{" "}
                               <Popover
@@ -574,7 +580,7 @@ export default function Home() {
                           default: "alignRight",
                         }}
                       >
-                        {contacts ? (
+                        {contacts.length > 0 ? (
                           <Dropdown
                             position={DropdownPosition.right}
                             onSelect={() => setUserActionsOpen((v) => !v)}
@@ -708,7 +714,7 @@ export default function Home() {
                   <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
                     <ToolbarContent>
                       <ToolbarItem className="pf-u-flex-1">
-                        {contacts ? (
+                        {contacts.length > 0 ? (
                           <TextInput
                             type="text"
                             aria-label="Message to send"
@@ -727,7 +733,7 @@ export default function Home() {
                 </DrawerContent>
               </Drawer>
 
-              {contacts && (
+              {contacts.length > 0 && (
                 <Modal
                   bodyAriaLabel="Block modal"
                   tabIndex={0}
@@ -758,7 +764,7 @@ export default function Home() {
                 </Modal>
               )}
 
-              {contacts && (
+              {contacts.length > 0 && (
                 <Modal
                   bodyAriaLabel="Report modal"
                   variant={ModalVariant.small}
