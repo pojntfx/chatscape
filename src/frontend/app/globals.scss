@@ -147,3 +147,23 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
     margin-top: 0 !important;
   }
 }
+
+.pf-x-avatar {
+  height: 2.25rem;
+  width: 2.25rem;
+}
+
+.pf-x-logo--empty {
+  max-height: 2.5rem;
+  width: auto;
+  max-width: calc(100% - 0.5rem - 2.25rem);
+  object-fit: contain;
+}
+
+.pf-x-text--intro {
+  color: #000 !important;
+}
+
+.pf-x-text--intro--subtitle {
+  color: #27282a !important;
+}
