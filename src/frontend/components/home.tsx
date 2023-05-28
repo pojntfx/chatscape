@@ -48,7 +48,7 @@ import {
   PlusIcon,
 } from "@patternfly/react-icons";
 import Image from "next/image";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import logo from "../public/logo-light.png";
 
 const useWindowWidth = () => {
@@ -65,6 +65,43 @@ const useWindowWidth = () => {
   }, []);
 
   return windowSize;
+};
+
+const useAPI = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
+
+  const [contacts, setContacts] = useState<IContact[]>();
+  const [messages, setMessages] = useState<IMessage[]>();
+
+  const [activeContactID, setActiveContactID] = useState(0);
+
+  useEffect(() => {
+    if (loggedIn) setTimeout(() => setContacts(api), 2000);
+  }, [loggedIn]);
+
+  useEffect(() => {
+    if (contacts) setMessages(api[activeContactID]?.messages);
+  }, [contacts, activeContactID]);
+
+  return {
+    loggedIn,
+    avatarURL,
+    logIn: () => setLoggedIn(true),
+    logOut: () => setLoggedIn(false),
+
+    contacts,
+    addContact: (email: string) => {
+      api = apiData;
+
+      setContacts(api);
+    },
+
+    messages,
+
+    activeContactID,
+    setActiveContactID,
+  };
 };
 
 interface IContact {
@@ -203,42 +240,62 @@ const apiData = [
 let api = [] as IAPI[];
 
 export default function Home() {
-  const [loggedIn, setLoggedIn] = useState(false);
   const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
   const [accountActionsOpen, setAccountActionsOpen] = useState(false);
   const [userActionsOpen, setUserActionsOpen] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [blockModalOpen, setBlockModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [activeContactID, setActiveContactID] = useState(0);
   const [showContactEmailOpen, setShowContactEmailOpen] = useState(false);
   const [drawerExpanded, setDrawerExpanded] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
 
-  const [contacts, setContacts] = useState<IContact[]>();
-  const [messages, setMessages] = useState<IMessage[]>();
-
   const width = useWindowWidth();
 
-  const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
+  const {
+    loggedIn,
+    avatarURL,
+    logIn,
+    logOut,
+
+    contacts,
+    addContact,
+
+    messages,
+
+    activeContactID,
+    setActiveContactID,
+  } = useAPI();
+
+  const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
+  const initialEmailInputValueRef = useRef<HTMLInputElement>(null);
+  const submitInitialEmailInput = useCallback(() => {
+    if (initialEmailInputValueRef?.current?.reportValidity()) {
+      addContact(initialEmailInputValue);
+      setInitialEmailInputValue("");
+    }
+  }, [addContact, initialEmailInputValue]);
+
+  const [addContactEmailInputValue, setAddContactEmailInputValue] =
+    useState("");
+  const addContactEmailInputValueRef = useRef<HTMLInputElement>(null);
+  const submitAddContactEmailInput = useCallback(() => {
+    if (addContactEmailInputValueRef?.current?.reportValidity()) {
+      addContact(addContactEmailInputValue);
+      setAddContactEmailInputValue("");
+      setContactPopoverOpen(false);
+    }
+  }, [addContact, addContactEmailInputValue]);
 
   const contactList = contacts?.filter((c) =>
     c.name.includes(searchInputValue)
   );
 
   useEffect(() => {
-    if (loggedIn) setTimeout(() => setContacts(api), 2000);
-  }, [loggedIn]);
-
-  useEffect(() => {
     if (!width || width >= 768) {
       setDrawerExpanded(true);
     }
   }, [width]);
-
-  useEffect(() => {
-    if (contacts) setMessages(api[activeContactID]?.messages);
-  }, [contacts, activeContactID]);
 
   const AvatarMenu = ({ right }: { right?: boolean }) => (
     <Dropdown
@@ -258,11 +315,7 @@ export default function Home() {
       isOpen={accountActionsOpen}
       isPlain
       dropdownItems={[
-        <DropdownItem
-          key="1"
-          component="button"
-          onClick={() => setLoggedIn(false)}
-        >
+        <DropdownItem key="1" component="button" onClick={logOut}>
           Logout
         </DropdownItem>,
         <DropdownItem
@@ -333,8 +386,22 @@ export default function Home() {
                                       aria-label="Email of the account to add"
                                       type="email"
                                       placeholder="jean.doe@example.com"
+                                      value={addContactEmailInputValue}
+                                      onChange={(v) =>
+                                        setAddContactEmailInputValue(v)
+                                      }
+                                      ref={addContactEmailInputValueRef}
+                                      required
+                                      onKeyDown={(k) =>
+                                        k.key === "Enter" &&
+                                        submitAddContactEmailInput()
+                                      }
                                     />
-                                    <Button variant="control">
+
+                                    <Button
+                                      variant="control"
+                                      onClick={submitAddContactEmailInput}
+                                    >
                                       <PlusIcon />
                                     </Button>
                                   </InputGroup>
@@ -770,15 +837,16 @@ export default function Home() {
                       aria-label="Email of the account to add"
                       type="email"
                       placeholder="jean.doe@example.com"
+                      value={initialEmailInputValue}
+                      onChange={(v) => setInitialEmailInputValue(v)}
+                      ref={initialEmailInputValueRef}
+                      required
+                      onKeyDown={(k) =>
+                        k.key === "Enter" && submitInitialEmailInput()
+                      }
                     />
-                    <Button
-                      variant="control"
-                      onClick={() => {
-                        api = apiData;
 
-                        setContacts(api);
-                      }}
-                    >
+                    <Button variant="control" onClick={submitInitialEmailInput}>
                       <PlusIcon />
                     </Button>
                   </InputGroup>
@@ -829,14 +897,14 @@ export default function Home() {
                   variant="primary"
                   icon={<DownloadIcon />}
                   className="pf-u-mr-0 pf-u-mr-sm-on-sm pf-u-mb-sm pf-u-mb-0-on-sm"
-                  onClick={() => setLoggedIn(true)}
+                  onClick={logIn}
                 >
                   Download the app
                 </Button>{" "}
                 <Button
                   variant="link"
                   className="pf-u-mb-sm pf-u-mb-0-on-sm"
-                  onClick={() => setLoggedIn(true)}
+                  onClick={logIn}
                 >
                   Open in browser <GlobeIcon />
                 </Button>
