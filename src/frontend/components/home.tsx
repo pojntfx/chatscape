@@ -87,11 +87,19 @@ const useAPI = () => {
   const [contacts, setContacts] = useState<IContact[]>();
   const [messages, setMessages] = useState<IMessage[]>();
 
-  const [activeContactID, setActiveContactID] = useState(0);
+  const [activeContactID, setActiveContactID] = useState("");
 
   useEffect(() => {
-    if (contacts && contacts.length > 0)
-      setMessages(apiData[activeContactID]?.messages);
+    if (contacts && contacts.length > 0) {
+      let id = activeContactID;
+      if (id === "") {
+        id = apiData[0].id;
+
+        setActiveContactID(id);
+      }
+
+      setMessages(apiData.find((c) => c.id === id)?.messages);
+    }
   }, [contacts, activeContactID]);
 
   return {
@@ -128,6 +136,7 @@ const useAPI = () => {
 };
 
 interface IContact {
+  id: string;
   name: string;
   email: string;
   intro: string;
@@ -140,12 +149,9 @@ interface IMessage {
   date: Date;
 }
 
-interface IAPI extends IContact {
-  messages: IMessage[];
-}
-
 const apiData = [
   {
+    id: "827bb564-fe22-11ed-b4fe-98fc84efb5c8",
     name: "Jane Doe",
     email: "jane@doe.com",
     intro: "Optio, voluptate accus",
@@ -190,6 +196,7 @@ const apiData = [
     ],
   },
   {
+    id: "ad2916b8-fe21-11ed-b903-98fc84efb5c8",
     name: "Jean Doe",
     email: "jean@doe.com",
     intro: "Quas iste doloribus",
@@ -216,6 +223,7 @@ const apiData = [
     ],
   },
   {
+    id: "b57bae3e-fe21-11ed-b1c9-98fc84efb5c8",
     name: "Luo Wenzao",
     email: "luo@wenzao.com",
     intro: "Dolor sit amet",
@@ -482,14 +490,14 @@ export default function Home() {
                         <List isPlain>
                           {contacts.length > 0 ? (
                             contactList && contactList.length > 0 ? (
-                              contactList.map((contact, id) => (
-                                <ListItem key={id}>
+                              contactList.map((contact, i) => (
+                                <ListItem key={i}>
                                   <Button
                                     variant="plain"
                                     className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
-                                    isActive={id === activeContactID}
+                                    isActive={contact.id === activeContactID}
                                     onClick={() => {
-                                      setActiveContactID(id);
+                                      setActiveContactID(contact.id);
 
                                       if (!(!width || width >= 768)) {
                                         setDrawerExpanded(false);
@@ -524,8 +532,8 @@ export default function Home() {
                               </ListItem>
                             )
                           ) : (
-                            [0, 1, 2].map((_, id) => (
-                              <ListItem key={id}>
+                            [0, 1, 2].map((_, i) => (
+                              <ListItem key={i}>
                                 <Button
                                   variant="plain"
                                   className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
@@ -544,8 +552,8 @@ export default function Home() {
                                       <Skeleton
                                         screenreaderText="Loading contact info"
                                         width={
-                                          (id % 2 != 0 ? 33 : 66) +
-                                          (id % 2) * 10 +
+                                          (i % 2 != 0 ? 33 : 66) +
+                                          (i % 2) * 10 +
                                           "%"
                                         }
                                       />
@@ -555,8 +563,8 @@ export default function Home() {
                                       <Skeleton
                                         screenreaderText="Loading contact info"
                                         width={
-                                          (id % 2 == 0 ? 33 : 66) +
-                                          (id % 2) * 10 +
+                                          (i % 2 == 0 ? 33 : 66) +
+                                          (i % 2) * 10 +
                                           "%"
                                         }
                                       />
@@ -590,7 +598,10 @@ export default function Home() {
                           </span>{" "}
                           {contacts.length > 0 ? (
                             <div className="pf-u-display-flex pf-u-align-items-center">
-                              {contacts[activeContactID].name}{" "}
+                              {
+                                contacts.find((c) => c.id === activeContactID)
+                                  ?.name
+                              }{" "}
                               <Popover
                                 aria-label="Show contact email"
                                 hasAutoWidth
@@ -606,7 +617,11 @@ export default function Home() {
                                     hoverTip="Copy email"
                                     clickTip="Copied"
                                   >
-                                    {contacts[activeContactID].email}
+                                    {
+                                      contacts.find(
+                                        (c) => c.id === activeContactID
+                                      )?.email
+                                    }
                                   </ClipboardCopy>
                                 )}
                               >
@@ -676,8 +691,8 @@ export default function Home() {
                   <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
                     <List isPlain>
                       {messages ? (
-                        messages.map((message, id) => (
-                          <Fragment key={id}>
+                        messages.map((message, i) => (
+                          <Fragment key={i}>
                             <ListItem>
                               <Card
                                 isCompact
@@ -693,18 +708,18 @@ export default function Home() {
                               </Card>
                             </ListItem>
 
-                            {(messages[id + 1] &&
+                            {(messages[i + 1] &&
                               Math.abs(
                                 message.date.getTime() -
-                                  messages[id + 1].date.getTime()
+                                  messages[i + 1].date.getTime()
                               ) /
                                 (1000 * 60 * 60) >
                                 2) ||
-                            id === messages.length - 1 ? (
+                            i === messages.length - 1 ? (
                               <ListItem>
                                 <span
                                   ref={
-                                    id === messages.length - 1
+                                    i === messages.length - 1
                                       ? lastMessageRef
                                       : undefined
                                   }
@@ -806,7 +821,9 @@ export default function Home() {
                   bodyAriaLabel="Block modal"
                   tabIndex={0}
                   variant={ModalVariant.small}
-                  title={`Block ${contacts[activeContactID].name}`}
+                  title={`Block ${
+                    contacts.find((c) => c.id === activeContactID)?.name
+                  }`}
                   isOpen={blockModalOpen}
                   onClose={() => setBlockModalOpen(false)}
                   actions={[
@@ -827,8 +844,9 @@ export default function Home() {
                   ]}
                 >
                   Are you sure you want to block{" "}
-                  {contacts[activeContactID].name}? You will have to manually
-                  add them as a contact if you want to contact them again.
+                  {contacts.find((c) => c.id === activeContactID)?.name}? You
+                  will have to manually add them as a contact if you want to
+                  contact them again.
                 </Modal>
               )}
 
@@ -836,7 +854,9 @@ export default function Home() {
                 <Modal
                   bodyAriaLabel="Report modal"
                   variant={ModalVariant.small}
-                  title={`Report ${contacts[activeContactID].name}`}
+                  title={`Report ${
+                    contacts.find((c) => c.id === activeContactID)?.name
+                  }`}
                   isOpen={reportModalOpen}
                   onClose={() => setReportModalOpen(false)}
                   actions={[
