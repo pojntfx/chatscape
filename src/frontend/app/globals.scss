@@ -183,3 +183,7 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
     pointer-events: auto;
   }
 }
+
+.pf-c-card--message {
+  word-wrap: break-word;
+}
