@@ -142,6 +142,7 @@ const useAPI = () => {
         return newContacts;
       });
     },
+    reportContact: (id: string, context: string) => {},
   };
 };
 
@@ -290,6 +291,7 @@ export default function Home() {
   const [drawerExpanded, setDrawerExpanded] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [reportFormCommentContent, setReportFormCommentContent] = useState("");
 
   const width = useWindowWidth();
 
@@ -309,6 +311,7 @@ export default function Home() {
     setActiveContactID,
 
     blockContact,
+    reportContact,
   } = useAPI();
 
   const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
@@ -894,7 +897,10 @@ export default function Home() {
                 >
                   <Form
                     id="report-form"
-                    onSubmit={() => setReportModalOpen(false)}
+                    onSubmit={() => {
+                      reportContact(activeContactID, reportFormCommentContent);
+                      setReportModalOpen(false);
+                    }}
                     noValidate={false}
                   >
                     <FormGroup
@@ -907,6 +913,8 @@ export default function Home() {
                         required
                         id="report-form-comment"
                         name="report-form-comment"
+                        value={reportFormCommentContent}
+                        onChange={(v) => setReportFormCommentContent(v)}
                       />
                     </FormGroup>
                   </Form>
