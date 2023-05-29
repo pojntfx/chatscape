@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertActionCloseButton,
+  AlertActionLink,
   Avatar,
   Button,
   Card,
@@ -50,6 +53,16 @@ import {
 import Image from "next/image";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import logo from "../public/logo-light.png";
+
+declare global {
+  interface Window {
+    wb: {
+      messageSkipWaiting(): void;
+      register(): void;
+      addEventListener(name: string, callback: () => unknown): void;
+    };
+  }
+}
 
 const useWindowWidth = () => {
   const [windowSize, setWindowSize] = useState<number | undefined>();
@@ -258,6 +271,7 @@ export default function Home() {
   const [showContactEmailOpen, setShowContactEmailOpen] = useState(false);
   const [drawerExpanded, setDrawerExpanded] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
+  const [updateAvailable, setUpdateAvailable] = useState(false);
 
   const width = useWindowWidth();
 
@@ -327,6 +341,13 @@ export default function Home() {
       setDrawerExpanded(true);
     }
   }, [width]);
+
+  useEffect(() => {
+    window.wb?.addEventListener("controlling", () => window.location.reload());
+
+    window.wb?.addEventListener("waiting", () => setUpdateAvailable(true));
+    window.wb?.register();
+  }, []);
 
   const AvatarMenu = ({ right }: { right?: boolean }) => (
     <Dropdown
@@ -1003,6 +1024,32 @@ export default function Home() {
           </div>
         </Modal>
       </PageSection>
+
+      {updateAvailable && (
+        <div className="pf-x-global-alerts-container pf-u-p-lg">
+          <Alert
+            variant="info"
+            title="Update available"
+            actionClose={
+              <AlertActionCloseButton
+                onClose={() => setUpdateAvailable(false)}
+              />
+            }
+            actionLinks={
+              <>
+                <AlertActionLink onClick={window.wb?.messageSkipWaiting}>
+                  Update now
+                </AlertActionLink>
+                <AlertActionLink onClick={() => setUpdateAvailable(false)}>
+                  Ignore
+                </AlertActionLink>
+              </>
+            }
+          >
+            <p>A new version of ChatScape is available.</p>
+          </Alert>
+        </div>
+      )}
     </Page>
   );
 }
