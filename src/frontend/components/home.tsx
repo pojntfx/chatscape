@@ -301,7 +301,7 @@ export default function Home() {
       addContact(initialEmailInputValue);
       setInitialEmailInputValue("");
     } else {
-      initialEmailInputValueRef?.current?.focus();
+      initialEmailInputValueRef.current?.focus();
     }
   }, [addContact, initialEmailInputValue]);
 
@@ -317,7 +317,7 @@ export default function Home() {
       setAddContactEmailInputValue("");
       setContactPopoverOpen(false);
     } else {
-      addContactEmailInputValueRef?.current?.focus();
+      addContactEmailInputValueRef.current?.focus();
     }
   }, [addContact, addContactEmailInputValue]);
 
@@ -328,7 +328,7 @@ export default function Home() {
       addMessage(addMessageInputValue);
       setAddMessageInputValue("");
     } else {
-      addMessageInputValueRef?.current?.focus();
+      addMessageInputValueRef.current?.focus();
     }
   }, [addMessage, addMessageInputValue]);
 
@@ -348,6 +348,13 @@ export default function Home() {
     window.wb?.addEventListener("waiting", () => setUpdateAvailable(true));
     window.wb?.register();
   }, []);
+
+  const lastMessageRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(
+    () => lastMessageRef.current?.scrollIntoView({ behavior: "smooth" }),
+    [messages]
+  );
 
   const AvatarMenu = ({ right }: { right?: boolean }) => (
     <Dropdown
@@ -676,9 +683,10 @@ export default function Home() {
                                 isCompact
                                 isRounded
                                 className={
-                                  message.them
+                                  "pf-c-card--message " +
+                                  (message.them
                                     ? "pf-c-card--them"
-                                    : "pf-c-card--us"
+                                    : "pf-c-card--us")
                                 }
                               >
                                 <CardBody>{message.body}</CardBody>
@@ -694,7 +702,14 @@ export default function Home() {
                                 2) ||
                             id === messages.length - 1 ? (
                               <ListItem>
-                                <span className="pf-c-date">
+                                <span
+                                  ref={
+                                    id === messages.length - 1
+                                      ? lastMessageRef
+                                      : undefined
+                                  }
+                                  className="pf-c-date"
+                                >
                                   {`Today ${message.date
                                     .getHours()
                                     .toString()
