@@ -132,6 +132,16 @@ const useAPI = () => {
 
     activeContactID,
     setActiveContactID,
+
+    blockContact: (id: string) => {
+      setContacts((contacts) => {
+        const newContacts = contacts?.filter((c) => c.id !== id);
+
+        setActiveContactID(newContacts?.at(0)?.id || "");
+
+        return newContacts;
+      });
+    },
   };
 };
 
@@ -297,6 +307,8 @@ export default function Home() {
 
     activeContactID,
     setActiveContactID,
+
+    blockContact,
   } = useAPI();
 
   const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
@@ -830,7 +842,10 @@ export default function Home() {
                     <Button
                       key="confirm"
                       variant="danger"
-                      onClick={() => setBlockModalOpen(false)}
+                      onClick={() => {
+                        blockContact(activeContactID);
+                        setBlockModalOpen(false);
+                      }}
                     >
                       Block
                     </Button>,
