@@ -54,6 +54,7 @@ import {
 import Image from "next/image";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import logo from "../public/logo-light.png";
+import { v4 } from "uuid";
 
 declare global {
   interface Window {
@@ -99,7 +100,7 @@ const useAPI = () => {
         setActiveContactID(id);
       }
 
-      setMessages(apiData.find((c) => c.id === id)?.messages);
+      setMessages(apiData.find((c) => c.id === id)?.messages || []);
     }
   }, [contacts, activeContactID]);
 
@@ -111,9 +112,24 @@ const useAPI = () => {
 
     contacts,
     addContact: (email: string) => {
-      setContacts([]);
+      setContacts((oldContacts) => {
+        if (!oldContacts) oldContacts = apiData;
 
-      setTimeout(() => setContacts(apiData), 2000);
+        const newID = v4();
+
+        setActiveContactID(newID);
+
+        return [
+          ...oldContacts,
+          {
+            id: newID,
+            name: email.split("@")[0] + " " + email.split("@")[1],
+            email: email,
+            intro: "Optio, voluptate accus",
+            avatar: "https://i.pravatar.cc/300",
+          },
+        ];
+      });
     },
 
     messages,
@@ -770,52 +786,62 @@ export default function Home() {
                   <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
                     <List isPlain>
                       {messages ? (
-                        messages.map((message, i) => (
-                          <Fragment key={i}>
-                            <ListItem>
-                              <Card
-                                isCompact
-                                isRounded
-                                className={
-                                  "pf-c-card--message " +
-                                  (message.them
-                                    ? "pf-c-card--them"
-                                    : "pf-c-card--us")
-                                }
-                              >
-                                <CardBody>{message.body}</CardBody>
-                              </Card>
-                            </ListItem>
-
-                            {(messages[i + 1] &&
-                              Math.abs(
-                                message.date.getTime() -
-                                  messages[i + 1].date.getTime()
-                              ) /
-                                (1000 * 60 * 60) >
-                                2) ||
-                            i === messages.length - 1 ? (
+                        messages.length > 0 ? (
+                          messages.map((message, i) => (
+                            <Fragment key={i}>
                               <ListItem>
-                                <span
-                                  ref={
-                                    i === messages.length - 1
-                                      ? lastMessageRef
-                                      : undefined
+                                <Card
+                                  isCompact
+                                  isRounded
+                                  className={
+                                    "pf-c-card--message " +
+                                    (message.them
+                                      ? "pf-c-card--them"
+                                      : "pf-c-card--us")
                                   }
-                                  className="pf-c-date"
                                 >
-                                  {`Today ${message.date
-                                    .getHours()
-                                    .toString()
-                                    .padStart(2, "0")}:${message.date
-                                    .getMinutes()
-                                    .toString()
-                                    .padStart(2, "0")}`}
-                                </span>
+                                  <CardBody>{message.body}</CardBody>
+                                </Card>
                               </ListItem>
-                            ) : null}
-                          </Fragment>
-                        ))
+
+                              {(messages[i + 1] &&
+                                Math.abs(
+                                  message.date.getTime() -
+                                    messages[i + 1].date.getTime()
+                                ) /
+                                  (1000 * 60 * 60) >
+                                  2) ||
+                              i === messages.length - 1 ? (
+                                <ListItem>
+                                  <span
+                                    ref={
+                                      i === messages.length - 1
+                                        ? lastMessageRef
+                                        : undefined
+                                    }
+                                    className="pf-c-date"
+                                  >
+                                    {`Today ${message.date
+                                      .getHours()
+                                      .toString()
+                                      .padStart(2, "0")}:${message.date
+                                      .getMinutes()
+                                      .toString()
+                                      .padStart(2, "0")}`}
+                                  </span>
+                                </ListItem>
+                              ) : null}
+                            </Fragment>
+                          ))
+                        ) : (
+                          <ListItem>
+                            <EmptyState variant={EmptyStateVariant.xs}>
+                              <EmptyStateBody className="pf-u-mt-0">
+                                No messages yet
+                              </EmptyStateBody>
+                            </EmptyState>
+                          </ListItem>
+                        )
                       ) : (
                         <>
                           <ListItem>
