@@ -41,6 +41,7 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   AddressBookIcon,
@@ -56,7 +57,7 @@ import logo from "../public/logo-light.png";
 
 declare global {
   interface Window {
-    wb: {
+    workbox: {
       messageSkipWaiting(): void;
       register(): void;
       addEventListener(name: string, callback: () => unknown): void;
@@ -143,6 +144,71 @@ const useAPI = () => {
       });
     },
     reportContact: (id: string, context: string) => {},
+  };
+};
+
+let readyToInstallPWA: Event | undefined;
+window.addEventListener("beforeinstallprompt", (e) => {
+  localStorage.removeItem("pwa.isInstalled");
+
+  readyToInstallPWA = e;
+});
+
+let pwaInstalled = false;
+window.addEventListener("appinstalled", () => {
+  localStorage.setItem("pwa.isInstalled", "true");
+
+  readyToInstallPWA = undefined;
+
+  pwaInstalled = true;
+});
+
+const usePWAInstaller = (
+  onUpdateAvailable: () => void,
+  afterInstall: () => void
+) => {
+  const [pwaInstallEvent, setPWAInstallEvent] = useState<Event | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const installHandler = (e: Event) => setPWAInstallEvent(() => e);
+    window.addEventListener("beforeinstallprompt", installHandler);
+    if (readyToInstallPWA) {
+      installHandler(readyToInstallPWA);
+    }
+
+    const afterInstallHandler = () => afterInstall();
+    window.addEventListener("appinstalled", afterInstallHandler);
+    if (pwaInstalled || localStorage.getItem("pwa.isInstalled") === "true") {
+      afterInstallHandler();
+    }
+
+    window.workbox?.addEventListener("waiting", () => onUpdateAvailable());
+
+    window.workbox?.register();
+
+    return () => {
+      window.removeEventListener("appinstalled", afterInstallHandler);
+      window.removeEventListener("beforeinstallprompt", installHandler);
+    };
+  }, [afterInstall, onUpdateAvailable]);
+
+  const [installPWA, setInstallPWA] = useState<Function | undefined>(undefined);
+  useEffect(() => {
+    if (pwaInstallEvent)
+      setInstallPWA(() => () => (pwaInstallEvent as any)?.prompt?.());
+  }, [pwaInstallEvent]);
+
+  return {
+    installPWA,
+    updatePWA: () => {
+      window.workbox?.addEventListener("controlling", () =>
+        window.location.reload()
+      );
+
+      window.workbox?.messageSkipWaiting();
+    },
   };
 };
 
@@ -314,6 +380,11 @@ export default function Home() {
     reportContact,
   } = useAPI();
 
+  const { installPWA, updatePWA } = usePWAInstaller(
+    () => setUpdateAvailable(true),
+    logIn
+  );
+
   const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
   const initialEmailInputValueRef = useRef<HTMLInputElement>(null);
   const submitInitialEmailInput = useCallback(() => {
@@ -364,13 +435,6 @@ export default function Home() {
       setDrawerExpanded(true);
     }
   }, [width]);
-
-  useEffect(() => {
-    window.wb?.addEventListener("controlling", () => window.location.reload());
-
-    window.wb?.addEventListener("waiting", () => setUpdateAvailable(true));
-    window.wb?.register();
-  }, []);
 
   const lastMessageRef = useRef<HTMLSpanElement>(null);
 
@@ -1010,14 +1074,29 @@ export default function Home() {
               </Title>
 
               <div className="pf-x-ctas">
-                <Button
-                  variant="primary"
-                  icon={<DownloadIcon />}
-                  className="pf-u-mr-0 pf-u-mr-sm-on-sm pf-u-mb-sm pf-u-mb-0-on-sm"
-                  onClick={logIn}
+                <Tooltip
+                  trigger={installPWA ? "manual" : undefined}
+                  isVisible={installPWA ? false : undefined}
+                  content={
+                    <div>
+                      Your browser doesn&apos;t support PWAs, please use Chrome,
+                      Edge or another compatible browser to install the app or
+                      add it to your homescreen manually.
+                    </div>
+                  }
                 >
-                  Download the app
-                </Button>{" "}
+                  <Button
+                    variant="primary"
+                    icon={<DownloadIcon />}
+                    className={
+                      "pf-u-mr-0 pf-u-mr-sm-on-sm pf-u-mb-sm pf-u-mb-0-on-sm " +
+                      (installPWA ? "" : "pf-m-unusable")
+                    }
+                    onClick={async () => installPWA?.()}
+                  >
+                    Install the app
+                  </Button>
+                </Tooltip>{" "}
                 <Button
                   variant="link"
                   className="pf-u-mb-sm pf-u-mb-0-on-sm"
@@ -1095,7 +1174,7 @@ export default function Home() {
             }
             actionLinks={
               <>
-                <AlertActionLink onClick={window.wb?.messageSkipWaiting}>
+                <AlertActionLink onClick={updatePWA}>
                   Update now
                 </AlertActionLink>
                 <AlertActionLink onClick={() => setUpdateAvailable(false)}>

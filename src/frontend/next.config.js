@@ -1,6 +1,8 @@
-const withPWA = require("next-pwa")({
+const withPWA = require("@imbios/next-pwa")({
   dest: "public",
-  disable: process.env.NODE_ENV !== "production",
+  disable: process.env.NODE_ENV === "development",
+  buildExcludes: [/app-build-manifest\.json$/],
+  register: false,
 });
 
 /** @type {import('next').NextConfig} */
