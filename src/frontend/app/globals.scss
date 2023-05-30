@@ -120,6 +120,10 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 .pf-m-primary {
   background: var(--pf-global--BackgroundColor--dark-300) !important;
 
+  &.pf-m-unusable {
+    color: #99a0a9 !important;
+  }
+
   &:hover {
     background: var(--pf-global--BackgroundColor--dark-200) !important;
   }
