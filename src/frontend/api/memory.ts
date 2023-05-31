@@ -14,45 +14,73 @@ export interface IMessage {
   date: Date;
 }
 
-const contacts: IContact[] = [];
-const messages: Map<string, IMessage[]> = new Map<string, IMessage[]>();
+export class InMemoryAPI {
+  private contacts: IContact[] = [];
+  private messages: Map<string, IMessage[]> = new Map<string, IMessage[]>();
+  private simulatedRTT: number;
 
-export const addContact = async (name: string, email: string) => {
-  const newContact: IContact = {
-    id: v4(),
-    name,
-    email,
-    intro: "Optio, voluptate accus",
-    avatar: "https://i.pravatar.cc/300?u=" + email,
-  };
-
-  contacts.push(newContact);
-
-  return newContact;
-};
-
-export const getContacts = async () => contacts;
-
-export const blockContact = async (contactID: string) => {
-  const index = contacts.findIndex((contact) => contact.id === contactID);
-
-  if (index !== -1) {
-    contacts.splice(index, 1);
+  constructor(simulatedRTT: number) {
+    this.simulatedRTT = simulatedRTT;
   }
-};
 
-export const reportContact = async (contactID: string, context: string) => {};
+  private async sleep(): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, this.simulatedRTT));
+  }
 
-export const addMessage = async (contactID: string, body: string) => {
-  messages.set(contactID, [
-    ...(messages.get(contactID) || []),
-    {
-      them: false,
-      body,
-      date: new Date(),
-    },
-  ]);
-};
+  async addContact(name: string, email: string): Promise<IContact> {
+    await this.sleep();
 
-export const getMessages = async (contactID: string) =>
-  messages.get(contactID) || [];
+    const newContact: IContact = {
+      id: v4(),
+      name,
+      email,
+      intro: "Optio, voluptate accus",
+      avatar: "https://i.pravatar.cc/300?u=" + email,
+    };
+
+    this.contacts.push(newContact);
+
+    return newContact;
+  }
+
+  async getContacts(): Promise<IContact[]> {
+    await this.sleep();
+
+    return this.contacts;
+  }
+
+  async blockContact(contactID: string): Promise<void> {
+    await this.sleep();
+
+    const index = this.contacts.findIndex(
+      (contact) => contact.id === contactID
+    );
+
+    if (index !== -1) {
+      this.contacts.splice(index, 1);
+    }
+  }
+
+  async reportContact(contactID: string, context: string): Promise<void> {
+    await this.sleep();
+  }
+
+  async addMessage(contactID: string, body: string): Promise<void> {
+    await this.sleep();
+
+    this.messages.set(contactID, [
+      ...(this.messages.get(contactID) || []),
+      {
+        them: false,
+        body,
+        date: new Date(),
+      },
+    ]);
+  }
+
+  async getMessages(contactID: string): Promise<IMessage[]> {
+    await this.sleep();
+
+    return this.messages.get(contactID) || [];
+  }
+}
