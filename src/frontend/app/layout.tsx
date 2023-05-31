@@ -26,7 +26,7 @@ export default function RootLayout({
         <meta property="og:image" content="/logo-light.png" />
 
         <meta content="width=device-width, initial-scale=1" name="viewport" />
-        <meta name="theme-color" content="#212427" />
+        <meta name="theme-color" content="#151515" />
         <link rel="icon" href="/icon-light-small.png" />
         <link rel="apple-touch-icon" href="/icon-light-small.png" />
         <link rel="manifest" href="/manifest.json" />
