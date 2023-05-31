@@ -55,6 +55,7 @@ import Image from "next/image";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { IContact, IMessage, InMemoryAPI } from "../api/memory";
 import logo from "../public/logo-light.png";
+import { LocalStorageAPI } from "@/api/localstorage";
 
 declare global {
   interface Window {
@@ -82,7 +83,8 @@ const useWindowWidth = () => {
   return windowSize;
 };
 
-const api = new InMemoryAPI(500);
+// const api = new InMemoryAPI(500);
+const api = new LocalStorageAPI(500);
 
 const useAPI = () => {
   const [loggedIn, setLoggedIn] = useState(false);
