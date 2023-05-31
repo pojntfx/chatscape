@@ -53,8 +53,17 @@ import {
 } from "@patternfly/react-icons";
 import Image from "next/image";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import {
+  IContact,
+  IMessage,
+  addContact,
+  addMessage,
+  blockContact,
+  getContacts,
+  getMessages,
+  reportContact,
+} from "../api/memory";
 import logo from "../public/logo-light.png";
-import { v4 } from "uuid";
 
 declare global {
   interface Window {
@@ -95,14 +104,26 @@ const useAPI = () => {
     if (contacts && contacts.length > 0) {
       let id = activeContactID;
       if (id === "") {
-        id = apiData[0].id;
-
-        setActiveContactID(id);
+        getContacts()
+          .then((contacts) => setActiveContactID(contacts[0].id || ""))
+          .catch((e) => console.error(e));
       }
 
-      setMessages(apiData.find((c) => c.id === id)?.messages || []);
+      setMessages(undefined);
+
+      getMessages(activeContactID)
+        .then((messages) => setMessages(messages))
+        .catch((e) => console.error(e));
     }
   }, [contacts, activeContactID]);
+
+  useEffect(() => {
+    getContacts()
+      .then((contacts) =>
+        setContacts(contacts.length > 0 ? contacts : undefined)
+      )
+      .catch((e) => console.error(e));
+  }, []);
 
   return {
     loggedIn,
@@ -112,28 +133,30 @@ const useAPI = () => {
 
     contacts,
     addContact: (email: string) => {
-      setContacts((oldContacts) => {
-        if (!oldContacts) oldContacts = apiData;
+      addContact(email.split("@")[0] + " " + email.split("@")[1], email)
+        .then((newContact) => {
+          // Local
+          setContacts((oldContacts) => {
+            if (!oldContacts) oldContacts = [];
 
-        const newID = v4();
+            setActiveContactID(newContact.id);
 
-        setActiveContactID(newID);
+            return [...oldContacts, newContact];
+          });
 
-        return [
-          ...oldContacts,
-          {
-            id: newID,
-            name: email.split("@")[0] + " " + email.split("@")[1],
-            email: email,
-            intro: "Optio, voluptate accus",
-            avatar: "https://i.pravatar.cc/300",
-          },
-        ];
-      });
+          // Remote
+          getContacts()
+            .then((contacts) =>
+              setContacts(contacts.length > 0 ? contacts : undefined)
+            )
+            .catch((e) => console.error(e));
+        })
+        .catch((e) => console.error(e));
     },
 
     messages,
-    addMessage: (body: string) =>
+    addMessage: (body: string) => {
+      // Local
       setMessages((old) =>
         old
           ? [
@@ -145,21 +168,43 @@ const useAPI = () => {
               },
             ]
           : []
-      ),
+      );
 
+      // Remote
+      addMessage(activeContactID, body)
+        .then(() =>
+          getMessages(activeContactID)
+            .then((messages) => setMessages(messages))
+            .catch((e) => console.error(e))
+        )
+        .catch((e) => console.error(e));
+    },
     activeContactID,
     setActiveContactID,
 
-    blockContact: (id: string) => {
+    blockContact: () => {
+      // Local
       setContacts((contacts) => {
-        const newContacts = contacts?.filter((c) => c.id !== id);
+        const newContacts = contacts?.filter((c) => c.id !== activeContactID);
 
         setActiveContactID(newContacts?.at(0)?.id || "");
 
-        return newContacts;
+        return newContacts?.length || 0 > 0 ? contacts : undefined;
       });
+
+      // Remote
+      blockContact(activeContactID)
+        .then(() =>
+          getContacts()
+            .then((contacts) =>
+              setContacts(contacts.length > 0 ? contacts : undefined)
+            )
+            .catch((e) => console.error(e))
+        )
+        .catch((e) => console.error(e));
     },
-    reportContact: (id: string, context: string) => {},
+    reportContact: (context: string) =>
+      reportContact(activeContactID, context).catch((e) => console.error(e)),
   };
 };
 
@@ -227,140 +272,6 @@ const usePWAInstaller = (
     },
   };
 };
-
-interface IContact {
-  id: string;
-  name: string;
-  email: string;
-  intro: string;
-  avatar: string;
-}
-
-interface IMessage {
-  them: boolean;
-  body: string;
-  date: Date;
-}
-
-const apiData = [
-  {
-    id: "827bb564-fe22-11ed-b4fe-98fc84efb5c8",
-    name: "Jane Doe",
-    email: "jane@doe.com",
-    intro: "Optio, voluptate accus",
-    avatar: "https://i.pravatar.cc/300?u=jane",
-    messages: [
-      {
-        them: true,
-        body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis dolor hic temporibus nesciunt enim optio, voluptate accusamus, sit eum cumque suscipit rerum, vel quae quas iste doloribus modi ipsa fugit.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 5);
-          return now;
-        })(),
-      },
-      {
-        them: false,
-        body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Blanditiis dolor hic temporibus nesciunt enim optio.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 2);
-          return now;
-        })(),
-      },
-      {
-        them: false,
-        body: "Lorem!",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 2);
-          return now;
-        })(),
-      },
-      {
-        them: true,
-        body: "Optio, voluptate accusamus, sit eum cumque suscipit rerum, vel quae quas iste doloribus modi ipsa fugit.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 1);
-          return now;
-        })(),
-      },
-    ],
-  },
-  {
-    id: "ad2916b8-fe21-11ed-b903-98fc84efb5c8",
-    name: "Jean Doe",
-    email: "jean@doe.com",
-    intro: "Quas iste doloribus",
-    avatar: "https://i.pravatar.cc/300?u=jean",
-    messages: [
-      {
-        them: false,
-        body: "Pharetra sit amet magna. Sed sollicitudin quam eu malesuada dapibus. Nullam risus nibh, aliquet vitae faucibus sit amet, pretium ac mi. Vivamus vulputate gravida enim, non finibus justo pretium commodo.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 5);
-          return now;
-        })(),
-      },
-      {
-        them: true,
-        body: "Fusce vestibulum porttitor nibh, non pellentesque lacus lobortis non. Pellentesque tincidunt et ipsum quis iaculis. Sed vulputate imperdiet facilisis.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 5);
-          return now;
-        })(),
-      },
-    ],
-  },
-  {
-    id: "b57bae3e-fe21-11ed-b1c9-98fc84efb5c8",
-    name: "Luo Wenzao",
-    email: "luo@wenzao.com",
-    intro: "Dolor sit amet",
-    avatar: "https://i.pravatar.cc/300?u=luo",
-    messages: [
-      {
-        them: true,
-        body: "Suspendisse vulputate, ipsum consectetur lacinia rhoncus, ante lacus pharetra quam, eget accumsan felis justo eget leo.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 5);
-          return now;
-        })(),
-      },
-      {
-        them: true,
-        body: "Interdum et malesuada fames ac ante ipsum primis in faucibus.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 5);
-          return now;
-        })(),
-      },
-      {
-        them: true,
-        body: "Donec aliquam nibh eu risus sollicitudin",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours() - 3);
-          return now;
-        })(),
-      },
-      {
-        them: false,
-        body: "Maecenas rhoncus sapien et varius pulvinar.",
-        date: (() => {
-          const now = new Date();
-          now.setHours(now.getHours());
-          return now;
-        })(),
-      },
-    ],
-  },
-];
 
 export default function Home() {
   const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
@@ -936,7 +847,7 @@ export default function Home() {
                       key="confirm"
                       variant="danger"
                       onClick={() => {
-                        blockContact(activeContactID);
+                        blockContact();
                         setBlockModalOpen(false);
                       }}
                     >
@@ -988,7 +899,7 @@ export default function Home() {
                   <Form
                     id="report-form"
                     onSubmit={() => {
-                      reportContact(activeContactID, reportFormCommentContent);
+                      reportContact(reportFormCommentContent);
                       setReportModalOpen(false);
                     }}
                     noValidate={false}
