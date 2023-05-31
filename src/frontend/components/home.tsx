@@ -53,16 +53,7 @@ import {
 } from "@patternfly/react-icons";
 import Image from "next/image";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import {
-  IContact,
-  IMessage,
-  addContact,
-  addMessage,
-  blockContact,
-  getContacts,
-  getMessages,
-  reportContact,
-} from "../api/memory";
+import { IContact, IMessage, InMemoryAPI } from "../api/memory";
 import logo from "../public/logo-light.png";
 
 declare global {
@@ -91,6 +82,8 @@ const useWindowWidth = () => {
   return windowSize;
 };
 
+const api = new InMemoryAPI(500);
+
 const useAPI = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
@@ -101,24 +94,25 @@ const useAPI = () => {
   const [activeContactID, setActiveContactID] = useState("");
 
   useEffect(() => {
-    if (contacts && contacts.length > 0) {
-      let id = activeContactID;
-      if (id === "") {
-        getContacts()
-          .then((contacts) => setActiveContactID(contacts[0].id || ""))
-          .catch((e) => console.error(e));
-      }
-
-      setMessages(undefined);
-
-      getMessages(activeContactID)
-        .then((messages) => setMessages(messages))
+    let id = activeContactID;
+    if (id === "") {
+      api
+        .getContacts()
+        .then((contacts) => setActiveContactID(contacts[0]?.id || ""))
         .catch((e) => console.error(e));
     }
+
+    setMessages(undefined);
+
+    api
+      .getMessages(activeContactID)
+      .then((messages) => setMessages(messages))
+      .catch((e) => console.error(e));
   }, [contacts, activeContactID]);
 
   useEffect(() => {
-    getContacts()
+    api
+      .getContacts()
       .then((contacts) =>
         setContacts(contacts.length > 0 ? contacts : undefined)
       )
@@ -133,19 +127,17 @@ const useAPI = () => {
 
     contacts,
     addContact: (email: string) => {
-      addContact(email.split("@")[0] + " " + email.split("@")[1], email)
+      // Local
+      setContacts([]);
+
+      // Remote
+      api
+        .addContact(email.split("@")[0] + " " + email.split("@")[1], email)
         .then((newContact) => {
-          // Local
-          setContacts((oldContacts) => {
-            if (!oldContacts) oldContacts = [];
+          setActiveContactID(newContact.id);
 
-            setActiveContactID(newContact.id);
-
-            return [...oldContacts, newContact];
-          });
-
-          // Remote
-          getContacts()
+          api
+            .getContacts()
             .then((contacts) =>
               setContacts(contacts.length > 0 ? contacts : undefined)
             )
@@ -171,9 +163,11 @@ const useAPI = () => {
       );
 
       // Remote
-      addMessage(activeContactID, body)
+      api
+        .addMessage(activeContactID, body)
         .then(() =>
-          getMessages(activeContactID)
+          api
+            .getMessages(activeContactID)
             .then((messages) => setMessages(messages))
             .catch((e) => console.error(e))
         )
@@ -189,13 +183,15 @@ const useAPI = () => {
 
         setActiveContactID(newContacts?.at(0)?.id || "");
 
-        return newContacts?.length || 0 > 0 ? contacts : undefined;
+        return (newContacts?.length || 0) > 0 ? newContacts : undefined;
       });
 
       // Remote
-      blockContact(activeContactID)
+      api
+        .blockContact(activeContactID)
         .then(() =>
-          getContacts()
+          api
+            .getContacts()
             .then((contacts) =>
               setContacts(contacts.length > 0 ? contacts : undefined)
             )
@@ -204,7 +200,9 @@ const useAPI = () => {
         .catch((e) => console.error(e));
     },
     reportContact: (context: string) =>
-      reportContact(activeContactID, context).catch((e) => console.error(e)),
+      api
+        .reportContact(activeContactID, context)
+        .catch((e) => console.error(e)),
   };
 };
 
