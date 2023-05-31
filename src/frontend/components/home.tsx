@@ -1,3 +1,4 @@
+import { LocalStorageAPI } from "../api/localstorage";
 import {
   Alert,
   AlertActionCloseButton,
@@ -53,19 +54,9 @@ import {
 } from "@patternfly/react-icons";
 import Image from "next/image";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { IContact, IMessage, InMemoryAPI } from "../api/memory";
+import { IContact, IMessage } from "../api/models";
 import logo from "../public/logo-light.png";
-import { LocalStorageAPI } from "@/api/localstorage";
-
-declare global {
-  interface Window {
-    workbox: {
-      messageSkipWaiting(): void;
-      register(): void;
-      addEventListener(name: string, callback: () => unknown): void;
-    };
-  }
-}
+import { usePWAInstaller } from "../hooks/pwa";
 
 const useWindowWidth = () => {
   const [windowSize, setWindowSize] = useState<number | undefined>();
@@ -205,71 +196,6 @@ const useAPI = () => {
       api
         .reportContact(activeContactID, context)
         .catch((e) => console.error(e)),
-  };
-};
-
-let readyToInstallPWA: Event | undefined;
-window.addEventListener("beforeinstallprompt", (e) => {
-  localStorage.removeItem("pwa.isInstalled");
-
-  readyToInstallPWA = e;
-});
-
-let pwaInstalled = false;
-window.addEventListener("appinstalled", () => {
-  localStorage.setItem("pwa.isInstalled", "true");
-
-  readyToInstallPWA = undefined;
-
-  pwaInstalled = true;
-});
-
-const usePWAInstaller = (
-  onUpdateAvailable: () => void,
-  afterInstall: () => void
-) => {
-  const [pwaInstallEvent, setPWAInstallEvent] = useState<Event | undefined>(
-    undefined
-  );
-
-  useEffect(() => {
-    const installHandler = (e: Event) => setPWAInstallEvent(() => e);
-    window.addEventListener("beforeinstallprompt", installHandler);
-    if (readyToInstallPWA) {
-      installHandler(readyToInstallPWA);
-    }
-
-    const afterInstallHandler = () => afterInstall();
-    window.addEventListener("appinstalled", afterInstallHandler);
-    if (pwaInstalled || localStorage.getItem("pwa.isInstalled") === "true") {
-      afterInstallHandler();
-    }
-
-    window.workbox?.addEventListener("waiting", () => onUpdateAvailable());
-
-    window.workbox?.register();
-
-    return () => {
-      window.removeEventListener("appinstalled", afterInstallHandler);
-      window.removeEventListener("beforeinstallprompt", installHandler);
-    };
-  }, [afterInstall, onUpdateAvailable]);
-
-  const [installPWA, setInstallPWA] = useState<Function | undefined>(undefined);
-  useEffect(() => {
-    if (pwaInstallEvent)
-      setInstallPWA(() => () => (pwaInstallEvent as any)?.prompt?.());
-  }, [pwaInstallEvent]);
-
-  return {
-    installPWA,
-    updatePWA: () => {
-      window.workbox?.addEventListener("controlling", () =>
-        window.location.reload()
-      );
-
-      window.workbox?.messageSkipWaiting();
-    },
   };
 };
 
