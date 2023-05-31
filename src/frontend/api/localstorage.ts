@@ -1,9 +1,7 @@
 import { v4 } from "uuid";
 import { IAPI, IContact, IMessage } from "./models";
 
-export class InMemoryAPI implements IAPI {
-  private contacts: IContact[] = [];
-  private messages: Map<string, IMessage[]> = new Map<string, IMessage[]>();
+export class LocalStorageAPI implements IAPI {
   private simulatedRTT: number;
 
   constructor(simulatedRTT: number) {
@@ -25,7 +23,11 @@ export class InMemoryAPI implements IAPI {
       avatar: "https://i.pravatar.cc/300?u=" + email,
     };
 
-    this.contacts.push(newContact);
+    const contacts = await this.getContacts();
+
+    contacts.push(newContact);
+
+    localStorage.setItem("contacts", JSON.stringify(contacts));
 
     return newContact;
   }
@@ -33,19 +35,21 @@ export class InMemoryAPI implements IAPI {
   async getContacts(): Promise<IContact[]> {
     await this.sleep();
 
-    return this.contacts;
+    const contacts = localStorage.getItem("contacts");
+    return contacts ? JSON.parse(contacts) : [];
   }
 
   async blockContact(contactID: string): Promise<void> {
     await this.sleep();
 
-    const index = this.contacts.findIndex(
-      (contact) => contact.id === contactID
-    );
+    const contacts = await this.getContacts();
+    const index = contacts.findIndex((contact) => contact.id === contactID);
 
     if (index !== -1) {
-      this.contacts.splice(index, 1);
+      contacts.splice(index, 1);
     }
+
+    localStorage.setItem("contacts", JSON.stringify(contacts));
   }
 
   async reportContact(contactID: string, context: string): Promise<void> {
@@ -55,19 +59,26 @@ export class InMemoryAPI implements IAPI {
   async addMessage(contactID: string, body: string): Promise<void> {
     await this.sleep();
 
-    this.messages.set(contactID, [
-      ...(this.messages.get(contactID) || []),
-      {
-        them: false,
-        body,
-        date: new Date(),
-      },
-    ]);
+    const messages = await this.getMessages(contactID);
+
+    messages.push({
+      them: false,
+      body,
+      date: new Date(),
+    });
+
+    localStorage.setItem("messages-" + contactID, JSON.stringify(messages));
   }
 
   async getMessages(contactID: string): Promise<IMessage[]> {
     await this.sleep();
 
-    return this.messages.get(contactID) || [];
+    const storedMessages = localStorage.getItem("messages-" + contactID);
+    return storedMessages
+      ? JSON.parse(storedMessages).map((message: IMessage) => ({
+          ...message,
+          date: new Date(message.date),
+        }))
+      : [];
   }
 }
