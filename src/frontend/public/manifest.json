@@ -1,0 +1,22 @@
+{
+  "short_name": "ChatScape",
+  "name": "ChatScape",
+  "description": "Scalable serverless chat.",
+  "icons": [
+    {
+      "src": "/icon-light-small.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-light.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "scope": "/",
+  "start_url": "/",
+  "background_color": "#212427",
+  "theme_color": "#212427",
+  "display": "standalone"
+}
