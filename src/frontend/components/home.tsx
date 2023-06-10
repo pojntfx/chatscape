@@ -1,4 +1,3 @@
-import { LocalStorageAPI } from "../api/localstorage";
 import {
   Alert,
   AlertActionCloseButton,
@@ -53,151 +52,224 @@ import {
   PlusIcon,
 } from "@patternfly/react-icons";
 import Image from "next/image";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { IContact, IMessage } from "../api/models";
-import logo from "../public/logo-light.png";
+import {
+  Fragment,
+  RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { LocalStorageAPI } from "../api/localstorage";
 import { usePWAInstaller } from "../hooks/pwa";
-
-const useWindowWidth = () => {
-  const [windowSize, setWindowSize] = useState<number | undefined>();
-
-  useEffect(() => {
-    const handleResize = () => setWindowSize(window.innerWidth);
-
-    window.addEventListener("resize", handleResize);
-
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return windowSize;
-};
+import logo from "../public/logo-light.png";
+import { useAPI } from "../hooks/api";
+import { useWindowWidth } from "../hooks/window";
 
 // const api = new InMemoryAPI(500);
 const api = new LocalStorageAPI(500);
 
-const useAPI = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
-
-  const [contacts, setContacts] = useState<IContact[]>();
-  const [messages, setMessages] = useState<IMessage[]>();
-
-  const [activeContactID, setActiveContactID] = useState("");
-
-  useEffect(() => {
-    let id = activeContactID;
-    if (id === "") {
-      api
-        .getContacts()
-        .then((contacts) => setActiveContactID(contacts[0]?.id || ""))
-        .catch((e) => console.error(e));
+const AvatarMenu = ({
+  right,
+  setAccountActionsOpen,
+  accountActionsOpen,
+  avatarURL,
+  logOut,
+  setAboutModalOpen,
+}: {
+  right?: boolean;
+  setAccountActionsOpen: (
+    value: boolean | ((prevVar: boolean) => boolean)
+  ) => void;
+  accountActionsOpen: boolean;
+  avatarURL: string;
+  logOut: () => void;
+  setAboutModalOpen: (value: boolean | ((prevVar: boolean) => boolean)) => void;
+}) => (
+  <Dropdown
+    position={right ? DropdownPosition.right : undefined}
+    onSelect={() => setAccountActionsOpen((v) => !v)}
+    className="pf-u-display-flex"
+    toggle={
+      <DropdownToggle
+        toggleIndicator={null}
+        onToggle={() => setAccountActionsOpen((v) => !v)}
+        aria-label="Toggle account actions"
+        className="pf-u-p-0 pf-x-account-actions pf-x-avatar"
+      >
+        <Avatar src={avatarURL} alt="avatar" />
+      </DropdownToggle>
     }
+    isOpen={accountActionsOpen}
+    isPlain
+    dropdownItems={[
+      <DropdownItem key="1" component="button" onClick={logOut}>
+        Logout
+      </DropdownItem>,
+      <DropdownItem
+        key="2"
+        component="button"
+        onClick={() => setAboutModalOpen(true)}
+      >
+        About
+      </DropdownItem>,
+    ]}
+  />
+);
 
-    setMessages(undefined);
+const LoginPage = ({
+  installPWA,
+  logIn,
+}: {
+  installPWA?: Function;
+  logIn: () => void;
+}) => (
+  <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
+    <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-md">
+      <Image src={logo} alt="ChatScape logo" className="pf-x-logo" priority />
 
-    api
-      .getMessages(activeContactID)
-      .then((messages) => setMessages(messages))
-      .catch((e) => console.error(e));
-  }, [contacts, activeContactID]);
+      <Title headingLevel="h3" className="pf-u-mt-sm pf-u-mb-lg pf-x-subtitle">
+        Scalable Serverless Chat
+      </Title>
 
-  useEffect(() => {
-    api
-      .getContacts()
-      .then((contacts) =>
-        setContacts(contacts.length > 0 ? contacts : undefined)
-      )
-      .catch((e) => console.error(e));
-  }, []);
+      <div className="pf-x-ctas">
+        <Tooltip
+          trigger={installPWA ? "manual" : undefined}
+          isVisible={installPWA ? false : undefined}
+          content={
+            <div>
+              Your browser doesn&apos;t support PWAs, please use Chrome, Edge or
+              another compatible browser to install the app or add it to your
+              homescreen manually.
+            </div>
+          }
+        >
+          <Button
+            variant="primary"
+            icon={<DownloadIcon />}
+            className={
+              "pf-u-mr-0 pf-u-mr-sm-on-sm pf-u-mb-sm pf-u-mb-0-on-sm " +
+              (installPWA ? "" : "pf-m-unusable")
+            }
+            onClick={async () => installPWA?.()}
+          >
+            Install the app
+          </Button>
+        </Tooltip>{" "}
+        <Button
+          variant="link"
+          className="pf-u-mb-sm pf-u-mb-0-on-sm"
+          onClick={logIn}
+        >
+          Open in browser <GlobeIcon />
+        </Button>
+      </div>
+    </div>
 
-  return {
-    loggedIn,
-    avatarURL,
-    logIn: () => setLoggedIn(true),
-    logOut: () => setLoggedIn(false),
+    <div className="pf-u-w-100 pf-u-pt">
+      <div className="pf-l-flex pf-m-justify-content-space-between pf-x-footer">
+        <div className="pf-l-flex__item">
+          <a href="https://github.com/pojntfx/chatscape" target="_blank">
+            © AGPL-3.0 2023 Felicitas Pojtinger
+          </a>
+        </div>
+        <div className="pf-l-flex__item">
+          <a href="https://felicitas.pojtinger.com/imprint" target="_blank">
+            Imprint
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
-    contacts,
-    addContact: (email: string) => {
-      // Local
-      setContacts([]);
+const ChatPage = ({
+  setAccountActionsOpen,
+  accountActionsOpen,
+  avatarURL,
+  logOut,
+  setAboutModalOpen,
+  initialEmailInputValue,
+  setInitialEmailInputValue,
+  initialEmailInputValueRef,
+  submitInitialEmailInput,
+}: {
+  setAccountActionsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  accountActionsOpen: boolean;
+  avatarURL: string;
+  logOut: () => void;
+  setAboutModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  initialEmailInputValue: string;
+  setInitialEmailInputValue: React.Dispatch<React.SetStateAction<string>>;
+  initialEmailInputValueRef: RefObject<HTMLInputElement>;
+  submitInitialEmailInput: () => void;
+}) => (
+  <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
+    <div className="pf-u-w-100 pf-u-pt">
+      <div className="pf-u-display-flex pf-u-justify-content-space-between pf-u-align-items-center pf-x-footer">
+        <Image
+          src={logo}
+          alt="ChatScape logo"
+          className="pf-x-logo pf-x-logo--empty pf-u-mr-sm"
+        />
+        <AvatarMenu
+          right
+          setAccountActionsOpen={setAccountActionsOpen}
+          accountActionsOpen={accountActionsOpen}
+          avatarURL={avatarURL}
+          logOut={logOut}
+          setAboutModalOpen={setAboutModalOpen}
+        />
+      </div>
+    </div>
 
-      // Remote
-      api
-        .addContact(email.split("@")[0] + " " + email.split("@")[1], email)
-        .then((newContact) => {
-          setActiveContactID(newContact.id);
+    <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-p-md">
+      <EmptyState>
+        <EmptyStateIcon icon={AddressBookIcon} className="pf-x-text--intro" />
 
-          api
-            .getContacts()
-            .then((contacts) =>
-              setContacts(contacts.length > 0 ? contacts : undefined)
-            )
-            .catch((e) => console.error(e));
-        })
-        .catch((e) => console.error(e));
-    },
+        <Title headingLevel="h1" size="lg">
+          No contacts yet
+        </Title>
 
-    messages,
-    addMessage: (body: string) => {
-      // Local
-      setMessages((old) =>
-        old
-          ? [
-              ...old,
-              {
-                them: false,
-                body,
-                date: new Date(),
-              },
-            ]
-          : []
-      );
+        <EmptyStateBody className="pf-x-text--intro--subtitle">
+          Add a friend&apos;s email address to chat with them!
+        </EmptyStateBody>
 
-      // Remote
-      api
-        .addMessage(activeContactID, body)
-        .then(() =>
-          api
-            .getMessages(activeContactID)
-            .then((messages) => setMessages(messages))
-            .catch((e) => console.error(e))
-        )
-        .catch((e) => console.error(e));
-    },
-    activeContactID,
-    setActiveContactID,
+        <InputGroup className="pf-u-mt-md">
+          <TextInput
+            aria-label="Email of the account to add"
+            type="email"
+            placeholder="jean.doe@example.com"
+            value={initialEmailInputValue}
+            onChange={(v) => setInitialEmailInputValue(v)}
+            ref={initialEmailInputValueRef}
+            required
+            onKeyDown={(k) => k.key === "Enter" && submitInitialEmailInput()}
+          />
 
-    blockContact: () => {
-      // Local
-      setContacts((contacts) => {
-        const newContacts = contacts?.filter((c) => c.id !== activeContactID);
+          <Button variant="control" onClick={submitInitialEmailInput}>
+            <PlusIcon />
+          </Button>
+        </InputGroup>
+      </EmptyState>
+    </div>
 
-        setActiveContactID(newContacts?.at(0)?.id || "");
-
-        return (newContacts?.length || 0) > 0 ? newContacts : undefined;
-      });
-
-      // Remote
-      api
-        .blockContact(activeContactID)
-        .then(() =>
-          api
-            .getContacts()
-            .then((contacts) =>
-              setContacts(contacts.length > 0 ? contacts : undefined)
-            )
-            .catch((e) => console.error(e))
-        )
-        .catch((e) => console.error(e));
-    },
-    reportContact: (context: string) =>
-      api
-        .reportContact(activeContactID, context)
-        .catch((e) => console.error(e)),
-  };
-};
+    <div className="pf-u-w-100 pf-u-pt">
+      <div className="pf-l-flex pf-m-justify-content-space-between pf-x-footer">
+        <div className="pf-l-flex__item">
+          <a href="https://github.com/pojntfx/chatscape" target="_blank">
+            © AGPL-3.0 2023 Felicitas Pojtinger
+          </a>
+        </div>
+        <div className="pf-l-flex__item">
+          <a href="https://felicitas.pojtinger.com/imprint" target="_blank">
+            Imprint
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function Home() {
   const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
@@ -231,7 +303,7 @@ export default function Home() {
 
     blockContact,
     reportContact,
-  } = useAPI();
+  } = useAPI(api);
 
   const { installPWA, updatePWA } = usePWAInstaller(
     () => setUpdateAvailable(true),
@@ -296,38 +368,6 @@ export default function Home() {
     [messages]
   );
 
-  const AvatarMenu = ({ right }: { right?: boolean }) => (
-    <Dropdown
-      position={right ? DropdownPosition.right : undefined}
-      onSelect={() => setAccountActionsOpen((v) => !v)}
-      className="pf-u-display-flex"
-      toggle={
-        <DropdownToggle
-          toggleIndicator={null}
-          onToggle={() => setAccountActionsOpen((v) => !v)}
-          aria-label="Toggle account actions"
-          className="pf-u-p-0 pf-x-account-actions pf-x-avatar"
-        >
-          <Avatar src={avatarURL} alt="avatar" />
-        </DropdownToggle>
-      }
-      isOpen={accountActionsOpen}
-      isPlain
-      dropdownItems={[
-        <DropdownItem key="1" component="button" onClick={logOut}>
-          Logout
-        </DropdownItem>,
-        <DropdownItem
-          key="2"
-          component="button"
-          onClick={() => setAboutModalOpen(true)}
-        >
-          About
-        </DropdownItem>,
-      ]}
-    />
-  );
-
   return (
     <Page
       className="pf-c-page--background"
@@ -353,7 +393,13 @@ export default function Home() {
                       <Toolbar className="pf-u-m-0" isSticky>
                         <ToolbarContent>
                           <ToolbarItem className="pf-u-display-flex">
-                            <AvatarMenu />
+                            <AvatarMenu
+                              setAccountActionsOpen={setAccountActionsOpen}
+                              accountActionsOpen={accountActionsOpen}
+                              avatarURL={avatarURL}
+                              logOut={logOut}
+                              setAboutModalOpen={setAboutModalOpen}
+                            />
                           </ToolbarItem>
 
                           <ToolbarItem className="pf-u-flex-1">
@@ -849,148 +895,20 @@ export default function Home() {
               )}
             </>
           ) : (
-            <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
-              <div className="pf-u-w-100 pf-u-pt">
-                <div className="pf-u-display-flex pf-u-justify-content-space-between pf-u-align-items-center pf-x-footer">
-                  <Image
-                    src={logo}
-                    alt="ChatScape logo"
-                    className="pf-x-logo pf-x-logo--empty pf-u-mr-sm"
-                  />
-                  <AvatarMenu right />
-                </div>
-              </div>
-
-              <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-p-md">
-                <EmptyState>
-                  <EmptyStateIcon
-                    icon={AddressBookIcon}
-                    className="pf-x-text--intro"
-                  />
-
-                  <Title headingLevel="h1" size="lg">
-                    No contacts yet
-                  </Title>
-
-                  <EmptyStateBody className="pf-x-text--intro--subtitle">
-                    Add a friend&apos;s email address to chat with them!
-                  </EmptyStateBody>
-
-                  <InputGroup className="pf-u-mt-md">
-                    <TextInput
-                      aria-label="Email of the account to add"
-                      type="email"
-                      placeholder="jean.doe@example.com"
-                      value={initialEmailInputValue}
-                      onChange={(v) => setInitialEmailInputValue(v)}
-                      ref={initialEmailInputValueRef}
-                      required
-                      onKeyDown={(k) =>
-                        k.key === "Enter" && submitInitialEmailInput()
-                      }
-                    />
-
-                    <Button variant="control" onClick={submitInitialEmailInput}>
-                      <PlusIcon />
-                    </Button>
-                  </InputGroup>
-                </EmptyState>
-              </div>
-
-              <div className="pf-u-w-100 pf-u-pt">
-                <div className="pf-l-flex pf-m-justify-content-space-between pf-x-footer">
-                  <div className="pf-l-flex__item">
-                    <a
-                      href="https://github.com/pojntfx/chatscape"
-                      target="_blank"
-                    >
-                      © AGPL-3.0 2023 Felicitas Pojtinger
-                    </a>
-                  </div>
-                  <div className="pf-l-flex__item">
-                    <a
-                      href="https://felicitas.pojtinger.com/imprint"
-                      target="_blank"
-                    >
-                      Imprint
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ChatPage
+              setAccountActionsOpen={setAccountActionsOpen}
+              accountActionsOpen={accountActionsOpen}
+              avatarURL={avatarURL}
+              logOut={logOut}
+              setAboutModalOpen={setAboutModalOpen}
+              initialEmailInputValue={initialEmailInputValue}
+              setInitialEmailInputValue={setInitialEmailInputValue}
+              initialEmailInputValueRef={initialEmailInputValueRef}
+              submitInitialEmailInput={submitInitialEmailInput}
+            />
           )
         ) : (
-          <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
-            <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-md">
-              <Image
-                src={logo}
-                alt="ChatScape logo"
-                className="pf-x-logo"
-                priority
-              />
-
-              <Title
-                headingLevel="h3"
-                className="pf-u-mt-sm pf-u-mb-lg pf-x-subtitle"
-              >
-                Scalable Serverless Chat
-              </Title>
-
-              <div className="pf-x-ctas">
-                <Tooltip
-                  trigger={installPWA ? "manual" : undefined}
-                  isVisible={installPWA ? false : undefined}
-                  content={
-                    <div>
-                      Your browser doesn&apos;t support PWAs, please use Chrome,
-                      Edge or another compatible browser to install the app or
-                      add it to your homescreen manually.
-                    </div>
-                  }
-                >
-                  <Button
-                    variant="primary"
-                    icon={<DownloadIcon />}
-                    className={
-                      "pf-u-mr-0 pf-u-mr-sm-on-sm pf-u-mb-sm pf-u-mb-0-on-sm " +
-                      (installPWA ? "" : "pf-m-unusable")
-                    }
-                    onClick={async () => installPWA?.()}
-                  >
-                    Install the app
-                  </Button>
-                </Tooltip>{" "}
-                <Button
-                  variant="link"
-                  className="pf-u-mb-sm pf-u-mb-0-on-sm"
-                  onClick={logIn}
-                >
-                  Open in browser <GlobeIcon />
-                </Button>
-              </div>
-            </div>
-
-            <div className="pf-u-w-100 pf-u-pt">
-              <div className="pf-l-flex pf-m-justify-content-space-between pf-x-footer">
-                <div className="pf-l-flex__item">
-                  <a
-                    href="https://github.com/pojntfx/chatscape"
-                    target="_blank"
-                  >
-                    © AGPL-3.0 2023 Felicitas Pojtinger
-                  </a>
-                </div>
-                <div className="pf-l-flex__item">
-                  <a
-                    href="https://felicitas.pojtinger.com/imprint"
-                    target="_blank"
-                  >
-                    Imprint
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+          <LoginPage installPWA={installPWA} logIn={logIn} />
         )}
 
         <Modal
