@@ -488,8 +488,8 @@ resource "aws_s3_object" "index_html" {
   bucket = aws_s3_bucket.spa.bucket
 
   key    = "index.html"
-  source = "${path.module}/src/index.html"
-  etag   = filebase64sha256("src/index.html")
+  source = "${path.module}/api/frontend/index.html"
+  etag   = filebase64sha256("api/frontend/index.html")
 
   content_type = "text/html"
 

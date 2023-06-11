@@ -4,7 +4,7 @@ all: build
 
 $(addprefix build-js/,$(obj)):
 	mkdir -p out
-	cd src/$(subst build-js/,,$@) && rm -rf out && npm run build && cp -r node_modules out && cd out && zip -r ../../../out/$(subst build-js/,,$@).zip .
+	cd api/$(subst build-js/,,$@) && rm -rf out && npm run build && cp -r node_modules out && cd out && zip -r ../../../out/$(subst build-js/,,$@).zip .
 
 build: $(addprefix build-js/,$(obj))
 
@@ -16,6 +16,6 @@ clean:
 	rm -rf out
 
 $(addprefix depend-js/,$(obj)):
-	cd src/$(subst depend-js/,,$@) && npm install
+	cd api/$(subst depend-js/,,$@) && npm install
 
 depend: $(addprefix depend-js/,$(obj))
