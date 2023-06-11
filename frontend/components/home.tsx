@@ -71,29 +71,27 @@ const api = new LocalStorageAPI(500);
 
 const AvatarMenu = ({
   right,
-  setAccountActionsOpen,
+  toggleAccountActions,
   accountActionsOpen,
   avatarURL,
   logOut,
-  setAboutModalOpen,
+  openAboutModal,
 }: {
   right?: boolean;
-  setAccountActionsOpen: (
-    value: boolean | ((prevVar: boolean) => boolean)
-  ) => void;
+  toggleAccountActions: () => void;
   accountActionsOpen: boolean;
   avatarURL: string;
   logOut: () => void;
-  setAboutModalOpen: (value: boolean | ((prevVar: boolean) => boolean)) => void;
+  openAboutModal: () => void;
 }) => (
   <Dropdown
     position={right ? DropdownPosition.right : undefined}
-    onSelect={() => setAccountActionsOpen((v) => !v)}
+    onSelect={() => toggleAccountActions()}
     className="pf-u-display-flex"
     toggle={
       <DropdownToggle
         toggleIndicator={null}
-        onToggle={() => setAccountActionsOpen((v) => !v)}
+        onToggle={() => toggleAccountActions()}
         aria-label="Toggle account actions"
         className="pf-u-p-0 pf-x-account-actions pf-x-avatar"
       >
@@ -106,11 +104,7 @@ const AvatarMenu = ({
       <DropdownItem key="1" component="button" onClick={logOut}>
         Logout
       </DropdownItem>,
-      <DropdownItem
-        key="2"
-        component="button"
-        onClick={() => setAboutModalOpen(true)}
-      >
+      <DropdownItem key="2" component="button" onClick={openAboutModal}>
         About
       </DropdownItem>,
     ]}
@@ -184,25 +178,25 @@ const LoginPage = ({
 );
 
 const ChatPage = ({
-  setAccountActionsOpen,
   accountActionsOpen,
   avatarURL,
   logOut,
-  setAboutModalOpen,
   initialEmailInputValue,
   setInitialEmailInputValue,
   initialEmailInputValueRef,
   submitInitialEmailInput,
+  openAboutModal,
+  toggleAccountActions,
 }: {
-  setAccountActionsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   accountActionsOpen: boolean;
   avatarURL: string;
   logOut: () => void;
-  setAboutModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   initialEmailInputValue: string;
   setInitialEmailInputValue: React.Dispatch<React.SetStateAction<string>>;
   initialEmailInputValueRef: RefObject<HTMLInputElement>;
   submitInitialEmailInput: () => void;
+  openAboutModal: () => void;
+  toggleAccountActions: () => void;
 }) => (
   <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
     <div className="pf-u-w-100 pf-u-pt">
@@ -214,11 +208,11 @@ const ChatPage = ({
         />
         <AvatarMenu
           right
-          setAccountActionsOpen={setAccountActionsOpen}
+          toggleAccountActions={toggleAccountActions}
           accountActionsOpen={accountActionsOpen}
           avatarURL={avatarURL}
           logOut={logOut}
-          setAboutModalOpen={setAboutModalOpen}
+          openAboutModal={openAboutModal}
         />
       </div>
     </div>
@@ -268,6 +262,69 @@ const ChatPage = ({
         </div>
       </div>
     </div>
+  </div>
+);
+
+const AboutModal = ({
+  aboutModalOpen,
+  closeAboutModal,
+}: {
+  aboutModalOpen: boolean;
+  closeAboutModal: () => void;
+}) => (
+  <Modal
+    bodyAriaLabel="About modal"
+    tabIndex={0}
+    variant={ModalVariant.small}
+    title="About"
+    isOpen={aboutModalOpen}
+    onClose={closeAboutModal}
+  >
+    <div className="pf-u-text-align-center">
+      <Image
+        src={logo}
+        alt="ChatScape logo"
+        className="pf-x-logo--about pf-u-mt-md pf-u-mb-lg"
+      />
+
+      <p>© AGPL-3.0 2023 Felicitas Pojtinger</p>
+
+      <p>
+        Find the source code here:{" "}
+        <a href="https://github.com/pojntfx/chatscape" target="_blank">
+          pojntfx/chatscape
+        </a>{" "}
+        (
+        <a href="https://felicitas.pojtinger.com/imprint" target="_blank">
+          Imprint
+        </a>
+        )
+      </p>
+    </div>
+  </Modal>
+);
+
+const UpdateModal = ({
+  applyUpdate,
+  dismissUpdate,
+}: {
+  applyUpdate: () => void;
+  dismissUpdate: () => void;
+}) => (
+  <div className="pf-x-global-alerts-container pf-u-p-lg">
+    <Alert
+      variant="info"
+      title="Update available"
+      actionClose={<AlertActionCloseButton onClose={dismissUpdate} />}
+      actionLinks={
+        <>
+          <AlertActionLink onClick={applyUpdate}>Update now</AlertActionLink>
+          <AlertActionLink onClick={dismissUpdate}>Ignore</AlertActionLink>
+        </>
+      }
+    >
+      <p>A new version of ChatScape is available.</p>
+    </Alert>
   </div>
 );
 
@@ -394,11 +451,13 @@ export default function Home() {
                         <ToolbarContent>
                           <ToolbarItem className="pf-u-display-flex">
                             <AvatarMenu
-                              setAccountActionsOpen={setAccountActionsOpen}
+                              toggleAccountActions={() =>
+                                setAccountActionsOpen((v) => !v)
+                              }
                               accountActionsOpen={accountActionsOpen}
                               avatarURL={avatarURL}
                               logOut={logOut}
-                              setAboutModalOpen={setAboutModalOpen}
+                              openAboutModal={() => setAboutModalOpen(true)}
                             />
                           </ToolbarItem>
 
@@ -896,77 +955,32 @@ export default function Home() {
             </>
           ) : (
             <ChatPage
-              setAccountActionsOpen={setAccountActionsOpen}
               accountActionsOpen={accountActionsOpen}
               avatarURL={avatarURL}
               logOut={logOut}
-              setAboutModalOpen={setAboutModalOpen}
               initialEmailInputValue={initialEmailInputValue}
               setInitialEmailInputValue={setInitialEmailInputValue}
               initialEmailInputValueRef={initialEmailInputValueRef}
               submitInitialEmailInput={submitInitialEmailInput}
+              openAboutModal={() => setAboutModalOpen(true)}
+              toggleAccountActions={() => setAccountActionsOpen((v) => !v)}
             />
           )
         ) : (
           <LoginPage installPWA={installPWA} logIn={logIn} />
         )}
 
-        <Modal
-          bodyAriaLabel="About modal"
-          tabIndex={0}
-          variant={ModalVariant.small}
-          title="About"
-          isOpen={aboutModalOpen}
-          onClose={() => setAboutModalOpen(false)}
-        >
-          <div className="pf-u-text-align-center">
-            <Image
-              src={logo}
-              alt="ChatScape logo"
-              className="pf-x-logo--about pf-u-mt-md pf-u-mb-lg"
-            />
-
-            <p>© AGPL-3.0 2023 Felicitas Pojtinger</p>
-
-            <p>
-              Find the source code here:{" "}
-              <a href="https://github.com/pojntfx/chatscape" target="_blank">
-                pojntfx/chatscape
-              </a>{" "}
-              (
-              <a href="https://felicitas.pojtinger.com/imprint" target="_blank">
-                Imprint
-              </a>
-              )
-            </p>
-          </div>
-        </Modal>
+        <AboutModal
+          aboutModalOpen={aboutModalOpen}
+          closeAboutModal={() => setAboutModalOpen(false)}
+        />
       </PageSection>
 
       {updateAvailable && (
-        <div className="pf-x-global-alerts-container pf-u-p-lg">
-          <Alert
-            variant="info"
-            title="Update available"
-            actionClose={
-              <AlertActionCloseButton
-                onClose={() => setUpdateAvailable(false)}
-              />
-            }
-            actionLinks={
-              <>
-                <AlertActionLink onClick={updatePWA}>
-                  Update now
-                </AlertActionLink>
-                <AlertActionLink onClick={() => setUpdateAvailable(false)}>
-                  Ignore
-                </AlertActionLink>
-              </>
-            }
-          >
-            <p>A new version of ChatScape is available.</p>
-          </Alert>
-        </div>
+        <UpdateModal
+          applyUpdate={updatePWA}
+          dismissUpdate={() => setUpdateAvailable(false)}
+        />
       )}
     </Page>
   );
