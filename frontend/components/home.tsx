@@ -37,7 +37,7 @@ import {
   TextArea,
   TextInput,
   Title,
-  Toolbar,
+  Toolbar as Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
@@ -54,6 +54,7 @@ import {
 import Image from "next/image";
 import {
   Fragment,
+  Ref,
   RefObject,
   useCallback,
   useEffect,
@@ -328,6 +329,516 @@ const UpdateModal = ({
   </div>
 );
 
+const ReportModal = ({
+  name,
+  modalOpen,
+  closeModal,
+  reportContact,
+}: {
+  name: string;
+  modalOpen: boolean;
+  closeModal: () => void;
+  reportContact: (comment: string) => void;
+}) => {
+  const [reportFormComment, setReportFormComment] = useState("");
+
+  return (
+    <Modal
+      bodyAriaLabel="Report modal"
+      variant={ModalVariant.small}
+      title={`Report ${name}`}
+      isOpen={modalOpen}
+      onClose={closeModal}
+      actions={[
+        <Button key="report" variant="danger" type="submit" form="report-form">
+          Report
+        </Button>,
+        <Button key="cancel" variant="link" onClick={() => closeModal}>
+          Cancel
+        </Button>,
+      ]}
+    >
+      <Form
+        id="report-form"
+        onSubmit={() => {
+          reportContact(reportFormComment);
+          closeModal();
+        }}
+        noValidate={false}
+      >
+        <FormGroup
+          label="Your comment and the messages in violations of our policy"
+          isRequired
+          fieldId="report-form-comment"
+        >
+          <TextArea
+            isRequired
+            required
+            id="report-form-comment"
+            name="report-form-comment"
+            value={reportFormComment}
+            onChange={(v) => setReportFormComment(v)}
+          />
+        </FormGroup>
+      </Form>
+    </Modal>
+  );
+};
+
+const BlockModal = ({
+  name,
+  modalOpen,
+  closeModal,
+  blockContact,
+}: {
+  name: string;
+  modalOpen: boolean;
+  closeModal: () => void;
+  blockContact: () => void;
+}) => (
+  <Modal
+    bodyAriaLabel="Block modal"
+    tabIndex={0}
+    variant={ModalVariant.small}
+    title={`Block ${name}`}
+    isOpen={modalOpen}
+    onClose={closeModal}
+    actions={[
+      <Button
+        key="confirm"
+        variant="danger"
+        onClick={() => {
+          blockContact();
+          closeModal();
+        }}
+      >
+        Block
+      </Button>,
+      <Button key="cancel" variant="link" onClick={closeModal}>
+        Cancel
+      </Button>,
+    ]}
+  >
+    Are you sure you want to block {name}? You will have to manually add them as
+    a contact if you want to contact them again.
+  </Modal>
+);
+
+const GlobalToolbar = ({
+  toggleAccountActions,
+  accountActionsOpen,
+  avatarURL,
+  logOut,
+  openAboutModal,
+  searchInputValue,
+  setSearchInputValue,
+  addContactPopoverOpen,
+  setContactPopoverOpen,
+  addContactEmailInputValue,
+  setAddContactEmailInputValue,
+  addContactEmailInputValueRef,
+  submitAddContactEmailInput,
+}: {
+  toggleAccountActions: () => void;
+  accountActionsOpen: boolean;
+  avatarURL: string;
+  logOut: () => void;
+  openAboutModal: () => void;
+  searchInputValue: string;
+  setSearchInputValue: (value: string) => void;
+  addContactPopoverOpen: boolean;
+  setContactPopoverOpen: (isOpen: boolean) => void;
+  addContactEmailInputValue: string;
+  setAddContactEmailInputValue: (email: string) => void;
+  addContactEmailInputValueRef: Ref<any>;
+  submitAddContactEmailInput: () => void;
+}) => (
+  <Toolbar className="pf-u-m-0" isSticky>
+    <ToolbarContent>
+      <ToolbarItem className="pf-u-display-flex">
+        <AvatarMenu
+          toggleAccountActions={toggleAccountActions}
+          accountActionsOpen={accountActionsOpen}
+          avatarURL={avatarURL}
+          logOut={logOut}
+          openAboutModal={openAboutModal}
+        />
+      </ToolbarItem>
+
+      <ToolbarItem className="pf-u-flex-1">
+        <SearchInput
+          aria-label="Search"
+          placeholder="Search"
+          className="pf-c-search--main"
+          value={searchInputValue}
+          onChange={(_, v) => setSearchInputValue(v)}
+        />
+      </ToolbarItem>
+
+      <ToolbarItem>
+        <Popover
+          aria-label="Add a contact"
+          hasAutoWidth
+          showClose={false}
+          isVisible={addContactPopoverOpen}
+          shouldOpen={() => setContactPopoverOpen(true)}
+          shouldClose={() => setContactPopoverOpen(false)}
+          bodyContent={() => (
+            <div>
+              <div className="pf-c-title pf-m-md">Add a contact</div>
+
+              <InputGroup className="pf-u-mt-md">
+                <TextInput
+                  aria-label="Email of the account to add"
+                  type="email"
+                  placeholder="jean.doe@example.com"
+                  value={addContactEmailInputValue}
+                  onChange={(v) => setAddContactEmailInputValue(v)}
+                  ref={addContactEmailInputValueRef}
+                  required
+                  onKeyDown={(k) =>
+                    k.key === "Enter" && submitAddContactEmailInput()
+                  }
+                />
+
+                <Button variant="control" onClick={submitAddContactEmailInput}>
+                  <PlusIcon />
+                </Button>
+              </InputGroup>
+            </div>
+          )}
+        >
+          <Button variant="plain" aria-label="Add a contact">
+            <PlusIcon />
+          </Button>
+        </Popover>
+      </ToolbarItem>
+    </ToolbarContent>
+  </Toolbar>
+);
+
+const MessagesToolbar = ({
+  setDrawerExpanded,
+  contacts,
+  activeContactID,
+  setShowContactEmailOpen,
+  showContactEmailOpen,
+  setUserActionsOpen,
+  userActionsOpen,
+  setBlockModalOpen,
+  setReportModalOpen,
+}: {
+  setDrawerExpanded: (value: boolean) => void;
+  contacts: Array<{
+    id: string;
+    name: string;
+    email: string;
+  }>;
+  activeContactID: string;
+  setShowContactEmailOpen: (value: boolean) => void;
+  showContactEmailOpen: boolean;
+  setUserActionsOpen: (value: (prevState: boolean) => boolean) => void;
+  userActionsOpen: boolean;
+  setBlockModalOpen: (value: boolean) => void;
+  setReportModalOpen: (value: boolean) => void;
+}) => (
+  <Toolbar className="pf-u-m-0" isSticky>
+    <ToolbarContent>
+      <ToolbarGroup>
+        <ToolbarItem className="pf-u-display-none-on-md">
+          <Button
+            variant="plain"
+            aria-label="Back"
+            onClick={() => setDrawerExpanded(true)}
+          >
+            <ChevronLeftIcon />
+          </Button>
+        </ToolbarItem>
+
+        <ToolbarItem className="pf-u-display-flex">
+          <span className="pf-u-icon-color-light pf-u-mr-xs">To:</span>{" "}
+          {contacts.length > 0 ? (
+            <div className="pf-u-display-flex pf-u-align-items-center">
+              {contacts.find((c) => c.id === activeContactID)?.name}{" "}
+              <Popover
+                aria-label="Show contact email"
+                hasAutoWidth
+                showClose={false}
+                isVisible={showContactEmailOpen}
+                shouldOpen={() => setShowContactEmailOpen(true)}
+                shouldClose={() => setShowContactEmailOpen(false)}
+                bodyContent={() => (
+                  <ClipboardCopy
+                    isReadOnly
+                    hoverTip="Copy email"
+                    clickTip="Copied"
+                  >
+                    {contacts.find((c) => c.id === activeContactID)?.email}
+                  </ClipboardCopy>
+                )}
+              >
+                <Button
+                  variant="plain"
+                  aria-label="Show contact email"
+                  className="pf-u-ml-xs pf-u-p-0 pf-u-display-flex"
+                >
+                  <InfoCircleIcon className="pf-u-icon-color-light pf-x-popover--extra" />
+                </Button>
+              </Popover>
+            </div>
+          ) : (
+            <Skeleton screenreaderText="Loading contact info" width="100px" />
+          )}
+        </ToolbarItem>
+      </ToolbarGroup>
+
+      <ToolbarGroup
+        alignment={{
+          default: "alignRight",
+        }}
+      >
+        {contacts.length > 0 ? (
+          <Dropdown
+            position={DropdownPosition.right}
+            onSelect={() => setUserActionsOpen((v) => !v)}
+            toggle={
+              <KebabToggle
+                aria-label="Toggle user actions"
+                onToggle={() => setUserActionsOpen((v) => !v)}
+              />
+            }
+            isOpen={userActionsOpen}
+            isPlain
+            dropdownItems={[
+              <DropdownItem
+                key="1"
+                component="button"
+                onClick={() => setBlockModalOpen(true)}
+              >
+                Block
+              </DropdownItem>,
+              <DropdownItem
+                key="2"
+                component="button"
+                onClick={() => setReportModalOpen(true)}
+              >
+                Report
+              </DropdownItem>,
+            ]}
+          />
+        ) : (
+          <Skeleton
+            screenreaderText="Loading actions"
+            height="36px"
+            width="48px"
+          />
+        )}
+      </ToolbarGroup>
+    </ToolbarContent>
+  </Toolbar>
+);
+
+const ContactList = ({
+  contacts,
+  contactList,
+  width,
+  activeContactID,
+  setActiveContactID,
+  setDrawerExpanded,
+}: {
+  contacts: {
+    id: string;
+    avatar: string;
+    name: string;
+    intro: string;
+  }[];
+  contactList: {
+    id: string;
+    avatar: string;
+    name: string;
+    intro: string;
+  }[];
+  width?: number;
+  activeContactID: string | null;
+  setActiveContactID: (id: string) => void;
+  setDrawerExpanded: (expanded: boolean) => void;
+}) => (
+  <List isPlain>
+    {contacts.length > 0 ? (
+      contactList && contactList.length > 0 ? (
+        contactList.map((contact, i) => (
+          <ListItem key={i}>
+            <Button
+              variant="plain"
+              className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
+              isActive={contact.id === activeContactID}
+              onClick={() => {
+                setActiveContactID(contact.id);
+
+                if (!(!width || width >= 768)) {
+                  setDrawerExpanded(false);
+                }
+              }}
+            >
+              <Avatar
+                src={contact.avatar}
+                alt="avatar"
+                className="pf-u-mr-md"
+              />
+
+              <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
+                <div className="pf-u-font-family-heading-sans-serif">
+                  {contact.name}
+                </div>
+
+                <div className="pf-u-icon-color-light">{contact.intro} ...</div>
+              </div>
+            </Button>
+          </ListItem>
+        ))
+      ) : (
+        <ListItem>
+          <EmptyState variant={EmptyStateVariant.xs}>
+            <EmptyStateBody>No contacts found</EmptyStateBody>
+          </EmptyState>
+        </ListItem>
+      )
+    ) : (
+      [0, 1, 2].map((_, i) => (
+        <ListItem key={i}>
+          <Button
+            variant="plain"
+            className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
+            disabled
+          >
+            <Skeleton
+              shape="circle"
+              width="36px"
+              height="36px"
+              screenreaderText="Loading avatar"
+              className="pf-u-mr-md"
+            />
+            <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center pf-u-flex-1">
+              <div className="pf-u-font-family-heading-sans-serif pf-u-w-100 pf-u-pb-sm">
+                <Skeleton
+                  screenreaderText="Loading contact info"
+                  width={(i % 2 !== 0 ? 33 : 66) + (i % 2) * 10 + "%"}
+                />
+              </div>
+              <div className="pf-u-icon-color-light pf-u-w-100">
+                <Skeleton
+                  screenreaderText="Loading contact info"
+                  width={(i % 2 === 0 ? 33 : 66) + (i % 2) * 10 + "%"}
+                />
+              </div>
+            </div>
+          </Button>
+        </ListItem>
+      ))
+    )}
+  </List>
+);
+
+const MessagesList = ({
+  messages,
+  lastMessageRef,
+}: {
+  messages?: {
+    them?: boolean;
+    body: string;
+    date: Date;
+  }[];
+  lastMessageRef: RefObject<HTMLSpanElement> | undefined;
+}) => (
+  <List isPlain>
+    {messages ? (
+      messages.length > 0 ? (
+        messages.map((message, i) => (
+          <Fragment key={i}>
+            <ListItem>
+              <Card
+                isCompact
+                isRounded
+                className={
+                  "pf-c-card--message " +
+                  (message.them ? "pf-c-card--them" : "pf-c-card--us")
+                }
+              >
+                <CardBody>{message.body}</CardBody>
+              </Card>
+            </ListItem>
+
+            {(messages[i + 1] &&
+              Math.abs(
+                message.date.getTime() - messages[i + 1].date.getTime()
+              ) /
+                (1000 * 60 * 60) >
+                2) ||
+            i === messages.length - 1 ? (
+              <ListItem>
+                <span
+                  ref={i === messages.length - 1 ? lastMessageRef : undefined}
+                  className="pf-c-date"
+                >
+                  {`Today ${message.date
+                    .getHours()
+                    .toString()
+                    .padStart(2, "0")}:${message.date
+                    .getMinutes()
+                    .toString()
+                    .padStart(2, "0")}`}
+                </span>
+              </ListItem>
+            ) : null}
+          </Fragment>
+        ))
+      ) : (
+        <ListItem>
+          <EmptyState variant={EmptyStateVariant.xs}>
+            <EmptyStateBody className="pf-u-mt-0">
+              No messages yet
+            </EmptyStateBody>
+          </EmptyState>
+        </ListItem>
+      )
+    ) : (
+      <>
+        <ListItem>
+          <Skeleton screenreaderText="Loading messages" width="90%" />
+        </ListItem>
+
+        <ListItem>
+          <Skeleton screenreaderText="Loading messages" width="66%" />
+        </ListItem>
+
+        <ListItem>
+          <Skeleton screenreaderText="Loading messages" width="77%" />
+        </ListItem>
+
+        <ListItem>
+          <Skeleton screenreaderText="Loading messages" width="33%" />
+        </ListItem>
+
+        <ListItem className="pf-u-mt-3xl">
+          <Skeleton
+            screenreaderText="Loading messages"
+            width="66%"
+            className="pf-u-ml-auto"
+          />
+        </ListItem>
+
+        <ListItem>
+          <Skeleton
+            screenreaderText="Loading messages"
+            width="33%"
+            className="pf-u-ml-auto"
+          />
+        </ListItem>
+      </>
+    )}
+  </List>
+);
+
 export default function Home() {
   const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
   const [accountActionsOpen, setAccountActionsOpen] = useState(false);
@@ -339,7 +850,6 @@ export default function Home() {
   const [drawerExpanded, setDrawerExpanded] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [reportFormCommentContent, setReportFormCommentContent] = useState("");
 
   const width = useWindowWidth();
 
@@ -408,10 +918,6 @@ export default function Home() {
     }
   }, [addMessage, addMessageInputValue]);
 
-  const contactList = contacts?.filter((c) =>
-    c.name.includes(searchInputValue)
-  );
-
   useEffect(() => {
     if (!width || width >= 768) {
       setDrawerExpanded(true);
@@ -447,391 +953,60 @@ export default function Home() {
                       className="pf-c-drawer__panel--transparent"
                       widths={{ default: "width_33" }}
                     >
-                      <Toolbar className="pf-u-m-0" isSticky>
-                        <ToolbarContent>
-                          <ToolbarItem className="pf-u-display-flex">
-                            <AvatarMenu
-                              toggleAccountActions={() =>
-                                setAccountActionsOpen((v) => !v)
-                              }
-                              accountActionsOpen={accountActionsOpen}
-                              avatarURL={avatarURL}
-                              logOut={logOut}
-                              openAboutModal={() => setAboutModalOpen(true)}
-                            />
-                          </ToolbarItem>
-
-                          <ToolbarItem className="pf-u-flex-1">
-                            <SearchInput
-                              aria-label="Search"
-                              placeholder="Search"
-                              className="pf-c-search--main"
-                              value={searchInputValue}
-                              onChange={(_, v) => setSearchInputValue(v)}
-                            />
-                          </ToolbarItem>
-
-                          <ToolbarItem>
-                            <Popover
-                              aria-label="Add a contact"
-                              hasAutoWidth
-                              showClose={false}
-                              isVisible={addContactPopoverOpen}
-                              shouldOpen={() => setContactPopoverOpen(true)}
-                              shouldClose={() => setContactPopoverOpen(false)}
-                              bodyContent={() => (
-                                <div>
-                                  <div className="pf-c-title pf-m-md">
-                                    Add a contact
-                                  </div>
-
-                                  <InputGroup className="pf-u-mt-md">
-                                    <TextInput
-                                      aria-label="Email of the account to add"
-                                      type="email"
-                                      placeholder="jean.doe@example.com"
-                                      value={addContactEmailInputValue}
-                                      onChange={(v) =>
-                                        setAddContactEmailInputValue(v)
-                                      }
-                                      ref={addContactEmailInputValueRef}
-                                      required
-                                      onKeyDown={(k) =>
-                                        k.key === "Enter" &&
-                                        submitAddContactEmailInput()
-                                      }
-                                    />
-
-                                    <Button
-                                      variant="control"
-                                      onClick={submitAddContactEmailInput}
-                                    >
-                                      <PlusIcon />
-                                    </Button>
-                                  </InputGroup>
-                                </div>
-                              )}
-                            >
-                              <Button
-                                variant="plain"
-                                aria-label="Add a contact"
-                              >
-                                <PlusIcon />
-                              </Button>
-                            </Popover>
-                          </ToolbarItem>
-                        </ToolbarContent>
-                      </Toolbar>
+                      <GlobalToolbar
+                        accountActionsOpen={accountActionsOpen}
+                        avatarURL={avatarURL}
+                        logOut={logOut}
+                        openAboutModal={() => setAboutModalOpen(true)}
+                        toggleAccountActions={() =>
+                          setAccountActionsOpen((v) => !v)
+                        }
+                        searchInputValue={searchInputValue}
+                        setSearchInputValue={setSearchInputValue}
+                        addContactPopoverOpen={addContactPopoverOpen}
+                        setContactPopoverOpen={setContactPopoverOpen}
+                        addContactEmailInputValue={addContactEmailInputValue}
+                        setAddContactEmailInputValue={
+                          setAddContactEmailInputValue
+                        }
+                        addContactEmailInputValueRef={
+                          addContactEmailInputValueRef
+                        }
+                        submitAddContactEmailInput={submitAddContactEmailInput}
+                      />
 
                       <DrawerPanelBody className="pf-c-overflow-y pf-u-p-0 pf-x-contact-list">
-                        <List isPlain>
-                          {contacts.length > 0 ? (
-                            contactList && contactList.length > 0 ? (
-                              contactList.map((contact, i) => (
-                                <ListItem key={i}>
-                                  <Button
-                                    variant="plain"
-                                    className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
-                                    isActive={contact.id === activeContactID}
-                                    onClick={() => {
-                                      setActiveContactID(contact.id);
-
-                                      if (!(!width || width >= 768)) {
-                                        setDrawerExpanded(false);
-                                      }
-                                    }}
-                                  >
-                                    <Avatar
-                                      src={contact.avatar}
-                                      alt="avatar"
-                                      className="pf-u-mr-md"
-                                    />
-
-                                    <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center">
-                                      <div className="pf-u-font-family-heading-sans-serif">
-                                        {contact.name}
-                                      </div>
-
-                                      <div className="pf-u-icon-color-light">
-                                        {contact.intro} ...
-                                      </div>
-                                    </div>
-                                  </Button>
-                                </ListItem>
-                              ))
-                            ) : (
-                              <ListItem>
-                                <EmptyState variant={EmptyStateVariant.xs}>
-                                  <EmptyStateBody>
-                                    No contacts found
-                                  </EmptyStateBody>
-                                </EmptyState>
-                              </ListItem>
-                            )
-                          ) : (
-                            [0, 1, 2].map((_, i) => (
-                              <ListItem key={i}>
-                                <Button
-                                  variant="plain"
-                                  className="pf-u-display-flex pf-u-align-items-center pf-u-p-md pf-u-contact-selector pf-u-w-100"
-                                  disabled
-                                >
-                                  <Skeleton
-                                    shape="circle"
-                                    width="36px"
-                                    height="36px"
-                                    screenreaderText="Loading avatar"
-                                    className="pf-u-mr-md"
-                                  />
-
-                                  <div className="pf-u-display-flex pf-u-flex-direction-column pf-u-align-items-flex-start pf-u-justify-content-center pf-u-flex-1">
-                                    <div className="pf-u-font-family-heading-sans-serif pf-u-w-100 pf-u-pb-sm">
-                                      <Skeleton
-                                        screenreaderText="Loading contact info"
-                                        width={
-                                          (i % 2 != 0 ? 33 : 66) +
-                                          (i % 2) * 10 +
-                                          "%"
-                                        }
-                                      />
-                                    </div>
-
-                                    <div className="pf-u-icon-color-light pf-u-w-100">
-                                      <Skeleton
-                                        screenreaderText="Loading contact info"
-                                        width={
-                                          (i % 2 == 0 ? 33 : 66) +
-                                          (i % 2) * 10 +
-                                          "%"
-                                        }
-                                      />
-                                    </div>
-                                  </div>
-                                </Button>
-                              </ListItem>
-                            ))
+                        <ContactList
+                          contacts={contacts}
+                          contactList={contacts.filter((c) =>
+                            c.name.includes(searchInputValue)
                           )}
-                        </List>
+                          width={width}
+                          activeContactID={activeContactID}
+                          setActiveContactID={setActiveContactID}
+                          setDrawerExpanded={setDrawerExpanded}
+                        />
                       </DrawerPanelBody>
                     </DrawerPanelContent>
                   }
                 >
-                  <Toolbar className="pf-u-m-0" isSticky>
-                    <ToolbarContent>
-                      <ToolbarGroup>
-                        <ToolbarItem className="pf-u-display-none-on-md">
-                          <Button
-                            variant="plain"
-                            aria-label="Back"
-                            onClick={() => setDrawerExpanded(true)}
-                          >
-                            <ChevronLeftIcon />
-                          </Button>
-                        </ToolbarItem>
-
-                        <ToolbarItem className="pf-u-display-flex">
-                          <span className="pf-u-icon-color-light pf-u-mr-xs">
-                            To:
-                          </span>{" "}
-                          {contacts.length > 0 ? (
-                            <div className="pf-u-display-flex pf-u-align-items-center">
-                              {
-                                contacts.find((c) => c.id === activeContactID)
-                                  ?.name
-                              }{" "}
-                              <Popover
-                                aria-label="Show contact email"
-                                hasAutoWidth
-                                showClose={false}
-                                isVisible={showContactEmailOpen}
-                                shouldOpen={() => setShowContactEmailOpen(true)}
-                                shouldClose={() =>
-                                  setShowContactEmailOpen(false)
-                                }
-                                bodyContent={() => (
-                                  <ClipboardCopy
-                                    isReadOnly
-                                    hoverTip="Copy email"
-                                    clickTip="Copied"
-                                  >
-                                    {
-                                      contacts.find(
-                                        (c) => c.id === activeContactID
-                                      )?.email
-                                    }
-                                  </ClipboardCopy>
-                                )}
-                              >
-                                <Button
-                                  variant="plain"
-                                  aria-label="Show contact email"
-                                  className="pf-u-ml-xs pf-u-p-0 pf-u-display-flex"
-                                >
-                                  <InfoCircleIcon className="pf-u-icon-color-light pf-x-popover--extra" />
-                                </Button>
-                              </Popover>
-                            </div>
-                          ) : (
-                            <Skeleton
-                              screenreaderText="Loading contact info"
-                              width="100px"
-                            />
-                          )}
-                        </ToolbarItem>
-                      </ToolbarGroup>
-
-                      <ToolbarGroup
-                        alignment={{
-                          default: "alignRight",
-                        }}
-                      >
-                        {contacts.length > 0 ? (
-                          <Dropdown
-                            position={DropdownPosition.right}
-                            onSelect={() => setUserActionsOpen((v) => !v)}
-                            toggle={
-                              <KebabToggle
-                                aria-label="Toggle user actions"
-                                onToggle={() => setUserActionsOpen((v) => !v)}
-                              />
-                            }
-                            isOpen={userActionsOpen}
-                            isPlain
-                            dropdownItems={[
-                              <DropdownItem
-                                key="1"
-                                component="button"
-                                onClick={() => setBlockModalOpen(true)}
-                              >
-                                Block
-                              </DropdownItem>,
-                              <DropdownItem
-                                key="2"
-                                component="button"
-                                onClick={() => setReportModalOpen(true)}
-                              >
-                                Report
-                              </DropdownItem>,
-                            ]}
-                          />
-                        ) : (
-                          <Skeleton
-                            screenreaderText="Loading actions"
-                            height="36px"
-                            width="48px"
-                          />
-                        )}
-                      </ToolbarGroup>
-                    </ToolbarContent>
-                  </Toolbar>
+                  <MessagesToolbar
+                    setDrawerExpanded={setDrawerExpanded}
+                    contacts={contacts}
+                    activeContactID={activeContactID}
+                    setShowContactEmailOpen={setShowContactEmailOpen}
+                    showContactEmailOpen={showContactEmailOpen}
+                    setUserActionsOpen={setUserActionsOpen}
+                    userActionsOpen={userActionsOpen}
+                    setBlockModalOpen={setBlockModalOpen}
+                    setReportModalOpen={setReportModalOpen}
+                  />
 
                   <DrawerContentBody className="pf-u-p-lg pf-c-overflow-y">
-                    <List isPlain>
-                      {messages ? (
-                        messages.length > 0 ? (
-                          messages.map((message, i) => (
-                            <Fragment key={i}>
-                              <ListItem>
-                                <Card
-                                  isCompact
-                                  isRounded
-                                  className={
-                                    "pf-c-card--message " +
-                                    (message.them
-                                      ? "pf-c-card--them"
-                                      : "pf-c-card--us")
-                                  }
-                                >
-                                  <CardBody>{message.body}</CardBody>
-                                </Card>
-                              </ListItem>
-
-                              {(messages[i + 1] &&
-                                Math.abs(
-                                  message.date.getTime() -
-                                    messages[i + 1].date.getTime()
-                                ) /
-                                  (1000 * 60 * 60) >
-                                  2) ||
-                              i === messages.length - 1 ? (
-                                <ListItem>
-                                  <span
-                                    ref={
-                                      i === messages.length - 1
-                                        ? lastMessageRef
-                                        : undefined
-                                    }
-                                    className="pf-c-date"
-                                  >
-                                    {`Today ${message.date
-                                      .getHours()
-                                      .toString()
-                                      .padStart(2, "0")}:${message.date
-                                      .getMinutes()
-                                      .toString()
-                                      .padStart(2, "0")}`}
-                                  </span>
-                                </ListItem>
-                              ) : null}
-                            </Fragment>
-                          ))
-                        ) : (
-                          <ListItem>
-                            <EmptyState variant={EmptyStateVariant.xs}>
-                              <EmptyStateBody className="pf-u-mt-0">
-                                No messages yet
-                              </EmptyStateBody>
-                            </EmptyState>
-                          </ListItem>
-                        )
-                      ) : (
-                        <>
-                          <ListItem>
-                            <Skeleton
-                              screenreaderText="Loading messages"
-                              width="90%"
-                            />
-                          </ListItem>
-
-                          <ListItem>
-                            <Skeleton
-                              screenreaderText="Loading messages"
-                              width="66%"
-                            />
-                          </ListItem>
-
-                          <ListItem>
-                            <Skeleton
-                              screenreaderText="Loading messages"
-                              width="77%"
-                            />
-                          </ListItem>
-
-                          <ListItem>
-                            <Skeleton
-                              screenreaderText="Loading messages"
-                              width="33%"
-                            />
-                          </ListItem>
-
-                          <ListItem className="pf-u-mt-3xl">
-                            <Skeleton
-                              screenreaderText="Loading messages"
-                              width="66%"
-                              className="pf-u-ml-auto"
-                            />
-                          </ListItem>
-
-                          <ListItem>
-                            <Skeleton
-                              screenreaderText="Loading messages"
-                              width="33%"
-                              className="pf-u-ml-auto"
-                            />
-                          </ListItem>
-                        </>
-                      )}
-                    </List>
+                    <MessagesList
+                      messages={messages}
+                      lastMessageRef={lastMessageRef}
+                    />
                   </DrawerContentBody>
 
                   <Toolbar className="pf-u-m-0 pf-u-pt-md pf-u-box-shadow-sm-top pf-u-box-shadow-none-bottom pf-c-toolbar--sticky-bottom">
@@ -864,93 +1039,25 @@ export default function Home() {
               </Drawer>
 
               {contacts.length > 0 && (
-                <Modal
-                  bodyAriaLabel="Block modal"
-                  tabIndex={0}
-                  variant={ModalVariant.small}
-                  title={`Block ${
-                    contacts.find((c) => c.id === activeContactID)?.name
-                  }`}
-                  isOpen={blockModalOpen}
-                  onClose={() => setBlockModalOpen(false)}
-                  actions={[
-                    <Button
-                      key="confirm"
-                      variant="danger"
-                      onClick={() => {
-                        blockContact();
-                        setBlockModalOpen(false);
-                      }}
-                    >
-                      Block
-                    </Button>,
-                    <Button
-                      key="cancel"
-                      variant="link"
-                      onClick={() => setBlockModalOpen(false)}
-                    >
-                      Cancel
-                    </Button>,
-                  ]}
-                >
-                  Are you sure you want to block{" "}
-                  {contacts.find((c) => c.id === activeContactID)?.name}? You
-                  will have to manually add them as a contact if you want to
-                  contact them again.
-                </Modal>
+                <BlockModal
+                  name={
+                    contacts.find((c) => c.id === activeContactID)?.name || ""
+                  }
+                  modalOpen={reportModalOpen}
+                  closeModal={() => setReportModalOpen(false)}
+                  blockContact={blockContact}
+                />
               )}
 
               {contacts.length > 0 && (
-                <Modal
-                  bodyAriaLabel="Report modal"
-                  variant={ModalVariant.small}
-                  title={`Report ${
-                    contacts.find((c) => c.id === activeContactID)?.name
-                  }`}
-                  isOpen={reportModalOpen}
-                  onClose={() => setReportModalOpen(false)}
-                  actions={[
-                    <Button
-                      key="report"
-                      variant="danger"
-                      type="submit"
-                      form="report-form"
-                    >
-                      Report
-                    </Button>,
-                    <Button
-                      key="cancel"
-                      variant="link"
-                      onClick={() => setReportModalOpen(false)}
-                    >
-                      Cancel
-                    </Button>,
-                  ]}
-                >
-                  <Form
-                    id="report-form"
-                    onSubmit={() => {
-                      reportContact(reportFormCommentContent);
-                      setReportModalOpen(false);
-                    }}
-                    noValidate={false}
-                  >
-                    <FormGroup
-                      label="Your comment and the messages in violations of our policy"
-                      isRequired
-                      fieldId="report-form-comment"
-                    >
-                      <TextArea
-                        isRequired
-                        required
-                        id="report-form-comment"
-                        name="report-form-comment"
-                        value={reportFormCommentContent}
-                        onChange={(v) => setReportFormCommentContent(v)}
-                      />
-                    </FormGroup>
-                  </Form>
-                </Modal>
+                <ReportModal
+                  name={
+                    contacts.find((c) => c.id === activeContactID)?.name || ""
+                  }
+                  modalOpen={reportModalOpen}
+                  closeModal={() => setReportModalOpen(false)}
+                  reportContact={reportContact}
+                />
               )}
             </>
           ) : (
