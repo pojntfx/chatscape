@@ -1,0 +1,819 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChatPage renders in the closed state 1`] = `
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        class="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg"
+      >
+        <div
+          class="pf-u-w-100 pf-u-pt"
+        >
+          <div
+            class="pf-u-display-flex pf-u-justify-content-space-between pf-u-align-items-center pf-x-footer"
+          >
+            <img
+              alt="ChatScape logo"
+              class="pf-x-logo pf-x-logo--empty pf-u-mr-sm"
+              data-nimg="1"
+              decoding="async"
+              height="40"
+              loading="lazy"
+              src="/_next/image?url=%2Fimg.jpg&w=96&q=75"
+              srcset="/_next/image?url=%2Fimg.jpg&w=48&q=75 1x, /_next/image?url=%2Fimg.jpg&w=96&q=75 2x"
+              style="color: transparent;"
+              width="40"
+            />
+            <div
+              class="pf-c-dropdown pf-m-align-right pf-u-display-flex"
+              data-ouia-component-id="OUIA-Generated-Dropdown-1"
+              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-safe="true"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-label="Toggle account actions"
+                class="pf-c-dropdown__toggle pf-m-plain pf-u-p-0 pf-x-account-actions pf-x-avatar"
+                data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                data-ouia-component-type="PF4/DropdownToggle"
+                data-ouia-safe="true"
+                id="pf-dropdown-toggle-id-0"
+                type="button"
+              >
+                <span>
+                  <img
+                    alt="avatar"
+                    class="pf-c-avatar"
+                    src=""
+                  />
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-p-md"
+        >
+          <div
+            class="pf-c-empty-state"
+          >
+            <div
+              class="pf-c-empty-state__content"
+            >
+              <svg
+                aria-hidden="true"
+                class="pf-c-empty-state__icon pf-x-text--intro"
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style="vertical-align: -0.125em;"
+                viewBox="0 0 448 512"
+                width="1em"
+              >
+                <path
+                  d="M436 160c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h320c26.5 0 48-21.5 48-48v-48h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20zm-228-32c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zm112 236.8c0 10.6-10 19.2-22.4 19.2H118.4C106 384 96 375.4 96 364.8v-19.2c0-31.8 30.1-57.6 67.2-57.6h5c12.3 5.1 25.7 8 39.8 8s27.6-2.9 39.8-8h5c37.1 0 67.2 25.8 67.2 57.6v19.2z"
+                />
+              </svg>
+              <h1
+                class="pf-c-title pf-m-lg"
+                data-ouia-component-id="OUIA-Generated-Title-1"
+                data-ouia-component-type="PF4/Title"
+                data-ouia-safe="true"
+              >
+                No contacts yet
+              </h1>
+              <div
+                class="pf-c-empty-state__body pf-x-text--intro--subtitle"
+              >
+                Add a friend's email address to chat with them!
+              </div>
+              <div
+                class="pf-c-input-group pf-u-mt-md"
+              >
+                <input
+                  aria-invalid="false"
+                  aria-label="Email of the account to add"
+                  class="pf-c-form-control"
+                  data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+                  data-ouia-component-type="PF4/TextInput"
+                  data-ouia-safe="true"
+                  placeholder="jean.doe@example.com"
+                  type="email"
+                  value=""
+                />
+                <button
+                  aria-disabled="false"
+                  class="pf-c-button pf-m-control"
+                  data-ouia-component-id="OUIA-Generated-Button-control-1"
+                  data-ouia-component-type="PF4/Button"
+                  data-ouia-safe="true"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style="vertical-align: -0.125em;"
+                    viewBox="0 0 448 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pf-u-w-100 pf-u-pt"
+        >
+          <div
+            class="pf-l-flex pf-m-justify-content-space-between pf-x-footer"
+          >
+            <div
+              class="pf-l-flex__item"
+            >
+              <a
+                href="https://github.com/pojntfx/chatscape"
+                target="_blank"
+              >
+                © AGPL-3.0 2023 Felicitas Pojtinger
+              </a>
+            </div>
+            <div
+              class="pf-l-flex__item"
+            >
+              <a
+                href="https://felicitas.pojtinger.com/imprint"
+                target="_blank"
+              >
+                Imprint
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg"
+    >
+      <div
+        class="pf-u-w-100 pf-u-pt"
+      >
+        <div
+          class="pf-u-display-flex pf-u-justify-content-space-between pf-u-align-items-center pf-x-footer"
+        >
+          <img
+            alt="ChatScape logo"
+            class="pf-x-logo pf-x-logo--empty pf-u-mr-sm"
+            data-nimg="1"
+            decoding="async"
+            height="40"
+            loading="lazy"
+            src="/_next/image?url=%2Fimg.jpg&w=96&q=75"
+            srcset="/_next/image?url=%2Fimg.jpg&w=48&q=75 1x, /_next/image?url=%2Fimg.jpg&w=96&q=75 2x"
+            style="color: transparent;"
+            width="40"
+          />
+          <div
+            class="pf-c-dropdown pf-m-align-right pf-u-display-flex"
+            data-ouia-component-id="OUIA-Generated-Dropdown-1"
+            data-ouia-component-type="PF4/Dropdown"
+            data-ouia-safe="true"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="Toggle account actions"
+              class="pf-c-dropdown__toggle pf-m-plain pf-u-p-0 pf-x-account-actions pf-x-avatar"
+              data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+              data-ouia-component-type="PF4/DropdownToggle"
+              data-ouia-safe="true"
+              id="pf-dropdown-toggle-id-0"
+              type="button"
+            >
+              <span>
+                <img
+                  alt="avatar"
+                  class="pf-c-avatar"
+                  src=""
+                />
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-p-md"
+      >
+        <div
+          class="pf-c-empty-state"
+        >
+          <div
+            class="pf-c-empty-state__content"
+          >
+            <svg
+              aria-hidden="true"
+              class="pf-c-empty-state__icon pf-x-text--intro"
+              fill="currentColor"
+              height="1em"
+              role="img"
+              style="vertical-align: -0.125em;"
+              viewBox="0 0 448 512"
+              width="1em"
+            >
+              <path
+                d="M436 160c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h320c26.5 0 48-21.5 48-48v-48h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20zm-228-32c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zm112 236.8c0 10.6-10 19.2-22.4 19.2H118.4C106 384 96 375.4 96 364.8v-19.2c0-31.8 30.1-57.6 67.2-57.6h5c12.3 5.1 25.7 8 39.8 8s27.6-2.9 39.8-8h5c37.1 0 67.2 25.8 67.2 57.6v19.2z"
+              />
+            </svg>
+            <h1
+              class="pf-c-title pf-m-lg"
+              data-ouia-component-id="OUIA-Generated-Title-1"
+              data-ouia-component-type="PF4/Title"
+              data-ouia-safe="true"
+            >
+              No contacts yet
+            </h1>
+            <div
+              class="pf-c-empty-state__body pf-x-text--intro--subtitle"
+            >
+              Add a friend's email address to chat with them!
+            </div>
+            <div
+              class="pf-c-input-group pf-u-mt-md"
+            >
+              <input
+                aria-invalid="false"
+                aria-label="Email of the account to add"
+                class="pf-c-form-control"
+                data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+                data-ouia-component-type="PF4/TextInput"
+                data-ouia-safe="true"
+                placeholder="jean.doe@example.com"
+                type="email"
+                value=""
+              />
+              <button
+                aria-disabled="false"
+                class="pf-c-button pf-m-control"
+                data-ouia-component-id="OUIA-Generated-Button-control-1"
+                data-ouia-component-type="PF4/Button"
+                data-ouia-safe="true"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style="vertical-align: -0.125em;"
+                  viewBox="0 0 448 512"
+                  width="1em"
+                >
+                  <path
+                    d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="pf-u-w-100 pf-u-pt"
+      >
+        <div
+          class="pf-l-flex pf-m-justify-content-space-between pf-x-footer"
+        >
+          <div
+            class="pf-l-flex__item"
+          >
+            <a
+              href="https://github.com/pojntfx/chatscape"
+              target="_blank"
+            >
+              © AGPL-3.0 2023 Felicitas Pojtinger
+            </a>
+          </div>
+          <div
+            class="pf-l-flex__item"
+          >
+            <a
+              href="https://felicitas.pojtinger.com/imprint"
+              target="_blank"
+            >
+              Imprint
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;
+
+exports[`ChatPage renders in the opened state 1`] = `
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        class="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg"
+      >
+        <div
+          class="pf-u-w-100 pf-u-pt"
+        >
+          <div
+            class="pf-u-display-flex pf-u-justify-content-space-between pf-u-align-items-center pf-x-footer"
+          >
+            <img
+              alt="ChatScape logo"
+              class="pf-x-logo pf-x-logo--empty pf-u-mr-sm"
+              data-nimg="1"
+              decoding="async"
+              height="40"
+              loading="lazy"
+              src="/_next/image?url=%2Fimg.jpg&w=96&q=75"
+              srcset="/_next/image?url=%2Fimg.jpg&w=48&q=75 1x, /_next/image?url=%2Fimg.jpg&w=96&q=75 2x"
+              style="color: transparent;"
+              width="40"
+            />
+            <div
+              class="pf-c-dropdown pf-m-align-right pf-m-expanded pf-u-display-flex"
+              data-ouia-component-id="OUIA-Generated-Dropdown-2"
+              data-ouia-component-type="PF4/Dropdown"
+              data-ouia-safe="true"
+            >
+              <button
+                aria-expanded="true"
+                aria-haspopup="true"
+                aria-label="Toggle account actions"
+                class="pf-c-dropdown__toggle pf-m-plain pf-u-p-0 pf-x-account-actions pf-x-avatar"
+                data-ouia-component-id="OUIA-Generated-DropdownToggle-2"
+                data-ouia-component-type="PF4/DropdownToggle"
+                data-ouia-safe="true"
+                id="pf-dropdown-toggle-id-1"
+                type="button"
+              >
+                <span>
+                  <img
+                    alt="avatar"
+                    class="pf-c-avatar"
+                    src=""
+                  />
+                </span>
+              </button>
+              <ul
+                aria-labelledby="pf-dropdown-toggle-id-1"
+                class="pf-c-dropdown__menu pf-m-align-right"
+                role="menu"
+              >
+                <li
+                  role="none"
+                >
+                  <button
+                    aria-disabled="false"
+                    class="pf-c-dropdown__menu-item"
+                    data-ouia-component-id="OUIA-Generated-DropdownItem-1"
+                    data-ouia-component-type="PF4/DropdownItem"
+                    data-ouia-safe="true"
+                    role="menuitem"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    Logout
+                  </button>
+                </li>
+                <li
+                  role="none"
+                >
+                  <button
+                    aria-disabled="false"
+                    class="pf-c-dropdown__menu-item"
+                    data-ouia-component-id="OUIA-Generated-DropdownItem-2"
+                    data-ouia-component-type="PF4/DropdownItem"
+                    data-ouia-safe="true"
+                    role="menuitem"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    About
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-p-md"
+        >
+          <div
+            class="pf-c-empty-state"
+          >
+            <div
+              class="pf-c-empty-state__content"
+            >
+              <svg
+                aria-hidden="true"
+                class="pf-c-empty-state__icon pf-x-text--intro"
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style="vertical-align: -0.125em;"
+                viewBox="0 0 448 512"
+                width="1em"
+              >
+                <path
+                  d="M436 160c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h320c26.5 0 48-21.5 48-48v-48h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20zm-228-32c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zm112 236.8c0 10.6-10 19.2-22.4 19.2H118.4C106 384 96 375.4 96 364.8v-19.2c0-31.8 30.1-57.6 67.2-57.6h5c12.3 5.1 25.7 8 39.8 8s27.6-2.9 39.8-8h5c37.1 0 67.2 25.8 67.2 57.6v19.2z"
+                />
+              </svg>
+              <h1
+                class="pf-c-title pf-m-lg"
+                data-ouia-component-id="OUIA-Generated-Title-2"
+                data-ouia-component-type="PF4/Title"
+                data-ouia-safe="true"
+              >
+                No contacts yet
+              </h1>
+              <div
+                class="pf-c-empty-state__body pf-x-text--intro--subtitle"
+              >
+                Add a friend's email address to chat with them!
+              </div>
+              <div
+                class="pf-c-input-group pf-u-mt-md"
+              >
+                <input
+                  aria-invalid="false"
+                  aria-label="Email of the account to add"
+                  class="pf-c-form-control"
+                  data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+                  data-ouia-component-type="PF4/TextInput"
+                  data-ouia-safe="true"
+                  placeholder="jean.doe@example.com"
+                  type="email"
+                  value=""
+                />
+                <button
+                  aria-disabled="false"
+                  class="pf-c-button pf-m-control"
+                  data-ouia-component-id="OUIA-Generated-Button-control-2"
+                  data-ouia-component-type="PF4/Button"
+                  data-ouia-safe="true"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style="vertical-align: -0.125em;"
+                    viewBox="0 0 448 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pf-u-w-100 pf-u-pt"
+        >
+          <div
+            class="pf-l-flex pf-m-justify-content-space-between pf-x-footer"
+          >
+            <div
+              class="pf-l-flex__item"
+            >
+              <a
+                href="https://github.com/pojntfx/chatscape"
+                target="_blank"
+              >
+                © AGPL-3.0 2023 Felicitas Pojtinger
+              </a>
+            </div>
+            <div
+              class="pf-l-flex__item"
+            >
+              <a
+                href="https://felicitas.pojtinger.com/imprint"
+                target="_blank"
+              >
+                Imprint
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg"
+    >
+      <div
+        class="pf-u-w-100 pf-u-pt"
+      >
+        <div
+          class="pf-u-display-flex pf-u-justify-content-space-between pf-u-align-items-center pf-x-footer"
+        >
+          <img
+            alt="ChatScape logo"
+            class="pf-x-logo pf-x-logo--empty pf-u-mr-sm"
+            data-nimg="1"
+            decoding="async"
+            height="40"
+            loading="lazy"
+            src="/_next/image?url=%2Fimg.jpg&w=96&q=75"
+            srcset="/_next/image?url=%2Fimg.jpg&w=48&q=75 1x, /_next/image?url=%2Fimg.jpg&w=96&q=75 2x"
+            style="color: transparent;"
+            width="40"
+          />
+          <div
+            class="pf-c-dropdown pf-m-align-right pf-m-expanded pf-u-display-flex"
+            data-ouia-component-id="OUIA-Generated-Dropdown-2"
+            data-ouia-component-type="PF4/Dropdown"
+            data-ouia-safe="true"
+          >
+            <button
+              aria-expanded="true"
+              aria-haspopup="true"
+              aria-label="Toggle account actions"
+              class="pf-c-dropdown__toggle pf-m-plain pf-u-p-0 pf-x-account-actions pf-x-avatar"
+              data-ouia-component-id="OUIA-Generated-DropdownToggle-2"
+              data-ouia-component-type="PF4/DropdownToggle"
+              data-ouia-safe="true"
+              id="pf-dropdown-toggle-id-1"
+              type="button"
+            >
+              <span>
+                <img
+                  alt="avatar"
+                  class="pf-c-avatar"
+                  src=""
+                />
+              </span>
+            </button>
+            <ul
+              aria-labelledby="pf-dropdown-toggle-id-1"
+              class="pf-c-dropdown__menu pf-m-align-right"
+              role="menu"
+            >
+              <li
+                role="none"
+              >
+                <button
+                  aria-disabled="false"
+                  class="pf-c-dropdown__menu-item"
+                  data-ouia-component-id="OUIA-Generated-DropdownItem-1"
+                  data-ouia-component-type="PF4/DropdownItem"
+                  data-ouia-safe="true"
+                  role="menuitem"
+                  tabindex="-1"
+                  type="button"
+                >
+                  Logout
+                </button>
+              </li>
+              <li
+                role="none"
+              >
+                <button
+                  aria-disabled="false"
+                  class="pf-c-dropdown__menu-item"
+                  data-ouia-component-id="OUIA-Generated-DropdownItem-2"
+                  data-ouia-component-type="PF4/DropdownItem"
+                  data-ouia-safe="true"
+                  role="menuitem"
+                  tabindex="-1"
+                  type="button"
+                >
+                  About
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div
+        class="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-p-md"
+      >
+        <div
+          class="pf-c-empty-state"
+        >
+          <div
+            class="pf-c-empty-state__content"
+          >
+            <svg
+              aria-hidden="true"
+              class="pf-c-empty-state__icon pf-x-text--intro"
+              fill="currentColor"
+              height="1em"
+              role="img"
+              style="vertical-align: -0.125em;"
+              viewBox="0 0 448 512"
+              width="1em"
+            >
+              <path
+                d="M436 160c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h320c26.5 0 48-21.5 48-48v-48h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20zm-228-32c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zm112 236.8c0 10.6-10 19.2-22.4 19.2H118.4C106 384 96 375.4 96 364.8v-19.2c0-31.8 30.1-57.6 67.2-57.6h5c12.3 5.1 25.7 8 39.8 8s27.6-2.9 39.8-8h5c37.1 0 67.2 25.8 67.2 57.6v19.2z"
+              />
+            </svg>
+            <h1
+              class="pf-c-title pf-m-lg"
+              data-ouia-component-id="OUIA-Generated-Title-2"
+              data-ouia-component-type="PF4/Title"
+              data-ouia-safe="true"
+            >
+              No contacts yet
+            </h1>
+            <div
+              class="pf-c-empty-state__body pf-x-text--intro--subtitle"
+            >
+              Add a friend's email address to chat with them!
+            </div>
+            <div
+              class="pf-c-input-group pf-u-mt-md"
+            >
+              <input
+                aria-invalid="false"
+                aria-label="Email of the account to add"
+                class="pf-c-form-control"
+                data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+                data-ouia-component-type="PF4/TextInput"
+                data-ouia-safe="true"
+                placeholder="jean.doe@example.com"
+                type="email"
+                value=""
+              />
+              <button
+                aria-disabled="false"
+                class="pf-c-button pf-m-control"
+                data-ouia-component-id="OUIA-Generated-Button-control-2"
+                data-ouia-component-type="PF4/Button"
+                data-ouia-safe="true"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  style="vertical-align: -0.125em;"
+                  viewBox="0 0 448 512"
+                  width="1em"
+                >
+                  <path
+                    d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="pf-u-w-100 pf-u-pt"
+      >
+        <div
+          class="pf-l-flex pf-m-justify-content-space-between pf-x-footer"
+        >
+          <div
+            class="pf-l-flex__item"
+          >
+            <a
+              href="https://github.com/pojntfx/chatscape"
+              target="_blank"
+            >
+              © AGPL-3.0 2023 Felicitas Pojtinger
+            </a>
+          </div>
+          <div
+            class="pf-l-flex__item"
+          >
+            <a
+              href="https://felicitas.pojtinger.com/imprint"
+              target="_blank"
+            >
+              Imprint
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;
