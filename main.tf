@@ -2,6 +2,14 @@ variable "region" {
   default = "eu-north-1"
 }
 
+variable "spa_url" {
+  default = ""
+}
+
+locals {
+  spa_url = var.spa_url == "" ? "https://${aws_cloudfront_distribution.spa.domain_name}" : var.spa_url
+}
+
 provider "aws" {
   region  = var.region
   profile = "ChatScapeAdministrator-856591169022"
@@ -20,7 +28,7 @@ resource "aws_lambda_function" "hello_world" {
 
   environment {
     variables = {
-      SPA_URL = "https://${aws_cloudfront_distribution.spa.domain_name}"
+      SPA_URL = local.spa_url
     }
   }
 }
@@ -70,7 +78,7 @@ resource "aws_lambda_function" "hello_secret" {
 
   environment {
     variables = {
-      SPA_URL = "https://${aws_cloudfront_distribution.spa.domain_name}"
+      SPA_URL = local.spa_url
     }
   }
 }
@@ -120,9 +128,8 @@ resource "aws_lambda_function" "hello_db" {
 
   environment {
     variables = {
-      SPA_URL    = "https://${aws_cloudfront_distribution.spa.domain_name}",
+      SPA_URL    = local.spa_url,
       TABLE_NAME = aws_dynamodb_table.chatscape.name
-      REGION     = var.region
     }
   }
 }
@@ -325,7 +332,7 @@ resource "aws_api_gateway_integration_response" "hello_world_cors" {
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'*'"
     "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'https://${aws_cloudfront_distribution.spa.domain_name}'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
   }
 }
 
@@ -378,7 +385,7 @@ resource "aws_api_gateway_integration_response" "hello_secret_cors" {
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'*'"
     "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'https://${aws_cloudfront_distribution.spa.domain_name}'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
   }
 }
 
@@ -431,7 +438,7 @@ resource "aws_api_gateway_integration_response" "hello_db_cors" {
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'*'"
     "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'https://${aws_cloudfront_distribution.spa.domain_name}'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
   }
 }
 
@@ -586,6 +593,7 @@ resource "aws_cognito_user_pool_domain" "chatscape" {
 }
 
 
+
 resource "aws_cognito_user_pool_client" "spa" {
   name = "Chatscape"
 
@@ -593,9 +601,9 @@ resource "aws_cognito_user_pool_client" "spa" {
 
   generate_secret = false
 
-  callback_urls = ["https://${aws_cloudfront_distribution.spa.domain_name}"]
+  callback_urls = [local.spa_url]
 
-  allowed_oauth_flows  = ["implicit"]
+  allowed_oauth_flows  = ["implicit", "code"]
   allowed_oauth_scopes = ["email", "openid", "profile"]
 
   allowed_oauth_flows_user_pool_client = true
@@ -625,7 +633,7 @@ output "api_url" {
 }
 
 output "spa_url" {
-  value = "https://${aws_cloudfront_distribution.spa.domain_name}/"
+  value = local.spa_url
 }
 
 output "user_pool_id" {
