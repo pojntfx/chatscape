@@ -3,12 +3,12 @@ import { DownloadIcon, GlobeIcon } from "@patternfly/react-icons";
 import Image from "next/image";
 import logo from "../public/logo-light.png";
 
-export const LoginPage = ({
+export const LandingPage = ({
   installPWA,
-  logIn,
+  login,
 }: {
   installPWA?: Function;
-  logIn: () => void;
+  login: () => void;
 }) => (
   <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
     <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-md">
@@ -45,7 +45,7 @@ export const LoginPage = ({
         <Button
           variant="link"
           className="pf-u-mb-sm pf-u-mb-0-on-sm"
-          onClick={logIn}
+          onClick={login}
         >
           Open in browser <GlobeIcon />
         </Button>

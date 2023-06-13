@@ -13,6 +13,7 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { AuthProvider } from "oidc-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LocalStorageAPI } from "../api/localstorage";
 import { useAPI } from "../hooks/api";
@@ -23,7 +24,7 @@ import { BlockModal } from "./block-modal";
 import { ChatPage } from "./chat-page";
 import { ContactList } from "./contact-list";
 import { GlobalToolbar } from "./global-toolbar";
-import { LoginPage } from "./login-page";
+import { LandingPage } from "./landing-page";
 import { MessagesList } from "./messages-list";
 import { MessagesToolbar } from "./messages-toolbar";
 import { ReportModal } from "./report-modal";
@@ -32,7 +33,7 @@ import { UpdateModal } from "./update-modal";
 // const api = new InMemoryAPI(500);
 const api = new LocalStorageAPI(500);
 
-export default function Home() {
+const HomePage = () => {
   const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
   const [accountActionsOpen, setAccountActionsOpen] = useState(false);
   const [userActionsOpen, setUserActionsOpen] = useState(false);
@@ -67,7 +68,7 @@ export default function Home() {
 
   const { installPWA, updatePWA } = usePWAInstaller(
     () => setUpdateAvailable(true),
-    logIn
+    () => logIn()
   );
 
   const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
@@ -267,7 +268,7 @@ export default function Home() {
             />
           )
         ) : (
-          <LoginPage installPWA={installPWA} logIn={logIn} />
+          <LandingPage installPWA={installPWA} login={logIn} />
         )}
 
         <AboutModal
@@ -283,5 +284,20 @@ export default function Home() {
         />
       )}
     </Page>
+  );
+};
+
+export default function Home() {
+  return (
+    // TODO: Fetch these from config file
+    <AuthProvider
+      authority="https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_Lvx0jqdw7"
+      clientId="nnvgl7mk3ngeejsnglusquovh"
+      redirectUri="http://localhost:3000"
+      autoSignIn={false}
+      scope="email openid profile"
+    >
+      <HomePage />
+    </AuthProvider>
   );
 }
