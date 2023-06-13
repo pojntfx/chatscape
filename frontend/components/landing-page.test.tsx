@@ -1,16 +1,16 @@
 import { render } from "@testing-library/react";
-import { LoginPage } from "./login-page";
+import { LandingPage } from "./landing-page";
 
-describe("LoginPage", () => {
+describe("LandingPage", () => {
   it("renders with installPWA set", () => {
     expect(
-      render(<LoginPage installPWA={jest.fn()} logIn={jest.fn()} />)
+      render(<LandingPage installPWA={jest.fn()} login={jest.fn()} />)
     ).toMatchSnapshot();
   });
 
   it("renders without installPWA set", () => {
     expect(
-      render(<LoginPage installPWA={jest.fn()} logIn={jest.fn()} />)
+      render(<LandingPage installPWA={jest.fn()} login={jest.fn()} />)
     ).toMatchSnapshot();
   });
 });

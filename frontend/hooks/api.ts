@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { IAPI, IContact, IMessage } from "../api/models";
+import { useAuth } from "oidc-react";
 
 export const useAPI = (api: IAPI) => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const auth = useAuth();
+
   const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
 
   const [contacts, setContacts] = useState<IContact[]>();
@@ -11,6 +13,10 @@ export const useAPI = (api: IAPI) => {
   const [activeContactID, setActiveContactID] = useState("");
 
   useEffect(() => {
+    if (!auth.userData) {
+      return;
+    }
+
     let id = activeContactID;
     if (id === "") {
       api
@@ -25,22 +31,41 @@ export const useAPI = (api: IAPI) => {
       .getMessages(activeContactID)
       .then((messages) => setMessages(messages))
       .catch((e) => console.error(e));
-  }, [contacts, activeContactID, api]);
+  }, [contacts, activeContactID, api, auth.userData]);
 
   useEffect(() => {
+    if (!auth.userData) {
+      return;
+    }
+
     api
       .getContacts()
       .then((contacts) =>
         setContacts(contacts.length > 0 ? contacts : undefined)
       )
       .catch((e) => console.error(e));
-  }, [api]);
+  }, [api, auth.userData]);
+
+  useEffect(() => {
+    if (!auth.userData) {
+      return;
+    }
+
+    // Clean the URL after signin
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("code") || url.searchParams.get("state")) {
+      url.searchParams.delete("code");
+      url.searchParams.delete("state");
+
+      window.history.replaceState({}, document.title, url.toString());
+    }
+  }, [auth.userData]);
 
   return {
-    loggedIn,
+    loggedIn: auth.userData ? true : false,
     avatarURL,
-    logIn: () => setLoggedIn(true),
-    logOut: () => setLoggedIn(false),
+    logIn: auth.signIn,
+    logOut: auth.signOut,
 
     contacts,
     addContact: (email: string) => {
