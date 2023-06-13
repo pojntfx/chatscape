@@ -1,6 +1,5 @@
 const SPA_URL = process.env.SPA_URL;
 const TABLE_NAME = process.env.TABLE_NAME;
-const REGION = process.env.REGION;
 
 const AWS = require("aws-sdk");
 
