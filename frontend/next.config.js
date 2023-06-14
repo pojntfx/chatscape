@@ -7,6 +7,8 @@ const withPWA = require("@imbios/next-pwa")({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "export",
+  images: { unoptimized: true }, // We need this to support static output
   experimental: {
     appDir: true,
   },

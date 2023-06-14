@@ -472,35 +472,39 @@ resource "aws_s3_bucket_website_configuration" "spa" {
 resource "local_file" "config_json" {
   content = jsonencode({
     "clientID" : aws_cognito_user_pool_client.spa.id,
-    "apiURL" : aws_api_gateway_deployment.chatscape.invoke_url,
-    "hostedUIURL" : "https://${aws_cognito_user_pool_domain.chatscape.domain}.auth.${var.region}.amazoncognito.com"
+    "authority" : "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.chatscape.id}",
+    "apiURL" : aws_api_gateway_deployment.chatscape.invoke_url
   })
-  filename = "${path.module}/out/config.json"
+  filename = "${path.module}/frontend/public/config.json"
 }
 
 resource "aws_s3_object" "config_json" {
   depends_on = [local_file.config_json]
 
-  bucket = aws_s3_bucket.spa.bucket
-
-  key    = "config.json"
-  source = local_file.config_json.filename
-
+  bucket       = aws_s3_bucket.spa.bucket
+  key          = "config.json"
   content_type = "application/json"
 
-  bucket_key_enabled = true
+  source = local_file.config_json.filename
 }
 
-resource "aws_s3_object" "index_html" {
-  bucket = aws_s3_bucket.spa.bucket
+module "template_files" {
+  source = "hashicorp/dir/template"
 
-  key    = "index.html"
-  source = "${path.module}/api/frontend/index.html"
-  etag   = filebase64sha256("api/frontend/index.html")
+  base_dir = "${path.module}/frontend/out"
+}
 
-  content_type = "text/html"
+resource "aws_s3_bucket_object" "doc_files" {
+  for_each = module.template_files.files
 
-  bucket_key_enabled = true
+  bucket       = aws_s3_bucket.spa.bucket
+  key          = each.key
+  content_type = each.value.content_type
+
+  source  = each.value.source_path
+  content = each.value.content
+
+  etag = each.value.digests.md5
 }
 
 resource "aws_s3_bucket_policy" "spa" {
@@ -640,10 +644,10 @@ output "user_pool_id" {
   value = aws_cognito_user_pool.chatscape.id
 }
 
-output "hosted_ui_url" {
-  value = "https://${aws_cognito_user_pool_domain.chatscape.domain}.auth.${var.region}.amazoncognito.com"
-}
-
 output "client_id" {
   value = aws_cognito_user_pool_client.spa.id
+}
+
+output "authority" {
+  value = "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.chatscape.id}"
 }

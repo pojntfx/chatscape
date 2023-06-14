@@ -6,7 +6,10 @@ $(addprefix build-js/,$(obj)):
 	mkdir -p out
 	cd api/$(subst build-js/,,$@) && rm -rf out && npm run build && cp -r node_modules out && cd out && zip -r ../../../out/$(subst build-js/,,$@).zip .
 
-build: $(addprefix build-js/,$(obj))
+build-pwa:
+	cd frontend && npm run build
+
+build: $(addprefix build-js/,$(obj)) build-pwa
 
 run: build
 	terraform apply --auto-approve
