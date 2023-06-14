@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`LoginPage renders with installPWA set 1`] = `
+exports[`LandingPage renders with installPWA set 1`] = `
 {
   "asFragment": [Function],
   "baseElement": <body>
@@ -285,7 +285,7 @@ exports[`LoginPage renders with installPWA set 1`] = `
 }
 `;
 
-exports[`LoginPage renders without installPWA set 1`] = `
+exports[`LandingPage renders without installPWA set 1`] = `
 {
   "asFragment": [Function],
   "baseElement": <body>

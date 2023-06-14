@@ -46,21 +46,6 @@ export const useAPI = (api: IAPI) => {
       .catch((e) => console.error(e));
   }, [api, auth.userData]);
 
-  useEffect(() => {
-    if (!auth.userData) {
-      return;
-    }
-
-    // Clean the URL after signin
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("code") || url.searchParams.get("state")) {
-      url.searchParams.delete("code");
-      url.searchParams.delete("state");
-
-      window.history.replaceState({}, document.title, url.toString());
-    }
-  }, [auth.userData]);
-
   return {
     loggedIn: auth.userData ? true : false,
     avatarURL,

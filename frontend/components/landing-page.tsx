@@ -24,9 +24,10 @@ export const LandingPage = ({
           isVisible={installPWA ? false : undefined}
           content={
             <div>
-              Your browser doesn&apos;t support PWAs, please use Chrome, Edge or
-              another compatible browser to install the app or add it to your
-              homescreen manually.
+              Your browser doesn&apos;t support PWAs, or you haven&apos;t
+              interacted with the app yet. Please interact with it first, use
+              Chrome, Edge or another compatible browser to install the app or
+              add it to your homescreen manually.
             </div>
           }
         >

@@ -293,7 +293,7 @@ export default function Home() {
     <AuthProvider
       authority="https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_Lvx0jqdw7"
       clientId="nnvgl7mk3ngeejsnglusquovh"
-      redirectUri="http://localhost:3000"
+      redirectUri={window.location.origin}
       autoSignIn={false}
       scope="email openid profile"
     >
