@@ -33,7 +33,40 @@ import { UpdateModal } from "./update-modal";
 // const api = new InMemoryAPI(500);
 const api = new LocalStorageAPI(500);
 
-const HomePage = () => {
+const HomePagePlaceholder = () => {
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+
+  const { installPWA, updatePWA } = usePWAInstaller(
+    () => setUpdateAvailable(true),
+    () => setUpdateAvailable(false)
+  );
+
+  return (
+    <Page
+      className="pf-c-page--background"
+      skipToContent={
+        <SkipToContent href="#main">Skip to content</SkipToContent>
+      }
+      mainContainerId="main"
+    >
+      <PageSection
+        className="pf-u-p-0 pf-c-page__main-section--transparent"
+        id="main"
+      >
+        <LandingPage installPWA={installPWA} />
+      </PageSection>
+
+      {updateAvailable && (
+        <UpdateModal
+          applyUpdate={updatePWA}
+          dismissUpdate={() => setUpdateAvailable(false)}
+        />
+      )}
+    </Page>
+  );
+};
+
+const HomePage = ({ apiURL }: { apiURL: string }) => {
   const [addContactPopoverOpen, setContactPopoverOpen] = useState(false);
   const [accountActionsOpen, setAccountActionsOpen] = useState(false);
   const [userActionsOpen, setUserActionsOpen] = useState(false);
@@ -68,7 +101,10 @@ const HomePage = () => {
 
   const { installPWA, updatePWA } = usePWAInstaller(
     () => setUpdateAvailable(true),
-    () => logIn()
+    () => {
+      setUpdateAvailable(false);
+      logIn();
+    }
   );
 
   const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
@@ -288,16 +324,32 @@ const HomePage = () => {
 };
 
 export default function Home() {
-  return (
-    // TODO: Fetch these from config file
+  const [apiURL, setApiURL] = useState("");
+  const [authority, setAuthority] = useState("");
+  const [clientID, setClientID] = useState("");
+
+  useEffect(() => {
+    fetch("config.json")
+      .then((res) => res.json())
+      .then((res) => {
+        setApiURL(res.apiURL);
+        setAuthority(res.authority);
+        setClientID(res.clientID);
+      })
+      .catch((e) => console.error(e));
+  }, []);
+
+  return apiURL === "" || authority === "" || clientID === "" ? (
+    <HomePagePlaceholder />
+  ) : (
     <AuthProvider
-      authority="https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_Lvx0jqdw7"
-      clientId="nnvgl7mk3ngeejsnglusquovh"
+      authority={authority}
+      clientId={clientID}
       redirectUri={window.location.origin}
       autoSignIn={false}
       scope="email openid profile"
     >
-      <HomePage />
+      <HomePage apiURL={apiURL} />
     </AuthProvider>
   );
 }

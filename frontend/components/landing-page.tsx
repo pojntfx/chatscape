@@ -8,7 +8,7 @@ export const LandingPage = ({
   login,
 }: {
   installPWA?: Function;
-  login: () => void;
+  login?: () => void;
 }) => (
   <div className="pf-x-login-page pf-u-h-100 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-lg">
     <div className="pf-u-flex-1 pf-u-display-flex pf-u-align-items-center pf-u-justify-content-center pf-u-flex-direction-column pf-u-p-md">
@@ -47,6 +47,9 @@ export const LandingPage = ({
           variant="link"
           className="pf-u-mb-sm pf-u-mb-0-on-sm"
           onClick={login}
+          isLoading={!login}
+          spinnerAriaLabel="Loading"
+          spinnerAriaValueText="Loading configuration"
         >
           Open in browser <GlobeIcon />
         </Button>
