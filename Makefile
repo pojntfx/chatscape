@@ -12,10 +12,10 @@ build-pwa:
 build: $(addprefix build-js/,$(obj)) build-pwa
 
 run: build
-	terraform apply --auto-approve
+	terraform apply  --auto-approve
 
 plan: build
-	terraform plan
+	terraform plan 
 
 clean:
 	terraform destroy --auto-approve
