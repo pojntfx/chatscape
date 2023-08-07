@@ -1,29 +1,5 @@
-terraform {
-  backend "http" {
-    address        = "https://api.tfstate.dev/github/v1"
-    lock_address   = "https://api.tfstate.dev/github/v1/lock"
-    unlock_address = "https://api.tfstate.dev/github/v1/lock"
-    lock_method    = "PUT"
-    unlock_method  = "DELETE"
-    username       = "pojntfx/chatscape"
-  }
-}
-
-variable "region" {
-  default = "eu-north-1"
-}
-
-variable "spa_url" {
-  default = ""
-}
-
 locals {
   spa_url = var.spa_url == "" ? "https://${aws_cloudfront_distribution.spa.domain_name}" : var.spa_url
-}
-
-provider "aws" {
-  region  = var.region
-  profile = "ChatScapeAdministrator-856591169022"
 }
 
 # Hello World
@@ -607,8 +583,6 @@ resource "aws_cognito_user_pool_domain" "chatscape" {
   user_pool_id = aws_cognito_user_pool.chatscape.id
 }
 
-
-
 resource "aws_cognito_user_pool_client" "spa" {
   name = "Chatscape"
 
@@ -640,25 +614,4 @@ resource "aws_dynamodb_table" "chatscape" {
 
   stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
-}
-
-# Outputs
-output "api_url" {
-  value = aws_api_gateway_deployment.chatscape.invoke_url
-}
-
-output "spa_url" {
-  value = local.spa_url
-}
-
-output "user_pool_id" {
-  value = aws_cognito_user_pool.chatscape.id
-}
-
-output "client_id" {
-  value = aws_cognito_user_pool_client.spa.id
-}
-
-output "authority" {
-  value = "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.chatscape.id}"
 }
