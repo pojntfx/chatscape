@@ -2,6 +2,56 @@ locals {
   spa_url = var.spa_url == "" ? "https://${aws_cloudfront_distribution.spa.domain_name}" : var.spa_url
 }
 
+# Add Contact
+resource "aws_lambda_function" "add_contact" {
+  function_name = "add_contact"
+  runtime       = "nodejs18.x"
+
+  filename         = "out/add-contact.zip"
+  source_code_hash = filebase64sha256("out/add-contact.zip")
+  handler          = "main.handler"
+
+  role = aws_iam_role.lambda.arn
+
+  environment {
+    variables = {
+      SPA_URL = local.spa_url
+    }
+  }
+}
+
+resource "aws_api_gateway_resource" "add_contact" {
+  path_part   = "add_contact"
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
+}
+
+resource "aws_api_gateway_method" "add_contact" {
+  http_method   = "GET"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+
+  resource_id = aws_api_gateway_resource.add_contact.id
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+}
+
+resource "aws_api_gateway_integration" "add_contact" {
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.add_contact.invoke_arn
+  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
+  resource_id             = aws_api_gateway_resource.add_contact.id
+  http_method             = aws_api_gateway_method.add_contact.http_method
+}
+
+resource "aws_lambda_permission" "add_contact" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = aws_lambda_function.add_contact.function_name
+  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
+}
+
 # Hello World
 resource "aws_lambda_function" "hello_world" {
   function_name = "hello_world"
@@ -246,6 +296,9 @@ resource "aws_api_gateway_deployment" "chatscape" {
 
     aws_api_gateway_integration.hello_db,
     aws_api_gateway_integration.hello_db_cors,
+
+    aws_api_gateway_integration.add_contact,
+    aws_api_gateway_integration.add_contact_cors,
   ]
 
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
@@ -261,6 +314,9 @@ resource "aws_api_gateway_deployment" "chatscape" {
 
       aws_api_gateway_integration.hello_db,
       aws_api_gateway_integration.hello_db_cors,
+    
+      aws_api_gateway_integration.add_contact,
+      aws_api_gateway_integration.add_contact_cors,
     ]))
   }
 
@@ -376,6 +432,61 @@ resource "aws_api_gateway_integration_response" "hello_secret_cors" {
   }
 }
 
+# Add Contact CORS
+resource "aws_api_gateway_method" "add_contact_cors" {
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.add_contact.id
+}
+
+resource "aws_api_gateway_integration" "add_contact_cors" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.add_contact.id
+  http_method = aws_api_gateway_method.add_contact.http_method
+
+  type = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode(
+      {
+        statusCode = 200
+      }
+    )
+  }
+}
+
+resource "aws_api_gateway_method_response" "add_contact_cors_ok" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.add_contact.id
+  http_method = aws_api_gateway_method.add_contact_cors.http_method
+  status_code = 200
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "add_contact_cors" {
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.add_contact.id
+  http_method = aws_api_gateway_method.add_contact_cors.http_method
+  status_code = aws_api_gateway_method_response.add_contact_cors_ok.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'*'"
+    "method.response.header.Access-Control-Allow-Methods" = "'*'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
+  }
+}
+
+# Hello DB CORS
 resource "aws_api_gateway_method" "hello_db_cors" {
   http_method   = "OPTIONS"
   authorization = "NONE"
