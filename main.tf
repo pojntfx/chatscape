@@ -21,7 +21,7 @@ resource "aws_lambda_function" "add_contact" {
 }
 
 resource "aws_api_gateway_resource" "add_contact" {
-  path_part   = "add_contact"
+  path_part   = "add-contact"
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
 }
@@ -314,7 +314,7 @@ resource "aws_api_gateway_deployment" "chatscape" {
 
       aws_api_gateway_integration.hello_db,
       aws_api_gateway_integration.hello_db_cors,
-    
+
       aws_api_gateway_integration.add_contact,
       aws_api_gateway_integration.add_contact_cors,
     ]))
@@ -444,7 +444,7 @@ resource "aws_api_gateway_method" "add_contact_cors" {
 resource "aws_api_gateway_integration" "add_contact_cors" {
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.add_contact.id
-  http_method = aws_api_gateway_method.add_contact.http_method
+  http_method = aws_api_gateway_method.add_contact_cors.http_method
 
   type = "MOCK"
   request_templates = {
@@ -728,9 +728,9 @@ resource "aws_dynamodb_table" "chatscape" {
 }
 
 resource "aws_dynamodb_table" "contact_table" {
-  name           = "contacts"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "id"
+  name         = "contacts"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
 
   attribute {
     name = "id"
@@ -759,10 +759,10 @@ resource "aws_dynamodb_table" "contact_table" {
 }
 
 resource "aws_dynamodb_table" "message_table" {
-  name           = "messages"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "them"
-  range_key      = "date"
+  name         = "messages"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "them"
+  range_key    = "date"
 
   attribute {
     name = "them"
@@ -773,9 +773,9 @@ resource "aws_dynamodb_table" "message_table" {
   #   name = "body"
   #   type = "S"
   # }
-  
+
   attribute {
     name = "date"
-    type = "N"  # Using Number type to represent Unix timestamp
+    type = "N" # Using Number type to represent Unix timestamp
   }
 }
