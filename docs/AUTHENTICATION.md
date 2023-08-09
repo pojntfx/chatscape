@@ -4,9 +4,9 @@
 export REGION="eu-north-1"
 
 # You can get these values from the Terraform outputs
-export API_URL="https://08vl4l6st8.execute-api.eu-north-1.amazonaws.com/test"
-export USER_POOL_ID="eu-north-1_Lvx0jqdw7"
-export CLIENT_ID="nnvgl7mk3ngeejsnglusquovh"
+export API_URL="https://yrxrxvhs36.execute-api.eu-north-1.amazonaws.com/test"
+export USER_POOL_ID="eu-north-1_PSX1V7vnK"
+export CLIENT_ID="7e2l4k47qt1i2o1tvnrpo1v9on"
 
 export USERNAME="chatscape-tester@example.com"
 export PASSWORD="Your-password1/"
