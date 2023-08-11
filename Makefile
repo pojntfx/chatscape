@@ -1,4 +1,4 @@
-obj = hello-world hello-secret hello-db add-contact get-contacts-db
+obj = hello-world hello-secret hello-db add-contact
 
 
 all: build
