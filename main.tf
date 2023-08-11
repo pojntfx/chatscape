@@ -1,5 +1,13 @@
 locals {
   spa_url = var.spa_url == "" ? "https://${aws_cloudfront_distribution.spa.domain_name}" : var.spa_url
+
+  lambdas = ["add-contact", "hello-db", "hello-secret"]
+}
+
+module "lambdas" {
+  for_each = toset(local.lambdas)
+  source   = "./modules/lamdbas"
+  name     = each.key
 }
 
 # Hello World
