@@ -4,12 +4,6 @@ locals {
   lambdas = ["add-contact", "hello-db", "hello-secret"]
 }
 
-module "lambdas" {
-  for_each = toset(local.lambdas)
-  source   = "./modules/lamdbas"
-  name     = each.key
-}
-
 # Hello World
 resource "aws_lambda_function" "hello_world" {
   function_name = "hello_world"
@@ -57,158 +51,6 @@ resource "aws_lambda_permission" "hello_world" {
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = aws_lambda_function.hello_world.function_name
-  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
-}
-
-# Hello Secret
-resource "aws_lambda_function" "hello_secret" {
-  function_name = "hello_secret"
-  runtime       = "nodejs18.x"
-
-  filename         = "out/hello-secret.zip"
-  source_code_hash = filebase64sha256("out/hello-secret.zip")
-  handler          = "main.handler"
-
-  role = aws_iam_role.lambda.arn
-
-  environment {
-    variables = {
-      SPA_URL = local.spa_url
-    }
-  }
-}
-
-resource "aws_api_gateway_resource" "hello_secret" {
-  path_part   = "hello-secret"
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
-}
-
-resource "aws_api_gateway_method" "hello_secret" {
-  http_method   = "GET"
-  authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.cognito.id
-
-  resource_id = aws_api_gateway_resource.hello_secret.id
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-}
-
-resource "aws_api_gateway_integration" "hello_secret" {
-  type                    = "AWS_PROXY"
-  integration_http_method = "POST"
-  uri                     = aws_lambda_function.hello_secret.invoke_arn
-  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
-  resource_id             = aws_api_gateway_resource.hello_secret.id
-  http_method             = aws_api_gateway_method.hello_secret.http_method
-}
-
-resource "aws_lambda_permission" "hello_secret" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  principal     = "apigateway.amazonaws.com"
-  function_name = aws_lambda_function.hello_secret.function_name
-  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
-}
-
-# Hello DB
-resource "aws_lambda_function" "hello_db" {
-  function_name = "hello_db"
-  runtime       = "nodejs18.x"
-
-  filename         = "out/hello-db.zip"
-  source_code_hash = filebase64sha256("out/hello-db.zip")
-  handler          = "main.handler"
-
-  role = aws_iam_role.lambda_db.arn
-
-  environment {
-    variables = {
-      SPA_URL    = local.spa_url,
-      TABLE_NAME = aws_dynamodb_table.chatscape.name
-    }
-  }
-}
-
-resource "aws_api_gateway_resource" "hello_db" {
-  path_part   = "hello-db"
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
-}
-
-resource "aws_api_gateway_method" "hello_db" {
-  http_method   = "GET"
-  authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.cognito.id
-
-  resource_id = aws_api_gateway_resource.hello_db.id
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-}
-
-resource "aws_api_gateway_integration" "hello_db" {
-  type                    = "AWS_PROXY"
-  integration_http_method = "POST"
-  uri                     = aws_lambda_function.hello_db.invoke_arn
-  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
-  resource_id             = aws_api_gateway_resource.hello_db.id
-  http_method             = aws_api_gateway_method.hello_db.http_method
-}
-
-resource "aws_lambda_permission" "hello_db" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  principal     = "apigateway.amazonaws.com"
-  function_name = aws_lambda_function.hello_db.function_name
-  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
-}
-
-# Add Contact
-resource "aws_lambda_function" "add_contact" {
-  function_name = "add_contact"
-  runtime       = "nodejs18.x"
-
-  filename         = "out/add-contact.zip"
-  source_code_hash = filebase64sha256("out/add-contact.zip")
-  handler          = "main.handler"
-
-  role = aws_iam_role.lambda_db.arn
-
-  environment {
-    variables = {
-      SPA_URL    = local.spa_url,
-      TABLE_NAME = aws_dynamodb_table.chatscape.name
-    }
-  }
-}
-
-resource "aws_api_gateway_resource" "add_contact" {
-  path_part   = "add-contact"
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
-}
-
-resource "aws_api_gateway_method" "add_contact" {
-  http_method   = "POST"
-  authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.cognito.id
-
-  resource_id = aws_api_gateway_resource.add_contact.id
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-}
-
-resource "aws_api_gateway_integration" "add_contact" {
-  type                    = "AWS_PROXY"
-  integration_http_method = "POST"
-  uri                     = aws_lambda_function.add_contact.invoke_arn
-  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
-  resource_id             = aws_api_gateway_resource.add_contact.id
-  http_method             = aws_api_gateway_method.add_contact.http_method
-}
-
-resource "aws_lambda_permission" "add_contact" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  principal     = "apigateway.amazonaws.com"
-  function_name = aws_lambda_function.add_contact.function_name
   source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
 }
 
@@ -304,14 +146,8 @@ resource "aws_api_gateway_deployment" "chatscape" {
       aws_api_gateway_integration.hello_world,
       aws_api_gateway_integration.hello_world_cors,
 
-      aws_api_gateway_integration.hello_secret,
-      aws_api_gateway_integration.hello_secret_cors,
-
-      aws_api_gateway_integration.hello_db,
-      aws_api_gateway_integration.hello_db_cors,
-
-      aws_api_gateway_integration.add_contact,
-      aws_api_gateway_integration.add_contact_cors,
+      aws_api_gateway_integration.gateway_integration[*],
+      aws_api_gateway_integration.gateway_integration_cors[*]
     ]))
   }
 
@@ -366,167 +202,6 @@ resource "aws_api_gateway_integration_response" "hello_world_cors" {
   resource_id = aws_api_gateway_resource.hello_world.id
   http_method = aws_api_gateway_method.hello_world_cors.http_method
   status_code = aws_api_gateway_method_response.hello_world_cors_ok.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'*'"
-    "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
-  }
-}
-
-resource "aws_api_gateway_method" "hello_secret_cors" {
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret.id
-}
-
-resource "aws_api_gateway_integration" "hello_secret_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret.id
-  http_method = aws_api_gateway_method.hello_secret_cors.http_method
-
-  type = "MOCK"
-  request_templates = {
-    "application/json" = jsonencode(
-      {
-        statusCode = 200
-      }
-    )
-  }
-}
-
-resource "aws_api_gateway_method_response" "hello_secret_cors_ok" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret.id
-  http_method = aws_api_gateway_method.hello_secret_cors.http_method
-  status_code = 200
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "hello_secret_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_secret.id
-  http_method = aws_api_gateway_method.hello_secret_cors.http_method
-  status_code = aws_api_gateway_method_response.hello_secret_cors_ok.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'*'"
-    "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
-  }
-}
-
-# Hello DB CORS
-resource "aws_api_gateway_method" "hello_db_cors" {
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_db.id
-}
-
-resource "aws_api_gateway_integration" "hello_db_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_db.id
-  http_method = aws_api_gateway_method.hello_db_cors.http_method
-
-  type = "MOCK"
-  request_templates = {
-    "application/json" = jsonencode(
-      {
-        statusCode = 200
-      }
-    )
-  }
-}
-
-resource "aws_api_gateway_method_response" "hello_db_cors_ok" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_db.id
-  http_method = aws_api_gateway_method.hello_db_cors.http_method
-  status_code = 200
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "hello_db_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_db.id
-  http_method = aws_api_gateway_method.hello_db_cors.http_method
-  status_code = aws_api_gateway_method_response.hello_db_cors_ok.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'*'"
-    "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
-  }
-}
-
-# Add Contact CORS
-resource "aws_api_gateway_method" "add_contact_cors" {
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.add_contact.id
-}
-
-resource "aws_api_gateway_integration" "add_contact_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.add_contact.id
-  http_method = aws_api_gateway_method.add_contact_cors.http_method
-
-  type = "MOCK"
-  request_templates = {
-    "application/json" = jsonencode(
-      {
-        statusCode = 200
-      }
-    )
-  }
-}
-
-resource "aws_api_gateway_method_response" "add_contact_cors_ok" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.add_contact.id
-  http_method = aws_api_gateway_method.add_contact_cors.http_method
-  status_code = 200
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "add_contact_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.add_contact.id
-  http_method = aws_api_gateway_method.add_contact_cors.http_method
-  status_code = aws_api_gateway_method_response.add_contact_cors_ok.status_code
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'*'"
@@ -731,26 +406,6 @@ resource "aws_dynamodb_table" "contact_table" {
     name = "id"
     type = "S"
   }
-
-  # attribute {
-  #   name = "name"
-  #   type = "S"
-  # }
-
-  # attribute {
-  #   name = "email"
-  #   type = "S"
-  # }
-
-  # attribute {
-  #   name = "intro"
-  #   type = "S"
-  # }
-
-  # attribute {
-  #   name = "avatar"
-  #   type = "S"
-  # }
 }
 
 resource "aws_dynamodb_table" "message_table" {
@@ -764,13 +419,122 @@ resource "aws_dynamodb_table" "message_table" {
     type = "N" # Using Number type to represent boolean
   }
 
-  # attribute {
-  #   name = "body"
-  #   type = "S"
-  # }
-
   attribute {
     name = "date"
     type = "N" # Using Number type to represent Unix timestamp
+  }
+}
+
+# Lambdas
+resource "aws_lambda_function" "function" {
+  for_each = toset(local.lambdas)
+  function_name = replace(each.key, "-", "_") 
+  runtime       = "nodejs18.x"
+
+  filename         = "out/${each.key}.zip"
+  source_code_hash = filebase64sha256("out/${each.key}.zip")
+  handler          = "main.handler"
+
+  role = aws_iam_role.lambda_db.arn
+
+  environment {
+    variables = {
+      SPA_URL    = local.spa_url,
+      TABLE_NAME = aws_dynamodb_table.chatscape.name
+    }
+  }
+}
+
+resource "aws_api_gateway_resource" "gateway_resource" {
+  for_each = toset(local.lambdas)
+  path_part   = each.key
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
+}
+
+resource "aws_api_gateway_method" "gateway_method" {
+  for_each = toset(local.lambdas)
+  http_method   = "POST"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+
+  resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+}
+
+resource "aws_api_gateway_integration" "gateway_integration" {
+  for_each = toset(local.lambdas)
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.function[each.key].invoke_arn
+  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
+  resource_id             = aws_api_gateway_resource.gateway_resource[each.key].id
+  http_method             = aws_api_gateway_method.gateway_method[each.key].http_method
+}
+
+resource "aws_lambda_permission" "lambda_permission" {
+  for_each = toset(local.lambdas)
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = aws_lambda_function.function[each.key].function_name
+  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
+}
+
+# CORS
+resource "aws_api_gateway_method" "gateway_method_cors" {
+  for_each = toset(local.lambdas)
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
+}
+
+resource "aws_api_gateway_integration" "gateway_integration_cors" {
+  for_each = toset(local.lambdas)
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
+  http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
+
+  type = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode(
+      {
+        statusCode = 200
+      }
+    )
+  }
+}
+
+resource "aws_api_gateway_method_response" "gateway_method_response_cors_ok" {
+  for_each = toset(local.lambdas)
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
+  http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
+  status_code = 200
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "gateway_integration_response_cors" {
+  for_each = toset(local.lambdas)
+  rest_api_id = aws_api_gateway_rest_api.chatscape.id
+  resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
+  http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
+  status_code = aws_api_gateway_method_response.gateway_method_response_cors_ok[each.key].status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'*'"
+    "method.response.header.Access-Control-Allow-Methods" = "'*'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'${var.spa_url}'"
   }
 }
