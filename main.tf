@@ -4,56 +4,6 @@ locals {
   lambdas = ["add-contact", "hello-db", "hello-secret"]
 }
 
-# Hello World
-resource "aws_lambda_function" "hello_world" {
-  function_name = "hello_world"
-  runtime       = "nodejs18.x"
-
-  filename         = "out/hello-world.zip"
-  source_code_hash = filebase64sha256("out/hello-world.zip")
-  handler          = "main.handler"
-
-  role = aws_iam_role.lambda.arn
-
-  environment {
-    variables = {
-      SPA_URL = local.spa_url
-    }
-  }
-}
-
-resource "aws_api_gateway_resource" "hello_world" {
-  path_part = "hello-world"
-
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
-}
-
-resource "aws_api_gateway_method" "hello_world" {
-  http_method   = "GET"
-  authorization = "NONE"
-
-  resource_id = aws_api_gateway_resource.hello_world.id
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-}
-
-resource "aws_api_gateway_integration" "hello_world" {
-  type                    = "AWS_PROXY"
-  integration_http_method = "POST"
-  uri                     = aws_lambda_function.hello_world.invoke_arn
-  rest_api_id             = aws_api_gateway_rest_api.chatscape.id
-  resource_id             = aws_api_gateway_resource.hello_world.id
-  http_method             = aws_api_gateway_method.hello_world.http_method
-}
-
-resource "aws_lambda_permission" "hello_world" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  principal     = "apigateway.amazonaws.com"
-  function_name = aws_lambda_function.hello_world.function_name
-  source_arn    = "${aws_api_gateway_rest_api.chatscape.execution_arn}/*/*"
-}
-
 # Lambda
 resource "aws_iam_role" "lambda" {
   name = "lambda"
@@ -143,9 +93,6 @@ resource "aws_api_gateway_deployment" "chatscape" {
   # We need this because otherwise the stage itself would not be deployed when we add new lambdas
   triggers = {
     redeployment = sha1(jsonencode([
-      aws_api_gateway_integration.hello_world,
-      aws_api_gateway_integration.hello_world_cors,
-
       aws_api_gateway_integration.gateway_integration[*],
       aws_api_gateway_integration.gateway_integration_cors[*]
     ]))
@@ -153,60 +100,6 @@ resource "aws_api_gateway_deployment" "chatscape" {
 
   lifecycle {
     create_before_destroy = true
-  }
-}
-
-# Enable OPTIONS dummy methods for CORS
-resource "aws_api_gateway_method" "hello_world_cors" {
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_world.id
-}
-
-resource "aws_api_gateway_integration" "hello_world_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_world.id
-  http_method = aws_api_gateway_method.hello_world_cors.http_method
-
-  type = "MOCK"
-  request_templates = {
-    "application/json" = jsonencode(
-      {
-        statusCode = 200
-      }
-    )
-  }
-}
-
-resource "aws_api_gateway_method_response" "hello_world_cors_ok" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_world.id
-  http_method = aws_api_gateway_method.hello_world_cors.http_method
-  status_code = 200
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "hello_world_cors" {
-  rest_api_id = aws_api_gateway_rest_api.chatscape.id
-  resource_id = aws_api_gateway_resource.hello_world.id
-  http_method = aws_api_gateway_method.hello_world_cors.http_method
-  status_code = aws_api_gateway_method_response.hello_world_cors_ok.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'*'"
-    "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
   }
 }
 
@@ -427,8 +320,8 @@ resource "aws_dynamodb_table" "message_table" {
 
 # Lambdas
 resource "aws_lambda_function" "function" {
-  for_each = toset(local.lambdas)
-  function_name = replace(each.key, "-", "_") 
+  for_each      = toset(local.lambdas)
+  function_name = replace(each.key, "-", "_")
   runtime       = "nodejs18.x"
 
   filename         = "out/${each.key}.zip"
@@ -446,14 +339,14 @@ resource "aws_lambda_function" "function" {
 }
 
 resource "aws_api_gateway_resource" "gateway_resource" {
-  for_each = toset(local.lambdas)
+  for_each    = toset(local.lambdas)
   path_part   = each.key
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
 }
 
 resource "aws_api_gateway_method" "gateway_method" {
-  for_each = toset(local.lambdas)
+  for_each      = toset(local.lambdas)
   http_method   = "POST"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito.id
@@ -463,7 +356,7 @@ resource "aws_api_gateway_method" "gateway_method" {
 }
 
 resource "aws_api_gateway_integration" "gateway_integration" {
-  for_each = toset(local.lambdas)
+  for_each                = toset(local.lambdas)
   type                    = "AWS_PROXY"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.function[each.key].invoke_arn
@@ -473,7 +366,7 @@ resource "aws_api_gateway_integration" "gateway_integration" {
 }
 
 resource "aws_lambda_permission" "lambda_permission" {
-  for_each = toset(local.lambdas)
+  for_each      = toset(local.lambdas)
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
@@ -483,7 +376,7 @@ resource "aws_lambda_permission" "lambda_permission" {
 
 # CORS
 resource "aws_api_gateway_method" "gateway_method_cors" {
-  for_each = toset(local.lambdas)
+  for_each      = toset(local.lambdas)
   http_method   = "OPTIONS"
   authorization = "NONE"
 
@@ -492,7 +385,7 @@ resource "aws_api_gateway_method" "gateway_method_cors" {
 }
 
 resource "aws_api_gateway_integration" "gateway_integration_cors" {
-  for_each = toset(local.lambdas)
+  for_each    = toset(local.lambdas)
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
   http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
@@ -508,7 +401,7 @@ resource "aws_api_gateway_integration" "gateway_integration_cors" {
 }
 
 resource "aws_api_gateway_method_response" "gateway_method_response_cors_ok" {
-  for_each = toset(local.lambdas)
+  for_each    = toset(local.lambdas)
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
   http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
@@ -526,7 +419,7 @@ resource "aws_api_gateway_method_response" "gateway_method_response_cors_ok" {
 }
 
 resource "aws_api_gateway_integration_response" "gateway_integration_response_cors" {
-  for_each = toset(local.lambdas)
+  for_each    = toset(local.lambdas)
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
   http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
