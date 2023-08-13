@@ -11,8 +11,9 @@ resource "aws_lambda_function" "function" {
 
   environment {
     variables = {
-      SPA_URL    = local.spa_url,
-      TABLE_NAME = aws_dynamodb_table.chatscape.name
+      SPA_URL             = local.spa_url,
+      CONTACTS_TABLE_NAME = aws_dynamodb_table.contacts.name,
+      MESSAGES_TABLE_NAME = aws_dynamodb_table.messages.name
     }
   }
 }
@@ -144,10 +145,12 @@ resource "aws_iam_policy" "lambda_db" {
       {
         Effect = "Allow"
         Action = [
-          "dynamodb:GetItem"
+          "dynamodb:GetItem",
+          "dynamodb:PutItem"
         ]
         Resource = [
-          aws_dynamodb_table.chatscape.arn
+          aws_dynamodb_table.contacts.arn,
+          aws_dynamodb_table.messages.arn
         ]
       },
       {
