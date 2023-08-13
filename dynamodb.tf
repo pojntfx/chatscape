@@ -1,18 +1,4 @@
-resource "aws_dynamodb_table" "chatscape" {
-  name         = "chatscape"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "Id"
-
-  attribute {
-    name = "Id"
-    type = "S"
-  }
-
-  stream_enabled   = true
-  stream_view_type = "NEW_AND_OLD_IMAGES"
-}
-
-resource "aws_dynamodb_table" "contact_table" {
+resource "aws_dynamodb_table" "contacts" {
   name         = "contacts"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "id"
@@ -23,7 +9,7 @@ resource "aws_dynamodb_table" "contact_table" {
   }
 }
 
-resource "aws_dynamodb_table" "message_table" {
+resource "aws_dynamodb_table" "messages" {
   name         = "messages"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "them"
