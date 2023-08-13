@@ -1,18 +1,19 @@
-const AWS = require('aws-sdk');
-const uuid = require('uuid');
+const AWS = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
 const SPA_URL = process.env.SPA_URL;
-const TABLE_NAME = "contacts";
+const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
 
 export const handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
+  if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("Method not allowed"),
+      body: JSON.stringify("method not allowed"),
     };
   }
 
@@ -25,7 +26,7 @@ export const handler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("Invalid request body"),
+      body: JSON.stringify("invalid request body"),
     };
   }
 
@@ -35,7 +36,7 @@ export const handler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("Email is required"),
+      body: JSON.stringify("email not provided"),
     };
   }
 
@@ -45,17 +46,17 @@ export const handler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("Name is required"),
+      body: JSON.stringify("name not provided"),
     };
   }
 
   const params = {
-    TableName: TABLE_NAME,
+    TableName: CONTACTS_TABLE_NAME,
     Item: {
-      id: uuid.v4(),
+      id: uuidv4(),
       name: body.name,
-      email: body.email
-    }
+      email: body.email,
+    },
   };
 
   try {
@@ -65,15 +66,17 @@ export const handler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("Contact received and saved!"),
+      body: JSON.stringify(params.Item),
     };
   } catch (error) {
+    console.error(error);
+
     return {
       statusCode: 500,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("An error occurred while saving the contact."),
+      body: JSON.stringify("could not create contact"),
     };
   }
 };
