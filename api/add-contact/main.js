@@ -1,10 +1,26 @@
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
-
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+const IV_LENGTH = 16;
 const SPA_URL = process.env.SPA_URL;
-const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
+const CONTACTS_TABLE_NAME = "Contacts";
+
+function encrypt(text) {
+  let iv = crypto.randomBytes(IV_LENGTH);
+  let cipher = crypto.createCipheriv(
+    "aes-256-gcm",
+    Buffer.from(ENCRYPTION_KEY),
+    iv
+  );
+  let encrypted = cipher.update(text);
+  let finalBuffer = Buffer.concat([encrypted, cipher.final()]);
+  let tag = cipher.getAuthTag();
+  return Buffer.concat([iv, tag, finalBuffer]).toString("base64");
+}
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -27,6 +43,21 @@ export const handler = async (event) => {
         "Access-Control-Allow-Origin": SPA_URL,
       },
       body: JSON.stringify("invalid request body"),
+    };
+  }
+
+  let namespace;
+  try {
+    const decodedToken = jwt.decode(event.headers.Authorization);
+    namespace = decodedToken.namespace;
+    namespace = encrypt(namespace);
+  } catch (error) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": SPA_URL,
+      },
+      body: JSON.stringify("invalid or missing token"),
     };
   }
 
@@ -56,6 +87,7 @@ export const handler = async (event) => {
       id: uuidv4(),
       name: body.name,
       email: body.email,
+      namespace: namespace,
     },
   };
 

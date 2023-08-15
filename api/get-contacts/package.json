@@ -1,5 +1,5 @@
 {
-  "name": "@chatscape/add-contact",
+  "name": "@chatscape/get-contacts",
   "version": "0.0.1",
   "description": "",
   "main": "out/main.js",
@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "aws-sdk": "^2.1382.0",
-    "jsonwebtoken": "^9.0.1",
     "uuid": "^8.3.2"
   }
 }
