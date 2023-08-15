@@ -1,6 +1,4 @@
 const AWS = require("aws-sdk");
-const { v4: uuidv4 } = require("uuid");
-
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
 const CONTACTS_TABLE_NAME = "Contacts";
@@ -49,36 +47,52 @@ export const handler = async (event) => {
     };
   }
 
-  if (!body.name) {
-    return {
-      statusCode: 400,
-      headers: {
-        "Access-Control-Allow-Origin": SPA_URL,
-      },
-      body: JSON.stringify("name not provided"),
-    };
-  }
-
-  const params = {
+  const queryParams = {
     TableName: CONTACTS_TABLE_NAME,
-    Item: {
-      id: uuidv4(),
-      name: body.name,
-      email: body.email,
-      namespace: body.namespace,
-      blocked: false,
+    IndexName: "namespace-index",
+    KeyConditionExpression: "namespace = :namespaceVal",
+    ExpressionAttributeValues: {
+      ":namespaceVal": body.namespace,
     },
   };
 
   try {
-    await dynamoDb.put(params).promise();
-    return {
-      statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": SPA_URL,
-      },
-      body: JSON.stringify(params.Item),
-    };
+    const results = await dynamoDb.query(queryParams).promise();
+
+    if (results.Items) {
+      const contact = results.Items.find((item) => item.email === body.email);
+
+      if (contact) {
+        const updateParams = {
+          TableName: CONTACTS_TABLE_NAME,
+          Key: {
+            id: contact.id,
+          },
+          UpdateExpression: "set blocked = :blockedVal",
+          ExpressionAttributeValues: {
+            ":blockedVal": true,
+          },
+        };
+
+        await dynamoDb.update(updateParams).promise();
+
+        return {
+          statusCode: 200,
+          headers: {
+            "Access-Control-Allow-Origin": SPA_URL,
+          },
+          body: JSON.stringify(contact),
+        };
+      } else {
+        return {
+          statusCode: 404,
+          headers: {
+            "Access-Control-Allow-Origin": SPA_URL,
+          },
+          body: JSON.stringify("contact not found"),
+        };
+      }
+    }
   } catch (error) {
     console.error(error);
 
@@ -87,7 +101,7 @@ export const handler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("could not create contact"),
+      body: JSON.stringify("could not unblock contact"),
     };
   }
 };
