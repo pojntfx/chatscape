@@ -1,7 +1,7 @@
 const AWS = require("aws-sdk");
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
-const CONTACTS_TABLE_NAME = "Contacts";
+const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -101,7 +101,7 @@ export const handler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("could not unblock contact"),
+      body: JSON.stringify("could not block contact"),
     };
   }
 };
