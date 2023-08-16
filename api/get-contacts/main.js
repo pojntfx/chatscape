@@ -21,9 +21,12 @@ export const handler = async (event) => {
   const params = {
     TableName: CONTACTS_TABLE_NAME,
     IndexName: "NamespaceIndex",
-    KeyConditionExpression: "namespace = :namespaceValue",
+    KeyConditionExpression: "#ns = :namespaceValue",
     ExpressionAttributeValues: {
-      ":namespaceValue": namespace,
+      ":namespaceValue": "test",
+    },
+    ExpressionAttributeNames: {
+      "#ns": "namespace",
     },
   };
 
