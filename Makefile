@@ -1,4 +1,4 @@
-obj = add-contact
+obj = add-contact get-contacts block-contact report-contact
 
 
 all: build
