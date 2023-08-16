@@ -16,14 +16,35 @@ export const handler = async (event) => {
     };
   }
 
-  let namespace = "Placeholder";
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch (error) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": SPA_URL,
+      },
+      body: JSON.stringify("invalid request body"),
+    };
+  }
+
+  if (!body.namespace) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": SPA_URL,
+      },
+      body: JSON.stringify("namespace not provided"),
+    };
+  }
 
   const params = {
     TableName: CONTACTS_TABLE_NAME,
     IndexName: "NamespaceIndex",
     KeyConditionExpression: "#ns = :namespaceValue",
     ExpressionAttributeValues: {
-      ":namespaceValue": "test",
+      ":namespaceValue": body.namespace,
     },
     ExpressionAttributeNames: {
       "#ns": "namespace",
