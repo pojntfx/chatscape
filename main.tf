@@ -1,7 +1,7 @@
 locals {
   spa_url = var.spa_url == "" ? "https://${aws_cloudfront_distribution.spa.domain_name}" : var.spa_url
 
-  lambdas = ["add-contact", "get-contacts", "block-contact"]
+  lambdas = ["add-contact", "get-contacts", "block-contact", "report-contact"]
 }
 
 # API Gateway
