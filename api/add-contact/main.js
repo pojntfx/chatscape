@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
-const CONTACTS_TABLE_NAME = "Contacts";
+const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
