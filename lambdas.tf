@@ -146,11 +146,14 @@ resource "aws_iam_policy" "lambda_db" {
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
-          "dynamodb:PutItem"
+          "dynamodb:PutItem",
+          "dynamodb:Query",
+          "dynamodb:UpdateItem"
         ]
         Resource = [
           aws_dynamodb_table.contacts.arn,
-          aws_dynamodb_table.messages.arn
+          "${aws_dynamodb_table.contacts.arn}/index/*",
+          aws_dynamodb_table.messages.arn,
         ]
       },
       {
@@ -165,6 +168,7 @@ resource "aws_iam_policy" "lambda_db" {
     ]
   })
 }
+
 
 resource "aws_iam_role" "lambda_db" {
   name = "lambda_db"

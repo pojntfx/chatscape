@@ -49,7 +49,7 @@ export const handler = async (event) => {
 
   const queryParams = {
     TableName: CONTACTS_TABLE_NAME,
-    IndexName: "namespace-index",
+    IndexName: "NamespaceIndex",
     KeyConditionExpression: "namespace = :namespaceVal",
     ExpressionAttributeValues: {
       ":namespaceVal": body.namespace,
@@ -75,6 +75,8 @@ export const handler = async (event) => {
         };
 
         await dynamoDb.update(updateParams).promise();
+
+        contact.blocked = true;
 
         return {
           statusCode: 200,
