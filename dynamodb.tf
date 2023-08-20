@@ -25,16 +25,57 @@ resource "aws_dynamodb_table" "contacts" {
 resource "aws_dynamodb_table" "messages" {
   name         = "messages"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "them"
+  hash_key     = "id"
   range_key    = "date"
 
   attribute {
-    name = "them"
-    type = "N" # Using Number type to represent boolean
+    name = "id"
+    type = "S"
+  }
+
+  attribute {
+    name = "senderNamespace"
+    type = "S"
+  }
+
+  attribute {
+    name = "recipientNamespace"
+    type = "S"
+  }
+
+  attribute {
+    name = "recipientNamespace"
+    type = "S"
   }
 
   attribute {
     name = "date"
-    type = "N" # Using Number type to represent Unix timestamp
+    type = "S" # Using Number type to represent Unix timestamp
   }
+
+  global_secondary_index {
+    name            = "SenderNamespaceIndex"
+    hash_key        = "senderNamespace"
+    projection_type = "ALL"
+    write_capacity  = 5
+    read_capacity   = 5
+  }
+
+  global_secondary_index {
+    name            = "RecipientNamespaceIndex"
+    hash_key        = "recipientNamespace"
+    projection_type = "ALL"
+    write_capacity  = 5
+    read_capacity   = 5
+  }
+
+  global_secondary_index {
+    name            = "SenderRecipientNamespaceIndex"
+    hash_key        = "senderNamespace"
+    range_key       = "recipientNamespace"
+    projection_type = "ALL"
+    write_capacity  = 5
+    read_capacity   = 5
+  }
+
 }
