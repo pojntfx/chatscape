@@ -154,6 +154,7 @@ resource "aws_iam_policy" "lambda_db" {
           aws_dynamodb_table.contacts.arn,
           "${aws_dynamodb_table.contacts.arn}/index/*",
           aws_dynamodb_table.messages.arn,
+          "${aws_dynamodb_table.messages.arn}/index/*"
         ]
       },
       {
