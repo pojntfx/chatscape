@@ -15,7 +15,6 @@ import {
 } from "@patternfly/react-core";
 import { AuthProvider } from "oidc-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LocalStorageAPI } from "../api/localstorage";
 import { useAPI } from "../hooks/api";
 import { usePWAInstaller } from "../hooks/pwa";
 import { useWindowWidth } from "../hooks/window";
@@ -29,9 +28,6 @@ import { MessagesList } from "./messages-list";
 import { MessagesToolbar } from "./messages-toolbar";
 import { ReportModal } from "./report-modal";
 import { UpdateModal } from "./update-modal";
-
-// const api = new InMemoryAPI(500);
-const api = new LocalStorageAPI(500);
 
 const HomePagePlaceholder = () => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -97,7 +93,7 @@ const HomePage = ({ apiURL }: { apiURL: string }) => {
 
     blockContact,
     reportContact,
-  } = useAPI(api);
+  } = useAPI(apiURL);
 
   const { installPWA, updatePWA } = usePWAInstaller(
     () => setUpdateAvailable(true),
