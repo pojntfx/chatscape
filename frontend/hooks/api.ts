@@ -70,7 +70,7 @@ export const useAPI = (apiURL: string) => {
     logOut: auth.signOut,
 
     contacts,
-    addContact: (email: string) => {
+    addContact: (name: string, email: string) => {
       if (!api) return;
 
       // Local
@@ -78,7 +78,7 @@ export const useAPI = (apiURL: string) => {
 
       // Remote
       api
-        .addContact(email.split("@")[0] + " " + email.split("@")[1], email)
+        .addContact(name, email)
         .then((newContact) => {
           setActiveContactID(newContact.id);
 

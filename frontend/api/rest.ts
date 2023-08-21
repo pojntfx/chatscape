@@ -107,10 +107,13 @@ export class RESTAPI implements IAPI {
 
     const messages = (await response.json()) as any[];
 
-    return messages.map((message) => ({
-      them: message.them,
-      body: message.message,
-      date: new Date(message.date),
-    }));
+    return messages
+      .map((message) => ({
+        them: message.them,
+        body: message.message,
+        date: new Date(message.date),
+      }))
+      .slice()
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 }

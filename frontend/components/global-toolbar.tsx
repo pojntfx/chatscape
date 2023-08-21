@@ -22,6 +22,9 @@ export const GlobalToolbar = ({
   setSearchInputValue,
   addContactPopoverOpen,
   setContactPopoverOpen,
+  addContactNameInputValue,
+  setAddContactNameInputValue,
+  addContactNameInputValueRef,
   addContactEmailInputValue,
   setAddContactEmailInputValue,
   addContactEmailInputValueRef,
@@ -36,6 +39,9 @@ export const GlobalToolbar = ({
   setSearchInputValue: (value: string) => void;
   addContactPopoverOpen: boolean;
   setContactPopoverOpen: (isOpen: boolean) => void;
+  addContactNameInputValue: string;
+  setAddContactNameInputValue: (name: string) => void;
+  addContactNameInputValueRef: Ref<any>;
   addContactEmailInputValue: string;
   setAddContactEmailInputValue: (email: string) => void;
   addContactEmailInputValueRef: Ref<any>;
@@ -75,7 +81,22 @@ export const GlobalToolbar = ({
             <div>
               <div className="pf-c-title pf-m-md">Add a contact</div>
 
-              <InputGroup className="pf-u-mt-md">
+              <InputGroup className="pf-u-mt-md pf-x-add-contact">
+                <TextInput
+                  aria-label="Name of the account to add"
+                  type="text"
+                  placeholder="Jean Doe"
+                  value={addContactNameInputValue}
+                  onChange={(v) => setAddContactNameInputValue(v)}
+                  ref={addContactNameInputValueRef}
+                  required
+                  onKeyDown={(k) =>
+                    k.key === "Enter" &&
+                    (addContactEmailInputValueRef as any)?.current?.focus()
+                  }
+                  className="pf-u-mr-md"
+                />
+
                 <TextInput
                   aria-label="Email of the account to add"
                   type="email"

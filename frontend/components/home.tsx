@@ -103,35 +103,46 @@ const HomePage = ({ apiURL }: { apiURL: string }) => {
     }
   );
 
+  const [initialNameInputValue, setInitialNameInputValue] = useState("");
+  const initialNameInputValueRef = useRef<HTMLInputElement>(null);
   const [initialEmailInputValue, setInitialEmailInputValue] = useState("");
   const initialEmailInputValueRef = useRef<HTMLInputElement>(null);
   const submitInitialEmailInput = useCallback(() => {
     if (
+      initialNameInputValueRef?.current?.reportValidity() &&
+      initialNameInputValue.trim() !== "" &&
       initialEmailInputValueRef?.current?.reportValidity() &&
       initialEmailInputValue.trim() !== ""
     ) {
-      addContact(initialEmailInputValue);
+      addContact(initialNameInputValue, initialEmailInputValue);
+      setInitialNameInputValue("");
       setInitialEmailInputValue("");
+      setContactPopoverOpen(false);
     } else {
-      initialEmailInputValueRef.current?.focus();
+      initialNameInputValueRef.current?.focus();
     }
-  }, [addContact, initialEmailInputValue]);
+  }, [addContact, initialNameInputValue, initialEmailInputValue]);
 
+  const [addContactNameInputValue, setAddContactNameInputValue] = useState("");
+  const addContactNameInputValueRef = useRef<HTMLInputElement>(null);
   const [addContactEmailInputValue, setAddContactEmailInputValue] =
     useState("");
   const addContactEmailInputValueRef = useRef<HTMLInputElement>(null);
   const submitAddContactEmailInput = useCallback(() => {
     if (
+      addContactNameInputValueRef?.current?.reportValidity() &&
+      addContactNameInputValue.trim() !== "" &&
       addContactEmailInputValueRef?.current?.reportValidity() &&
       addContactEmailInputValue.trim() !== ""
     ) {
-      addContact(addContactEmailInputValue);
+      addContact(addContactNameInputValue, addContactEmailInputValue);
+      setAddContactNameInputValue("");
       setAddContactEmailInputValue("");
       setContactPopoverOpen(false);
     } else {
-      addContactEmailInputValueRef.current?.focus();
+      addContactNameInputValueRef.current?.focus();
     }
-  }, [addContact, addContactEmailInputValue]);
+  }, [addContact, addContactNameInputValue, addContactEmailInputValue]);
 
   const [addMessageInputValue, setAddMessageInputValue] = useState("");
   const addMessageInputValueRef = useRef<HTMLInputElement>(null);
@@ -191,6 +202,13 @@ const HomePage = ({ apiURL }: { apiURL: string }) => {
                         setSearchInputValue={setSearchInputValue}
                         addContactPopoverOpen={addContactPopoverOpen}
                         setContactPopoverOpen={setContactPopoverOpen}
+                        addContactNameInputValue={addContactNameInputValue}
+                        setAddContactNameInputValue={
+                          setAddContactNameInputValue
+                        }
+                        addContactNameInputValueRef={
+                          addContactNameInputValueRef
+                        }
                         addContactEmailInputValue={addContactEmailInputValue}
                         setAddContactEmailInputValue={
                           setAddContactEmailInputValue
@@ -291,6 +309,9 @@ const HomePage = ({ apiURL }: { apiURL: string }) => {
               accountActionsOpen={accountActionsOpen}
               avatarURL={avatarURL}
               logOut={logOut}
+              initialNameInputValue={initialNameInputValue}
+              setInitialNameInputValue={setInitialNameInputValue}
+              initialNameInputValueRef={initialNameInputValueRef}
               initialEmailInputValue={initialEmailInputValue}
               setInitialEmailInputValue={setInitialEmailInputValue}
               initialEmailInputValueRef={initialEmailInputValueRef}

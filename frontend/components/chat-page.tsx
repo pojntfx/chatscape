@@ -17,6 +17,9 @@ export const ChatPage = ({
   accountActionsOpen,
   avatarURL,
   logOut,
+  initialNameInputValue,
+  setInitialNameInputValue,
+  initialNameInputValueRef,
   initialEmailInputValue,
   setInitialEmailInputValue,
   initialEmailInputValueRef,
@@ -27,6 +30,9 @@ export const ChatPage = ({
   accountActionsOpen: boolean;
   avatarURL: string;
   logOut: () => void;
+  initialNameInputValue: string;
+  setInitialNameInputValue: React.Dispatch<React.SetStateAction<string>>;
+  initialNameInputValueRef: RefObject<HTMLInputElement>;
   initialEmailInputValue: string;
   setInitialEmailInputValue: React.Dispatch<React.SetStateAction<string>>;
   initialEmailInputValueRef: RefObject<HTMLInputElement>;
@@ -62,10 +68,24 @@ export const ChatPage = ({
         </Title>
 
         <EmptyStateBody className="pf-x-text--intro--subtitle">
-          Add a friend&apos;s email address to chat with them!
+          Add a friend&apos;s name and email address to chat with them!
         </EmptyStateBody>
 
-        <InputGroup className="pf-u-mt-md">
+        <InputGroup className="pf-u-mt-md pf-x-add-contact">
+          <TextInput
+            aria-label="Name of the account to add"
+            type="text"
+            placeholder="Jean Doe"
+            value={initialNameInputValue}
+            onChange={(v) => setInitialNameInputValue(v)}
+            ref={initialNameInputValueRef}
+            required
+            onKeyDown={(k) =>
+              k.key === "Enter" && initialEmailInputValueRef?.current?.focus()
+            }
+            className="pf-u-mr-md"
+          />
+
           <TextInput
             aria-label="Email of the account to add"
             type="email"
