@@ -39,7 +39,7 @@ export const handler = async (event) => {
         "Access-Control-Allow-Origin": SPA_URL,
       },
       body: JSON.stringify(
-        error instanceof ValiError ? error.message : "invalid request body"
+        error instanceof vali.ValiError ? error.message : "invalid request body"
       ),
     };
   }
