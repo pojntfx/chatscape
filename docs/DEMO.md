@@ -1,7 +1,7 @@
 # Run ChatScape
 
-1. `$ export TF_HTTP_PASSWORD="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"` 2.`$ export AWS_PROFILE=ChatScapeAdministrator-856591169022`
-2. `$ cat ~/.aws/config` If empty do the following:
+1. Execute `$ export TF_HTTP_PASSWORD="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"` 2.`$ export AWS_PROFILE=ChatScapeAdministrator-856591169022` 2.`$ export AWS_PROFILE=ChatScapeAdministrator-856591169022`
+2. Execute `$ cat ~/.aws/config` If empty do the following:
    1. `$ vim ~/.aws/config` :
 
 ```conf
@@ -28,9 +28,9 @@ sso_region = eu-north-1
 sso_registration_scopes = sso:account:access
 ```
 
-4.  `$ aws sso login`
-5.  `$ make run -j$(nproc)`
-6.  `AUTHENTICATION.md` adjust with the output from terraform:
+4.  Execute `$ aws sso login`
+5.  Execute `$ make run -j$(nproc)`
+6.  Adjust `AUTHENTICATION.md` with the output from terraform, open a new shell and execute it:
 
 ```shell
 export AWS_PROFILE=ChatScapeAdministrator-856591169022
