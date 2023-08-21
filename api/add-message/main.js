@@ -1,9 +1,22 @@
+const vali = require("valibot");
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
 const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
+
+const BodySchema = vali.object(
+  {
+    senderNamespace: vali.string("senderNamespace not provided"),
+    recipientNamespace: vali.string("recipientNamespace not provided"),
+    message: vali.string("message not provided", [
+      vali.toTrimmed(),
+      vali.minLength(1, "message is empty"),
+    ]),
+  },
+  "invalid request body"
+);
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -18,34 +31,16 @@ export const handler = async (event) => {
 
   let body;
   try {
-    body = JSON.parse(event.body);
+    body = vali.parse(BodySchema, JSON.parse(event.body));
   } catch (error) {
     return {
       statusCode: 400,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("invalid request body"),
-    };
-  }
-
-  if (!body.senderNamespace) {
-    return {
-      statusCode: 400,
-      headers: {
-        "Access-Control-Allow-Origin": SPA_URL,
-      },
-      body: JSON.stringify("senderNamespace not provided"),
-    };
-  }
-
-  if (!body.recipientNamespace) {
-    return {
-      statusCode: 400,
-      headers: {
-        "Access-Control-Allow-Origin": SPA_URL,
-      },
-      body: JSON.stringify("recipientNamespace not provided"),
+      body: JSON.stringify(
+        error instanceof ValiError ? error.message : "invalid request body"
+      ),
     };
   }
 

@@ -1,9 +1,16 @@
+const vali = require("valibot");
 const AWS = require("aws-sdk");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
-
 const SPA_URL = process.env.SPA_URL;
 const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
+
+const BodySchema = vali.object(
+  {
+    namespace: vali.string("namespace not provided"),
+  },
+  "invalid request body"
+);
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -18,24 +25,16 @@ export const handler = async (event) => {
 
   let body;
   try {
-    body = JSON.parse(event.body);
+    body = vali.parse(BodySchema, JSON.parse(event.body));
   } catch (error) {
     return {
       statusCode: 400,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("invalid request body"),
-    };
-  }
-
-  if (!body.namespace) {
-    return {
-      statusCode: 400,
-      headers: {
-        "Access-Control-Allow-Origin": SPA_URL,
-      },
-      body: JSON.stringify("namespace not provided"),
+      body: JSON.stringify(
+        error instanceof ValiError ? error.message : "invalid request body"
+      ),
     };
   }
 
