@@ -60,10 +60,10 @@ curl -X POST --data '{"email":"max@mustermann.de"}' -H "Authorization: Bearer ${
 curl -X POST --data '{"email":"max@mustermann.de", "report":"Met at a diner"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
 ```
 
-**get-contacts**: `{}`
+**get-contacts**:
 
 ```shell
-curl -X POST --data '{}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-contacts"
+curl -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-contacts"
 ```
 
 **add-message**: `{"recipientNamespace":"mate", "message": "Hi"}`
@@ -72,8 +72,8 @@ curl -X POST --data '{}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get
 curl -X POST --data '{"recipientNamespace":"mate", "message": "Hi"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-message"
 ```
 
-**get-messages**: `{"recipientNamespace":"mate"}`
+**get-messages**: `?recipientNamespace=mate`
 
 ```shell
-curl -X POST --data '{"recipientNamespace":"mate"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-messages"
+curl -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-messages?recipientNamespace=mate"
 ```

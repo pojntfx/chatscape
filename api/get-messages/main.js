@@ -1,16 +1,8 @@
-const vali = require("valibot");
 const AWS = require("aws-sdk");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
 const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
-
-const BodySchema = vali.object(
-  {
-    recipientNamespace: vali.string("recipientNamespace not provided"),
-  },
-  "invalid request body"
-);
 
 export const handler = async (event) => {
   const senderNamespace =
@@ -25,18 +17,14 @@ export const handler = async (event) => {
     };
   }
 
-  let body;
-  try {
-    body = vali.parse(BodySchema, JSON.parse(event.body));
-  } catch (error) {
+  const recipientNamespace = event.queryStringParameters?.recipientNamespace;
+  if (!recipientNamespace) {
     return {
       statusCode: 400,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify(
-        error instanceof vali.ValiError ? error.message : "invalid request body"
-      ),
+      body: JSON.stringify("missing recipientNamespace"),
     };
   }
 
@@ -82,7 +70,7 @@ export const handler = async (event) => {
   try {
     const messagesBetween = await fetchMessagesBetween(
       senderNamespace,
-      body.recipientNamespace
+      recipientNamespace
     );
 
     return {
