@@ -30,14 +30,15 @@ describe("Lambda Function Tests", () => {
   });
 
   it("should handle valid request", async () => {
-    const response = await handler(mockEvent, mockContext);
+    const rv = await handler(mockEvent, mockContext);
 
-    expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({
+    expect(rv.statusCode).toBe(200);
+    expect(JSON.parse(rv.body)).toMatchObject({
       senderNamespace: "sender-namespace",
       recipientNamespace: "recipient-namespace",
       message: "Test message",
     });
+    expect(rv).toMatchSnapshot();
   });
 
   it("should handle missing message", async () => {
@@ -47,27 +48,30 @@ describe("Lambda Function Tests", () => {
       message: "",
     });
 
-    const response = await handler(mockEvent, mockContext);
+    const rv = await handler(mockEvent, mockContext);
 
-    expect(response.statusCode).toBe(400);
-    expect(response.body).toContain("message is empty");
+    expect(rv.statusCode).toBe(400);
+    expect(rv.body).toContain("message is empty");
+    expect(rv).toMatchSnapshot();
   });
 
   it("should handle invalid request body", async () => {
     mockEvent.body = "invalid_json";
 
-    const response = await handler(mockEvent, mockContext);
+    const rv = await handler(mockEvent, mockContext);
 
-    expect(response.statusCode).toBe(400);
-    expect(response.body).toContain("invalid request body");
+    expect(rv.statusCode).toBe(400);
+    expect(rv.body).toContain("invalid request body");
+    expect(rv).toMatchSnapshot();
   });
 
   it("should handle unsupported HTTP method", async () => {
     mockEvent.httpMethod = "GET";
 
-    const response = await handler(mockEvent, mockContext);
+    const rv = await handler(mockEvent, mockContext);
 
-    expect(response.statusCode).toBe(405);
-    expect(response.body).toContain("method not allowed");
+    expect(rv.statusCode).toBe(405);
+    expect(rv.body).toContain("method not allowed");
+    expect(rv).toMatchSnapshot();
   });
 });
