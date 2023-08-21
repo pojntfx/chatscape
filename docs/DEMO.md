@@ -57,37 +57,37 @@ $ curl -X POST --data '{"email":"max@mustermann.de", "name":"max"}' -H "Authoriz
 
 ## Payloads
 
-_add-contact_: `{"email":"max@mustermann.de", "name":"max", "namespace": "test"}`
+**add-contact**: `{"email":"max@mustermann.de", "name":"max", "namespace": "test"}`
 
 ```shell
 $ curl -X POST --data '{"email":"max@mustermann.de", "name":"max", "namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-contact"
 ```
 
-_block-contact_: `{"email":"max@mustermann.de", "namespace": "test"}`
+**block-contact**: `{"email":"max@mustermann.de", "namespace": "test"}`
 
 ```shell
 $ curl -X POST --data '{"email":"max@mustermann.de",  "namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/block-contact"
 ```
 
-_report-contact_: `{"email":"max@mustermann.de", "report":"Met at a diner", "namespace": "test"}`
+**report-contact**: `{"email":"max@mustermann.de", "report":"Met at a diner", "namespace": "test"}`
 
 ```shell
 $ curl -X POST --data '{"email":"max@mustermann.de", "report":"Met at a diner", "namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
 ```
 
-_get-contacts_: `{"namespace": "test"}`
+**get-contacts**: `{"namespace": "test"}`
 
 ```shell
 $ curl -X POST --data '{"namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-contacts"
 ```
 
-_add-message_: `{"senderNamespace":"check", "recipientNamespace":"mate", "message": "Hi"}`
+**add-message**: `{"senderNamespace":"check", "recipientNamespace":"mate", "message": "Hi"}`
 
 ```shell
 $ curl -X POST --data '{"senderNamespace":"check", "recipientNamespace":"mate", "message": "Hi"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-message"
 ```
 
-_get-messages_: `{"senderNamespace":"check", "recipientNamespace":"mate"}`
+**get-messages**: `{"senderNamespace":"check", "recipientNamespace":"mate"}`
 
 ```shell
 $ curl -X POST --data '{"senderNamespace":"check", "recipientNamespace":"mate"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-messages"
