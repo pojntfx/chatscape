@@ -5,21 +5,17 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
 const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
 
-const BodySchema = vali.object(
-  {
-    namespace: vali.string("namespace not provided"),
-  },
-  "invalid request body"
-);
+const BodySchema = vali.object({}, "invalid request body");
 
 export const handler = async (event) => {
-  if (event.httpMethod !== "POST") {
+  const namespace = event.requestContext.authorizer.claims["cognito:username"];
+  if (!namespace) {
     return {
-      statusCode: 405,
+      statusCode: 403,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("method not allowed"),
+      body: "missing namespace",
     };
   }
 
@@ -43,7 +39,7 @@ export const handler = async (event) => {
     IndexName: "NamespaceIndex",
     KeyConditionExpression: "#ns = :namespaceValue",
     ExpressionAttributeValues: {
-      ":namespaceValue": body.namespace,
+      ":namespaceValue": namespace,
     },
     ExpressionAttributeNames: {
       "#ns": "namespace",
