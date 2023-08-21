@@ -18,7 +18,7 @@ const BodySchema = vali.object(
   "invalid request body"
 );
 
-export const handler = async (event) => {
+async function handler(event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -75,4 +75,6 @@ export const handler = async (event) => {
       body: JSON.stringify("could not create contact"),
     };
   }
-};
+}
+
+module.exports = { handler };
