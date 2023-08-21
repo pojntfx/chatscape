@@ -76,11 +76,7 @@ module.exports.handler = async (event) => {
       dynamoDb.query(paramsForRecipientToSender).promise(),
     ]);
 
-    const combinedResults = [
-      ...resultFromSender.Items,
-      ...resultFromRecipient.Items,
-    ];
-    return combinedResults.sort((a, b) => new Date(a.date) - new Date(b.date));
+    return [...resultFromSender.Items, ...resultFromRecipient.Items];
   };
 
   try {
