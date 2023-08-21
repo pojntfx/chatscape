@@ -20,12 +20,18 @@ describe("Lambda Function Tests", () => {
 
   beforeEach(() => {
     mockEvent = {
-      httpMethod: "POST",
       body: JSON.stringify({
-        namespace: "example",
+        namespace: "test",
         email: "test@example.com",
         name: "John Doe",
       }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            "cognito:username": "test",
+          },
+        },
+      }
     };
   });
 
@@ -36,7 +42,7 @@ describe("Lambda Function Tests", () => {
     expect(JSON.parse(rv.body)).toMatchObject({
       name: "John Doe",
       email: "test@example.com",
-      namespace: "example",
+      namespace: "test",
       blocked: false,
     });
     expect(rv).toMatchSnapshot();
@@ -52,19 +58,9 @@ describe("Lambda Function Tests", () => {
     expect(rv).toMatchSnapshot();
   });
 
-  it("should handle unsupported HTTP method", async () => {
-    mockEvent.httpMethod = "GET";
-
-    const rv = await handler(mockEvent, mockContext);
-
-    expect(rv.statusCode).toBe(405);
-    expect(rv.body).toContain("method not allowed");
-    expect(rv).toMatchSnapshot();
-  });
-
   it("should handle missing parameter", async () => {
     mockEvent.body = JSON.stringify({
-      namespace: "example",
+      namespace: "test",
       email: "test@example.com",
     });
 
@@ -77,20 +73,7 @@ describe("Lambda Function Tests", () => {
 
   it("should handle missing parameter", async () => {
     mockEvent.body = JSON.stringify({
-      name: "John Doe",
-      email: "test@example.com",
-    });
-
-    const rv = await handler(mockEvent, mockContext);
-
-    expect(rv.statusCode).toBe(400);
-    expect(rv.body).toContain("namespace not provided");
-    expect(rv).toMatchSnapshot();
-  });
-
-  it("should handle missing parameter", async () => {
-    mockEvent.body = JSON.stringify({
-      namespace: "example",
+      namespace: "test",
       name: "John Doe",
     });
 
