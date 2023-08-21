@@ -106,7 +106,7 @@ resource "aws_api_gateway_integration_response" "gateway_integration_response_co
   status_code = aws_api_gateway_method_response.gateway_method_response_cors_ok[each.key].status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'*'"
+    "method.response.header.Access-Control-Allow-Headers" = "'Authorization, Content-Type'"
     "method.response.header.Access-Control-Allow-Methods" = "'*'"
     "method.response.header.Access-Control-Allow-Origin"  = "'${var.spa_url}'"
   }
