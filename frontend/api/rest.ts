@@ -1,4 +1,4 @@
-import { v4 } from "uuid";
+import md5 from "js-md5";
 import { IAPI, IContact, IMessage } from "./models";
 
 export class RESTAPI implements IAPI {
@@ -30,7 +30,9 @@ export class RESTAPI implements IAPI {
       name: newContact.name,
       email: newContact.email,
       intro: "Optio, voluptate accus",
-      avatar: `https://i.pravatar.cc/300?u=${email}`,
+      avatar: `https://www.gravatar.com/avatar/${md5(
+        email.toLowerCase().trim()
+      )}?s=300`,
     };
   }
 
@@ -50,7 +52,9 @@ export class RESTAPI implements IAPI {
         name: contact.name,
         email: contact.email,
         intro: "Optio, voluptate accus",
-        avatar: `https://i.pravatar.cc/300?u=${contact.email}`,
+        avatar: `https://www.gravatar.com/avatar/${md5(
+          contact.email.toLowerCase().trim()
+        )}?s=300`,
       }));
   }
 

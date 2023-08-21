@@ -2,13 +2,28 @@ import { RESTAPI } from "@/api/rest";
 import { useAuth } from "oidc-react";
 import { useEffect, useState } from "react";
 import { IAPI, IContact, IMessage } from "../api/models";
+import md5 from "js-md5";
 
 export const useAPI = (apiURL: string) => {
   const auth = useAuth();
 
   const [api, setAPI] = useState<IAPI>();
 
-  const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
+  const [avatarURL, setAvatarURL] = useState(
+    `https://www.gravatar.com/avatar/${md5("test@example.com")}?s=300`
+  );
+
+  useEffect(() => {
+    if (!auth.userData?.profile["cognito:username"]) {
+      return;
+    }
+
+    setAvatarURL(
+      `https://www.gravatar.com/avatar/${md5(
+        auth.userData?.profile["cognito:username"] as string
+      )}?s=300`
+    );
+  }, [auth]);
 
   const [contacts, setContacts] = useState<IContact[]>();
   const [messages, setMessages] = useState<IMessage[]>();
