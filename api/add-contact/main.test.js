@@ -11,7 +11,7 @@ jest.mock("aws-sdk", () => {
   };
 });
 
-const { handler } = require("./main.js");
+const { handler } = require("./main");
 
 describe("Lambda Function Tests", () => {
   let mockEvent;

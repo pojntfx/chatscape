@@ -11,7 +11,7 @@ jest.mock("aws-sdk", () => {
   };
 });
 
-const { handler } = require("./main.js");
+const { handler } = require("./main");
 
 describe("Lambda Function Tests", () => {
   let mockEvent;
@@ -30,10 +30,10 @@ describe("Lambda Function Tests", () => {
   });
 
   it("should handle valid request", async () => {
-    const rv = await handler(mockEvent, mockContext);
+    const response = await handler(mockEvent, mockContext);
 
-    expect(rv.statusCode).toBe(200);
-    expect(JSON.parse(rv.body)).toMatchObject({
+    expect(response.statusCode).toBe(200);
+    expect(JSON.parse(response.body)).toMatchObject({
       senderNamespace: "sender-namespace",
       recipientNamespace: "recipient-namespace",
       message: "Test message",
@@ -48,30 +48,30 @@ describe("Lambda Function Tests", () => {
       message: "",
     });
 
-    const rv = await handler(mockEvent, mockContext);
+    const response = await handler(mockEvent, mockContext);
 
-    expect(rv.statusCode).toBe(400);
-    expect(rv.body).toContain("message is empty");
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toContain("message is empty");
     expect(rv).toMatchSnapshot();
   });
 
   it("should handle invalid request body", async () => {
     mockEvent.body = "invalid_json";
 
-    const rv = await handler(mockEvent, mockContext);
+    const response = await handler(mockEvent, mockContext);
 
-    expect(rv.statusCode).toBe(400);
-    expect(rv.body).toContain("invalid request body");
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toContain("invalid request body");
     expect(rv).toMatchSnapshot();
   });
 
   it("should handle unsupported HTTP method", async () => {
     mockEvent.httpMethod = "GET";
 
-    const rv = await handler(mockEvent, mockContext);
+    const response = await handler(mockEvent, mockContext);
 
-    expect(rv.statusCode).toBe(405);
-    expect(rv.body).toContain("method not allowed");
+    expect(response.statusCode).toBe(405);
+    expect(response.body).toContain("method not allowed");
     expect(rv).toMatchSnapshot();
   });
 });
