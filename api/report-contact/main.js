@@ -9,7 +9,10 @@ const BodySchema = vali.object(
   {
     namespace: vali.string("namespace not provided"),
     email: vali.string("email not provided", [vali.email("email not valid")]),
-    report: vali.string("report not provided"),
+    report: vali.string("report not provided", [
+      vali.toTrimmed(),
+      vali.minLength(1, "report is empty"),
+    ]),
   },
   "invalid request body"
 );
