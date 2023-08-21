@@ -33,6 +33,8 @@ aws sso login
 terraform init --backend-config="password=your-github-token"
 
 make -j$(nproc) depend
+
+# export TF_VAR_spa_url="http://localhost:3000" # Uncomment if you want to develop the frontend locally; then `cd fronted && npm run dev` to start it
 make -j$(nproc) run
 ```
 
