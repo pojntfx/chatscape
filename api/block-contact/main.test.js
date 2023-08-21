@@ -72,11 +72,17 @@ describe("Block contact lambda", () => {
     });
 
     const rv = await handler({
-      httpMethod: "POST",
       body: JSON.stringify({
         namespace: "test",
         email: "jakob@example.com",
       }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            "cognito:username": "test",
+          },
+        },
+      }
     });
 
     expect(rv.statusCode).toBe(404);
@@ -86,26 +92,18 @@ describe("Block contact lambda", () => {
 
   it("should handle invalid request body", async () => {
     const rv = await handler({
-      httpMethod: "POST",
       body: "invalid JSON",
+      requestContext: {
+        authorizer: {
+          claims: {
+            "cognito:username": "test",
+          },
+        },
+      }
     });
 
     expect(rv.statusCode).toBe(400);
     expect(rv.body).toContain("invalid request body");
-    expect(rv).toMatchSnapshot();
-  });
-
-  it("should handle unsupported HTTP method", async () => {
-    const rv = await handler({
-      httpMethod: "GET",
-      body: JSON.stringify({
-        namespace: "test",
-        email: "test@example.com",
-      }),
-    });
-
-    expect(rv.statusCode).toBe(405);
-    expect(rv.body).toContain("method not allowed");
     expect(rv).toMatchSnapshot();
   });
 });
