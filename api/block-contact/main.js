@@ -13,7 +13,7 @@ const BodySchema = vali.object(
   "invalid request body"
 );
 
-export const handler = async (event) => {
+module.exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,

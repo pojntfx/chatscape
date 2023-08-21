@@ -12,6 +12,11 @@ build-pwa:
 
 build: $(addprefix build-js/,$(obj)) build-pwa
 
+test: $(addprefix test-js/,$(obj))
+
+$(addprefix test-js/,$(obj)):
+	cd api/$(subst test-js/,,$@) && npm run test
+
 run: build
 	terraform apply  --auto-approve
 
