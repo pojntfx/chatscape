@@ -7,20 +7,21 @@ const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
 
 const BodySchema = vali.object(
   {
-    senderNamespace: vali.string("senderNamespace not provided"),
     recipientNamespace: vali.string("recipientNamespace not provided"),
   },
   "invalid request body"
 );
 
 module.exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
+  const senderNamespace =
+    event.requestContext.authorizer.claims["cognito:username"];
+  if (!senderNamespace) {
     return {
-      statusCode: 405,
+      statusCode: 403,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("method not allowed"),
+      body: "missing namespace",
     };
   }
 
@@ -84,7 +85,7 @@ module.exports.handler = async (event) => {
 
   try {
     const messagesBetween = await fetchMessagesBetween(
-      body.senderNamespace,
+      senderNamespace,
       body.recipientNamespace
     );
 
@@ -96,7 +97,7 @@ module.exports.handler = async (event) => {
       body: JSON.stringify(
         messagesBetween.map((item) => ({
           ...item,
-          them: item.senderNamespace !== body.senderNamespace,
+          them: item.senderNamespace !== senderNamespace,
         }))
       ),
     };

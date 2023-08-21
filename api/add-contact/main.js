@@ -8,7 +8,6 @@ const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
 
 const BodySchema = vali.object(
   {
-    namespace: vali.string("namespace not provided"),
     email: vali.string("email not provided", [vali.email("email not valid")]),
     name: vali.string("name not provided", [
       vali.toTrimmed(),
@@ -19,13 +18,14 @@ const BodySchema = vali.object(
 );
 
 module.exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
+  const namespace = event.requestContext.authorizer.claims["cognito:username"];
+  if (!namespace) {
     return {
-      statusCode: 405,
+      statusCode: 403,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("method not allowed"),
+      body: "missing namespace",
     };
   }
 
@@ -50,7 +50,7 @@ module.exports.handler = async (event) => {
       id: uuidv4(),
       name: body.name,
       email: body.email,
-      namespace: body.namespace,
+      namespace,
       blocked: false,
     },
   };
