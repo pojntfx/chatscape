@@ -30,11 +30,16 @@ describe("Block contact lambda", () => {
     });
 
     const rv = await handler({
-      httpMethod: "POST",
       body: JSON.stringify({
-        namespace: "test",
         email: "test@example.com",
       }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            "cognito:username": "test",
+          },
+        },
+      },
     });
 
     expect(mockUpdate).toHaveBeenCalledWith({

@@ -42,38 +42,38 @@ Now go to [authentication](./AUTHENTICATION.md) and use the outputs from `make r
 
 > Be sure to set up the authentication first
 
-**add-contact**: `{"email":"max@mustermann.de", "name":"max", "namespace": "test"}`
+**add-contact**: `{"email":"max@mustermann.de", "name":"max"}`
 
 ```shell
-curl -X POST --data '{"email":"max@mustermann.de", "name":"max", "namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-contact"
+curl -X POST --data '{"email":"max@mustermann.de", "name":"max"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-contact"
 ```
 
-**block-contact**: `{"email":"max@mustermann.de", "namespace": "test"}`
+**block-contact**: `{"email":"max@mustermann.de"}`
 
 ```shell
-curl -X POST --data '{"email":"max@mustermann.de",  "namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/block-contact"
+curl -X POST --data '{"email":"max@mustermann.de"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/block-contact"
 ```
 
-**report-contact**: `{"email":"max@mustermann.de", "report":"Met at a diner", "namespace": "test"}`
+**report-contact**: `{"email":"max@mustermann.de", "report":"Met at a diner"}`
 
 ```shell
-curl -X POST --data '{"email":"max@mustermann.de", "report":"Met at a diner", "namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
+curl -X POST --data '{"email":"max@mustermann.de", "report":"Met at a diner"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
 ```
 
-**get-contacts**: `{"namespace": "test"}`
+**get-contacts**: `{}`
 
 ```shell
-curl -X POST --data '{"namespace": "test"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-contacts"
+curl -X POST --data '{}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-contacts"
 ```
 
-**add-message**: `{"senderNamespace":"check", "recipientNamespace":"mate", "message": "Hi"}`
+**add-message**: `{"recipientNamespace":"mate", "message": "Hi"}`
 
 ```shell
-curl -X POST --data '{"senderNamespace":"check", "recipientNamespace":"mate", "message": "Hi"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-message"
+curl -X POST --data '{"recipientNamespace":"mate", "message": "Hi"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-message"
 ```
 
-**get-messages**: `{"senderNamespace":"check", "recipientNamespace":"mate"}`
+**get-messages**: `{"recipientNamespace":"mate"}`
 
 ```shell
-curl -X POST --data '{"senderNamespace":"check", "recipientNamespace":"mate"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-messages"
+curl -X POST --data '{"recipientNamespace":"mate"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/get-messages"
 ```
