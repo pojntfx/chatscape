@@ -4,3 +4,4 @@ out
 *.tfvars
 override.tf
 node_modules
+__snapshots__
