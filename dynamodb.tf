@@ -50,7 +50,7 @@ resource "aws_dynamodb_table" "messages" {
 
   attribute {
     name = "date"
-    type = "S" # Using Number type to represent Unix timestamp
+    type = "S"
   }
 
   global_secondary_index {
