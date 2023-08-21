@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "function" {
-  for_each      = toset(local.lambdas)
+  for_each      = local.lambdas
   function_name = replace(each.key, "-", "_")
   runtime       = "nodejs18.x"
 
@@ -19,15 +19,15 @@ resource "aws_lambda_function" "function" {
 }
 
 resource "aws_api_gateway_resource" "gateway_resource" {
-  for_each    = toset(local.lambdas)
+  for_each    = local.lambdas
   path_part   = each.key
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   parent_id   = aws_api_gateway_rest_api.chatscape.root_resource_id
 }
 
 resource "aws_api_gateway_method" "gateway_method" {
-  for_each      = toset(local.lambdas)
-  http_method   = "POST"
+  for_each      = local.lambdas
+  http_method   = each.value
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito.id
 
@@ -36,7 +36,7 @@ resource "aws_api_gateway_method" "gateway_method" {
 }
 
 resource "aws_api_gateway_integration" "gateway_integration" {
-  for_each                = toset(local.lambdas)
+  for_each                = local.lambdas
   type                    = "AWS_PROXY"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.function[each.key].invoke_arn
@@ -46,7 +46,7 @@ resource "aws_api_gateway_integration" "gateway_integration" {
 }
 
 resource "aws_lambda_permission" "lambda_permission" {
-  for_each      = toset(local.lambdas)
+  for_each      = local.lambdas
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
@@ -56,7 +56,7 @@ resource "aws_lambda_permission" "lambda_permission" {
 
 # CORS
 resource "aws_api_gateway_method" "gateway_method_cors" {
-  for_each      = toset(local.lambdas)
+  for_each      = local.lambdas
   http_method   = "OPTIONS"
   authorization = "NONE"
 
@@ -65,7 +65,7 @@ resource "aws_api_gateway_method" "gateway_method_cors" {
 }
 
 resource "aws_api_gateway_integration" "gateway_integration_cors" {
-  for_each    = toset(local.lambdas)
+  for_each    = local.lambdas
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
   http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
@@ -81,7 +81,7 @@ resource "aws_api_gateway_integration" "gateway_integration_cors" {
 }
 
 resource "aws_api_gateway_method_response" "gateway_method_response_cors_ok" {
-  for_each    = toset(local.lambdas)
+  for_each    = local.lambdas
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
   http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
@@ -99,7 +99,7 @@ resource "aws_api_gateway_method_response" "gateway_method_response_cors_ok" {
 }
 
 resource "aws_api_gateway_integration_response" "gateway_integration_response_cors" {
-  for_each    = toset(local.lambdas)
+  for_each    = local.lambdas
   rest_api_id = aws_api_gateway_rest_api.chatscape.id
   resource_id = aws_api_gateway_resource.gateway_resource[each.key].id
   http_method = aws_api_gateway_method.gateway_method_cors[each.key].http_method
