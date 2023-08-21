@@ -1,13 +1,19 @@
 const vali = require("valibot");
 const AWS = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
-const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
+const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
 
 const BodySchema = vali.object(
   {
-    namespace: vali.string("namespace not provided"),
+    senderNamespace: vali.string("senderNamespace not provided"),
+    recipientNamespace: vali.string("recipientNamespace not provided"),
+    message: vali.string("message not provided", [
+      vali.toTrimmed(),
+      vali.minLength(1, "message is empty"),
+    ]),
   },
   "invalid request body"
 );
@@ -38,26 +44,35 @@ export const handler = async (event) => {
     };
   }
 
+  if (!body.message) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": SPA_URL,
+      },
+      body: JSON.stringify("message not provided"),
+    };
+  }
+
   const params = {
-    TableName: CONTACTS_TABLE_NAME,
-    IndexName: "NamespaceIndex",
-    KeyConditionExpression: "#ns = :namespaceValue",
-    ExpressionAttributeValues: {
-      ":namespaceValue": body.namespace,
-    },
-    ExpressionAttributeNames: {
-      "#ns": "namespace",
+    TableName: MESSAGES_TABLE_NAME,
+    Item: {
+      id: uuidv4(),
+      senderNamespace: body.senderNamespace,
+      recipientNamespace: body.recipientNamespace,
+      message: body.message,
+      date: new Date().toISOString(),
     },
   };
 
   try {
-    const result = await dynamoDb.query(params).promise();
+    await dynamoDb.put(params).promise();
     return {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify(result.Items),
+      body: JSON.stringify(params.Item),
     };
   } catch (error) {
     console.error(error);
@@ -67,7 +82,7 @@ export const handler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("could not retrieve contacts"),
+      body: JSON.stringify("could not add message"),
     };
   }
 };
