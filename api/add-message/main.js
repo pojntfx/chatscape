@@ -8,7 +8,6 @@ const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
 
 const BodySchema = vali.object(
   {
-    senderNamespace: vali.string("senderNamespace not provided"),
     recipientNamespace: vali.string("recipientNamespace not provided"),
     message: vali.string("message not provided", [
       vali.toTrimmed(),
@@ -19,13 +18,15 @@ const BodySchema = vali.object(
 );
 
 export const handler = async (event) => {
-  if (event.httpMethod !== "POST") {
+  const senderNamespace =
+    event.requestContext.authorizer.claims["cognito:username"];
+  if (!senderNamespace) {
     return {
-      statusCode: 405,
+      statusCode: 403,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify("method not allowed"),
+      body: "missing namespace",
     };
   }
 
@@ -58,7 +59,7 @@ export const handler = async (event) => {
     TableName: MESSAGES_TABLE_NAME,
     Item: {
       id: uuidv4(),
-      senderNamespace: body.senderNamespace,
+      senderNamespace,
       recipientNamespace: body.recipientNamespace,
       message: body.message,
       date: new Date().toISOString(),
