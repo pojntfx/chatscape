@@ -36,6 +36,8 @@ make -j$(nproc) depend
 
 # export TF_VAR_spa_url="http://localhost:3000" # Uncomment if you want to develop the frontend locally; then `cd fronted && npm run dev` to start it
 make -j$(nproc) run
+
+# Note that if you make changes to the API gateway, you'll need to manually redeploy the API gateway from the AWS console or delete & recreate it, as Terraform does not apply the changes otherwise.
 ```
 
 Now go to [authentication](./AUTHENTICATION.md) and use the outputs from `make run`.
@@ -50,16 +52,16 @@ Now go to [authentication](./AUTHENTICATION.md) and use the outputs from `make r
 curl -X POST --data '{"email":"max@mustermann.de", "name":"max"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-contact"
 ```
 
-**block-contact**: `{"email":"max@mustermann.de"}`
+**block-contact**: `{"id":"1234"}`
 
 ```shell
-curl -X POST --data '{"email":"max@mustermann.de"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/block-contact"
+curl -X POST --data '{"id":"1234"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/block-contact"
 ```
 
-**report-contact**: `{"email":"max@mustermann.de", "report":"Met at a diner"}`
+**report-contact**: `{"id":"1234", "report":"Met at a diner"}`
 
 ```shell
-curl -X POST --data '{"email":"max@mustermann.de", "report":"Met at a diner"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
+curl -X POST --data '{"id":"1234", "report":"Met at a diner"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
 ```
 
 **get-contacts**:
