@@ -33,7 +33,11 @@ aws sso login
 terraform init --backend-config="password=your-github-token"
 
 make -j$(nproc) depend
+
+# export TF_VAR_spa_url="http://localhost:3000" # Uncomment if you want to develop the frontend locally; then `cd fronted && npm run dev` to start it
 make -j$(nproc) run
+
+# Note that if you make changes to the API gateway, you'll need to manually redeploy the API gateway from the AWS console or delete & recreate it, as Terraform does not apply the changes otherwise.
 ```
 
 Now go to [authentication](./AUTHENTICATION.md) and use the outputs from `make run`.

@@ -39,11 +39,11 @@ export class LocalStorageAPI implements IAPI {
     return contacts ? JSON.parse(contacts) : [];
   }
 
-  async blockContact(contactID: string): Promise<void> {
+  async blockContact(email: string): Promise<void> {
     await this.sleep();
 
     const contacts = await this.getContacts();
-    const index = contacts.findIndex((contact) => contact.id === contactID);
+    const index = contacts.findIndex((contact) => contact.email === email);
 
     if (index !== -1) {
       contacts.splice(index, 1);
@@ -52,14 +52,14 @@ export class LocalStorageAPI implements IAPI {
     localStorage.setItem("contacts", JSON.stringify(contacts));
   }
 
-  async reportContact(contactID: string, context: string): Promise<void> {
+  async reportContact(email: string, context: string): Promise<void> {
     await this.sleep();
   }
 
-  async addMessage(contactID: string, body: string): Promise<void> {
+  async addMessage(email: string, body: string): Promise<void> {
     await this.sleep();
 
-    const messages = await this.getMessages(contactID);
+    const messages = await this.getMessages(email);
 
     messages.push({
       them: false,
@@ -67,13 +67,13 @@ export class LocalStorageAPI implements IAPI {
       date: new Date(),
     });
 
-    localStorage.setItem("messages-" + contactID, JSON.stringify(messages));
+    localStorage.setItem("messages-" + email, JSON.stringify(messages));
   }
 
-  async getMessages(contactID: string): Promise<IMessage[]> {
+  async getMessages(email: string): Promise<IMessage[]> {
     await this.sleep();
 
-    const storedMessages = localStorage.getItem("messages-" + contactID);
+    const storedMessages = localStorage.getItem("messages-" + email);
     return storedMessages
       ? JSON.parse(storedMessages).map((message: IMessage) => ({
           ...message,
