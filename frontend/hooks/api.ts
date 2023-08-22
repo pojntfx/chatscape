@@ -1,11 +1,29 @@
+import { RESTAPI } from "@/api/rest";
+import { useAuth } from "oidc-react";
 import { useEffect, useState } from "react";
 import { IAPI, IContact, IMessage } from "../api/models";
-import { useAuth } from "oidc-react";
+import md5 from "js-md5";
 
-export const useAPI = (api: IAPI) => {
+export const useAPI = (apiURL: string) => {
   const auth = useAuth();
 
-  const [avatarURL] = useState("https://i.pravatar.cc/300?u=raina");
+  const [api, setAPI] = useState<IAPI>();
+
+  const [avatarURL, setAvatarURL] = useState(
+    `https://www.gravatar.com/avatar/${md5("test@example.com")}?s=300`
+  );
+
+  useEffect(() => {
+    if (!auth.userData?.profile["cognito:username"]) {
+      return;
+    }
+
+    setAvatarURL(
+      `https://www.gravatar.com/avatar/${md5(
+        auth.userData?.profile["cognito:username"] as string
+      )}?s=300`
+    );
+  }, [auth]);
 
   const [contacts, setContacts] = useState<IContact[]>();
   const [messages, setMessages] = useState<IMessage[]>();
@@ -13,7 +31,17 @@ export const useAPI = (api: IAPI) => {
   const [activeContactID, setActiveContactID] = useState("");
 
   useEffect(() => {
-    if (!auth.userData) {
+    if (!auth.userData?.id_token) {
+      return;
+    }
+
+    // setAPI(new InMemoryAPI(500));
+    // setAPI(new LocalStorageAPI(500));
+    setAPI(new RESTAPI(apiURL, auth.userData.id_token));
+  }, [apiURL, auth]);
+
+  useEffect(() => {
+    if (!api || !auth.userData || !contacts) {
       return;
     }
 
@@ -25,16 +53,25 @@ export const useAPI = (api: IAPI) => {
         .catch((e) => console.error(e));
     }
 
+    if (id === "") {
+      return;
+    }
+
     setMessages(undefined);
 
+    const activeContactEmail = contacts.find((c) => c.id === id)?.email;
+    if (!activeContactEmail) {
+      return;
+    }
+
     api
-      .getMessages(activeContactID)
+      .getMessages(activeContactEmail)
       .then((messages) => setMessages(messages))
       .catch((e) => console.error(e));
-  }, [contacts, activeContactID, api, auth.userData]);
+  }, [api, contacts, activeContactID, api, auth.userData]);
 
   useEffect(() => {
-    if (!auth.userData) {
+    if (!api || !auth.userData) {
       return;
     }
 
@@ -53,13 +90,15 @@ export const useAPI = (api: IAPI) => {
     logOut: auth.signOut,
 
     contacts,
-    addContact: (email: string) => {
+    addContact: (name: string, email: string) => {
+      if (!api) return;
+
       // Local
       setContacts([]);
 
       // Remote
       api
-        .addContact(email.split("@")[0] + " " + email.split("@")[1], email)
+        .addContact(name, email)
         .then((newContact) => {
           setActiveContactID(newContact.id);
 
@@ -75,6 +114,15 @@ export const useAPI = (api: IAPI) => {
 
     messages,
     addMessage: (body: string) => {
+      if (!api || !contacts) return;
+
+      const activeContactEmail = contacts.find(
+        (c) => c.id === activeContactID
+      )?.email;
+      if (!activeContactEmail) {
+        return;
+      }
+
       // Local
       setMessages((old) =>
         old
@@ -91,10 +139,10 @@ export const useAPI = (api: IAPI) => {
 
       // Remote
       api
-        .addMessage(activeContactID, body)
+        .addMessage(activeContactEmail, body)
         .then(() =>
           api
-            .getMessages(activeContactID)
+            .getMessages(activeContactEmail)
             .then((messages) => setMessages(messages))
             .catch((e) => console.error(e))
         )
@@ -104,6 +152,15 @@ export const useAPI = (api: IAPI) => {
     setActiveContactID,
 
     blockContact: () => {
+      if (!api || !contacts) return;
+
+      const activeContactEmail = contacts.find(
+        (c) => c.id === activeContactID
+      )?.email;
+      if (!activeContactEmail) {
+        return;
+      }
+
       // Local
       setContacts((contacts) => {
         const newContacts = contacts?.filter((c) => c.id !== activeContactID);
@@ -115,7 +172,7 @@ export const useAPI = (api: IAPI) => {
 
       // Remote
       api
-        .blockContact(activeContactID)
+        .blockContact(activeContactEmail)
         .then(() =>
           api
             .getContacts()
@@ -126,9 +183,19 @@ export const useAPI = (api: IAPI) => {
         )
         .catch((e) => console.error(e));
     },
-    reportContact: (context: string) =>
-      api
-        .reportContact(activeContactID, context)
-        .catch((e) => console.error(e)),
+    reportContact: (context: string) => {
+      if (!api || !contacts) return;
+
+      const activeContactEmail = contacts.find(
+        (c) => c.id === activeContactID
+      )?.email;
+      if (!activeContactEmail) {
+        return;
+      }
+
+      return api
+        .reportContact(activeContactEmail, context)
+        .catch((e) => console.error(e));
+    },
   };
 };

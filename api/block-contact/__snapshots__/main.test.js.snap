@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Block contact lambda sets the blocked boolean after a user has been blocked 1`] = `
+{
+  "body": "{"email":"test@example.com","id":"1234","blocked":true}",
+  "headers": {
+    "Access-Control-Allow-Origin": undefined,
+  },
+  "statusCode": 200,
+}
+`;

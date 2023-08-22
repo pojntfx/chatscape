@@ -191,3 +191,15 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 .pf-c-card--message {
   word-wrap: break-word;
 }
+
+.pf-x-add-contact {
+  background: transparent !important;
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+
+    > *:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  }
+}
