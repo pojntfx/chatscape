@@ -34,16 +34,6 @@ resource "aws_dynamodb_table" "messages" {
   }
 
   attribute {
-    name = "senderNamespace"
-    type = "S"
-  }
-
-  attribute {
-    name = "recipientNamespace"
-    type = "S"
-  }
-
-  attribute {
     name = "compositeNamespace"
     type = "S"
   }

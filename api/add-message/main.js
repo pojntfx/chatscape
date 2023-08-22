@@ -8,7 +8,9 @@ const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
 
 const BodySchema = vali.object(
   {
-    recipientNamespace: vali.string("recipientNamespace not provided"),
+    recipientNamespace: vali.string("recipientNamespace not provided", [
+      vali.custom((input) => !input.includes(":::"), "contains invalid string"),
+    ]),
     message: vali.string("message not provided", [
       vali.toTrimmed(),
       vali.minLength(1, "message is empty"),
@@ -55,14 +57,12 @@ module.exports.handler = async (event) => {
     };
   }
 
-  const compositeNamespace = `${senderNamespace}#${body.recipientNamespace}`;
+  const compositeNamespace = `${senderNamespace}:::${body.recipientNamespace}`;
 
   const params = {
     TableName: MESSAGES_TABLE_NAME,
     Item: {
       id: uuidv4(),
-      senderNamespace,
-      recipientNamespace: body.recipientNamespace,
       message: body.message,
       date: new Date().toISOString(),
       compositeNamespace,
