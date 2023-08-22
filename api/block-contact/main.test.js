@@ -56,4 +56,54 @@ describe("Block contact lambda", () => {
     expect(rv.statusCode).toBe(200);
     expect(rv).toMatchSnapshot();
   });
+
+  it("should handle contact not found", async () => {
+    mockQuery.mockReturnValueOnce({
+      promise: jest.fn().mockResolvedValueOnce({
+        Items: [
+          { email: "test@example.com", id: "1234" },
+          { email: "another@example.com", id: "5678" },
+        ],
+      }),
+    });
+
+    mockUpdate.mockReturnValueOnce({
+      promise: jest.fn().mockResolvedValueOnce(),
+    });
+
+    const rv = await handler({
+      body: JSON.stringify({
+        namespace: "test",
+        email: "jakob@example.com",
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            "cognito:username": "test",
+          },
+        },
+      }
+    });
+
+    expect(rv.statusCode).toBe(404);
+    expect(rv.body).toContain("contact not found");
+    expect(rv).toMatchSnapshot();
+  });
+
+  it("should handle invalid request body", async () => {
+    const rv = await handler({
+      body: "invalid JSON",
+      requestContext: {
+        authorizer: {
+          claims: {
+            "cognito:username": "test",
+          },
+        },
+      }
+    });
+
+    expect(rv.statusCode).toBe(400);
+    expect(rv.body).toContain("invalid request body");
+    expect(rv).toMatchSnapshot();
+  });
 });
