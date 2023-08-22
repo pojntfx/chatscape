@@ -21,7 +21,6 @@ describe("Lambda Function Tests", () => {
   beforeEach(() => {
     mockEvent = {
       body: JSON.stringify({
-        senderNamespace: "test",
         recipientNamespace: "recipient-namespace",
         message: "Test message",
       }),
@@ -31,7 +30,7 @@ describe("Lambda Function Tests", () => {
             "cognito:username": "test",
           },
         },
-      }
+      },
     };
   });
 
@@ -40,15 +39,12 @@ describe("Lambda Function Tests", () => {
 
     expect(rv.statusCode).toBe(200);
     expect(JSON.parse(rv.body)).toMatchObject({
-      senderNamespace: "test",
-      recipientNamespace: "recipient-namespace",
       message: "Test message",
     });
   });
 
   it("should handle missing message", async () => {
     mockEvent.body = JSON.stringify({
-      senderNamespace: "test",
       recipientNamespace: "recipient-namespace",
       message: "",
     });
