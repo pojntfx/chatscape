@@ -31,8 +31,8 @@ export const handler = async (event) => {
   }
 
   const fetchMessagesBetween = async (senderNamespace, recipientNamespace) => {
-    const compositeKey = `${senderNamespace}#${recipientNamespace}`;
-    const compositeKeyReverse = `${recipientNamespace}#${senderNamespace}`;
+    const compositeKey = `${senderNamespace}:::${recipientNamespace}`;
+    const compositeKeyReverse = `${recipientNamespace}:::${senderNamespace}`;
 
     const paramsSender = {
       TableName: MESSAGES_TABLE_NAME,
