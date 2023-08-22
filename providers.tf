@@ -10,6 +10,5 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.region
-  profile = "ChatScapeAdministrator-856591169022"
+  region = var.region
 }
