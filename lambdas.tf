@@ -108,7 +108,7 @@ resource "aws_api_gateway_integration_response" "gateway_integration_response_co
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Authorization, Content-Type'"
     "method.response.header.Access-Control-Allow-Methods" = "'*'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'${var.spa_url}'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'${local.spa_url}'"
   }
 }
 

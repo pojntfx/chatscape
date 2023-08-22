@@ -5,7 +5,7 @@
   "main": "out/main.js",
   "scripts": {
     "build": "esbuild main.js --platform=node --format=cjs --bundle --outfile=out/main.js",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "author": "Felicitas Pojtinger <felicitas@pojtinger.com>",
   "license": "AGPL-3.0",

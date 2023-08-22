@@ -16,7 +16,7 @@ const BodySchema = vali.object(
   "invalid request body"
 );
 
-export const handler = async (event) => {
+module.exports.handler = async (event) => {
   const namespace = event.requestContext.authorizer.claims["cognito:username"];
   if (!namespace) {
     return {

@@ -4,7 +4,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
 const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
 
-export const handler = async (event) => {
+module.exports.handler = async (event) => {
   const senderNamespace =
     event.requestContext.authorizer.claims["cognito:username"];
   if (!senderNamespace) {
