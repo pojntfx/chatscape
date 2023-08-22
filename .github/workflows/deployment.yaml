@@ -3,7 +3,7 @@ name: terraform deployment
 on:
     push:
         branches:
-        - main
+        - "*"
 
 jobs:
     terraform_deploy:
