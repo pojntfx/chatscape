@@ -22,7 +22,8 @@ jobs:
     - name: Configure aws credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::856591169022:role/github_ci_role
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-north-1
 
     - name: Checkout
@@ -30,8 +31,6 @@ jobs:
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.4.6
 
     - name: Terraform Init
       run: terraform init
