@@ -8,17 +8,16 @@ on:
 jobs:
     terraform_deploy:
       runs-on: ubuntu-latest
-  
+
+      env: 
+        TF_HTTP_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
       steps:
         - name: Checkout Repository
           uses: actions/checkout@v3
   
         - name: Set Up Terraform
           uses: hashicorp/setup-terraform@v2
-  
-        - name: Configure Environment
-          run: |
-            echo "TF_CLI_ARGS_init=-backend-config=password=${{ secrets.GITHUB_TOKEN }}" >> $GIHUB_ENV
 
         - name: Terraform Init
           run: terraform init
