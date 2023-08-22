@@ -9,3 +9,23 @@ exports[`Block contact lambda sets the blocked boolean after a user has been blo
   "statusCode": 200,
 }
 `;
+
+exports[`Block contact lambda should handle contact not found 1`] = `
+{
+  "body": ""contact not found"",
+  "headers": {
+    "Access-Control-Allow-Origin": undefined,
+  },
+  "statusCode": 404,
+}
+`;
+
+exports[`Block contact lambda should handle invalid request body 1`] = `
+{
+  "body": ""invalid request body"",
+  "headers": {
+    "Access-Control-Allow-Origin": undefined,
+  },
+  "statusCode": 400,
+}
+`;

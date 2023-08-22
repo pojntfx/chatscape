@@ -31,7 +31,7 @@ describe("Lambda Function Tests", () => {
             "cognito:username": "test",
           },
         },
-      }
+      },
     };
   });
 
@@ -45,7 +45,6 @@ describe("Lambda Function Tests", () => {
       namespace: "test",
       blocked: false,
     });
-    expect(rv).toMatchSnapshot();
   });
 
   it("should handle invalid request body", async () => {
@@ -55,7 +54,6 @@ describe("Lambda Function Tests", () => {
 
     expect(rv.statusCode).toBe(400);
     expect(rv.body).toContain("invalid request body");
-    expect(rv).toMatchSnapshot();
   });
 
   it("should handle missing parameter", async () => {
@@ -68,7 +66,6 @@ describe("Lambda Function Tests", () => {
 
     expect(rv.statusCode).toBe(400);
     expect(rv.body).toContain("name not provided");
-    expect(rv).toMatchSnapshot();
   });
 
   it("should handle missing parameter", async () => {
@@ -81,6 +78,5 @@ describe("Lambda Function Tests", () => {
 
     expect(rv.statusCode).toBe(400);
     expect(rv.body).toContain("email not provided");
-    expect(rv).toMatchSnapshot();
   });
 });

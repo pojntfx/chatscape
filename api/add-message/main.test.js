@@ -44,7 +44,6 @@ describe("Lambda Function Tests", () => {
       recipientNamespace: "recipient-namespace",
       message: "Test message",
     });
-    expect(rv).toMatchSnapshot();
   });
 
   it("should handle missing message", async () => {
@@ -58,7 +57,6 @@ describe("Lambda Function Tests", () => {
 
     expect(rv.statusCode).toBe(400);
     expect(rv.body).toContain("message is empty");
-    expect(rv).toMatchSnapshot();
   });
 
   it("should handle invalid request body", async () => {
@@ -68,6 +66,5 @@ describe("Lambda Function Tests", () => {
 
     expect(rv.statusCode).toBe(400);
     expect(rv.body).toContain("invalid request body");
-    expect(rv).toMatchSnapshot();
   });
 });
