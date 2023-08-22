@@ -4,9 +4,10 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const SPA_URL = process.env.SPA_URL;
 const MESSAGES_TABLE_NAME = process.env.MESSAGES_TABLE_NAME;
 
-module.exports.handler = async (event) => {
+export const handler = async (event) => {
   const senderNamespace =
     event.requestContext.authorizer.claims["cognito:username"];
+
   if (!senderNamespace) {
     return {
       statusCode: 403,
@@ -18,6 +19,7 @@ module.exports.handler = async (event) => {
   }
 
   const recipientNamespace = event.queryStringParameters?.recipientNamespace;
+
   if (!recipientNamespace) {
     return {
       statusCode: 400,
@@ -29,42 +31,37 @@ module.exports.handler = async (event) => {
   }
 
   const fetchMessagesBetween = async (senderNamespace, recipientNamespace) => {
-    const paramsForSenderToRecipient = {
+    const compositeKey = `${senderNamespace}:::${recipientNamespace}`;
+    const compositeKeyReverse = `${recipientNamespace}:::${senderNamespace}`;
+
+    const paramsSender = {
       TableName: MESSAGES_TABLE_NAME,
-      IndexName: "SenderRecipientNamespaceIndex",
-      KeyConditionExpression:
-        "#senderNamespace = :senderValue AND #recipientNamespace = :recipientValue",
+      IndexName: "CompositeNamespaceDateIndex",
+      KeyConditionExpression: "#compositeNamespace = :compositeValue",
       ExpressionAttributeValues: {
-        ":senderValue": senderNamespace,
-        ":recipientValue": recipientNamespace,
+        ":compositeValue": compositeKey,
       },
       ExpressionAttributeNames: {
-        "#senderNamespace": "senderNamespace",
-        "#recipientNamespace": "recipientNamespace",
+        "#compositeNamespace": "compositeNamespace",
       },
     };
 
-    const paramsForRecipientToSender = {
+    const paramsRecipient = {
       TableName: MESSAGES_TABLE_NAME,
-      IndexName: "SenderRecipientNamespaceIndex",
-      KeyConditionExpression:
-        "#senderNamespace = :recipientValue AND #recipientNamespace = :senderValue",
+      IndexName: "CompositeNamespaceDateIndex",
+      KeyConditionExpression: "#compositeNamespace = :compositeValueReverse",
       ExpressionAttributeValues: {
-        ":senderValue": senderNamespace,
-        ":recipientValue": recipientNamespace,
+        ":compositeValueReverse": compositeKeyReverse,
       },
       ExpressionAttributeNames: {
-        "#senderNamespace": "senderNamespace",
-        "#recipientNamespace": "recipientNamespace",
+        "#compositeNamespace": "compositeNamespace",
       },
     };
 
-    const [resultFromSender, resultFromRecipient] = await Promise.all([
-      dynamoDb.query(paramsForSenderToRecipient).promise(),
-      dynamoDb.query(paramsForRecipientToSender).promise(),
-    ]);
+    const resultsSender = await dynamoDb.query(paramsSender).promise();
+    const resultsRecipient = await dynamoDb.query(paramsRecipient).promise();
 
-    return [...resultFromSender.Items, ...resultFromRecipient.Items];
+    return [...resultsSender.Items, ...resultsRecipient.Items];
   };
 
   try {
@@ -73,17 +70,20 @@ module.exports.handler = async (event) => {
       recipientNamespace
     );
 
+    const formattedMessages = messagesBetween.map((item) => {
+      const [itemSenderNamespace] = item.compositeNamespace.split(":::");
+      return {
+        ...item,
+        them: itemSenderNamespace !== senderNamespace,
+      };
+    });
+
     return {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": SPA_URL,
       },
-      body: JSON.stringify(
-        messagesBetween.map((item) => ({
-          ...item,
-          them: item.senderNamespace !== senderNamespace,
-        }))
-      ),
+      body: JSON.stringify(formattedMessages),
     };
   } catch (error) {
     console.error(error);

@@ -47,9 +47,9 @@ make -j$(nproc) run
 export REGION="eu-north-1"
 
 # You can get these values from the Terraform outputs
-export API_URL="https://gbgmr3ptoc.execute-api.eu-north-1.amazonaws.com/test"
-export USER_POOL_ID="eu-north-1_YeBeiQ0T0"
-export CLIENT_ID="7obhpbtjkshebbs144bik4vr6s"
+export API_URL="https://fwohuebd3j.execute-api.eu-north-1.amazonaws.com/test"
+export USER_POOL_ID="eu-north-1_zqBirZPN9"
+export CLIENT_ID="b2l5g1ro6ps7akfvjv2pd1tvn"
 
 # Create first user
 export USERNAME="chatscape-tester-1@example.com"
