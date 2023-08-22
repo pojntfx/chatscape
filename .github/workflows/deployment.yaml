@@ -15,7 +15,16 @@ jobs:
       steps:
         - name: Checkout Repository
           uses: actions/checkout@v3
-  
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v2
+          with:
+            sso-start-url: https://hdm-mi7.awsapps.com/start#
+            sso-region: eu-north-1
+            sso-account-id: 856591169022
+            sso-role-name: ChatScapeAdministrator
+            aws-region: eu-north-1
+
         - name: Set Up Terraform
           uses: hashicorp/setup-terraform@v2
 
