@@ -44,7 +44,7 @@ resource "aws_dynamodb_table" "messages" {
   }
 
   attribute {
-    name = "recipientNamespace"
+    name = "compositeNamespace"
     type = "S"
   }
 
@@ -54,28 +54,11 @@ resource "aws_dynamodb_table" "messages" {
   }
 
   global_secondary_index {
-    name            = "SenderNamespaceIndex"
-    hash_key        = "senderNamespace"
+    name            = "CompositeNamespaceDateIndex"
+    hash_key        = "compositeNamespace"
+    range_key       = "date"
     projection_type = "ALL"
     write_capacity  = 5
     read_capacity   = 5
   }
-
-  global_secondary_index {
-    name            = "RecipientNamespaceIndex"
-    hash_key        = "recipientNamespace"
-    projection_type = "ALL"
-    write_capacity  = 5
-    read_capacity   = 5
-  }
-
-  global_secondary_index {
-    name            = "SenderRecipientNamespaceIndex"
-    hash_key        = "senderNamespace"
-    range_key       = "recipientNamespace"
-    projection_type = "ALL"
-    write_capacity  = 5
-    read_capacity   = 5
-  }
-
 }

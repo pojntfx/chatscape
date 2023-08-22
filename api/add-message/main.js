@@ -55,6 +55,8 @@ export const handler = async (event) => {
     };
   }
 
+  const compositeNamespace = `${senderNamespace}#${body.recipientNamespace}`;
+
   const params = {
     TableName: MESSAGES_TABLE_NAME,
     Item: {
@@ -63,6 +65,7 @@ export const handler = async (event) => {
       recipientNamespace: body.recipientNamespace,
       message: body.message,
       date: new Date().toISOString(),
+      compositeNamespace,
     },
   };
 

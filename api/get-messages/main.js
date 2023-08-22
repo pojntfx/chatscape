@@ -29,42 +29,25 @@ export const handler = async (event) => {
   }
 
   const fetchMessagesBetween = async (senderNamespace, recipientNamespace) => {
-    const paramsForSenderToRecipient = {
+    const compositeKey = `${senderNamespace}#${recipientNamespace}`;
+    const compositeKeyReverse = `${recipientNamespace}#${senderNamespace}`;
+
+    const params = {
       TableName: MESSAGES_TABLE_NAME,
-      IndexName: "SenderRecipientNamespaceIndex",
+      IndexName: "CompositeNamespaceDateIndex",
       KeyConditionExpression:
-        "#senderNamespace = :senderValue AND #recipientNamespace = :recipientValue",
+        "#compositeNamespace = :compositeValue OR #compositeNamespace = :compositeValueReverse",
       ExpressionAttributeValues: {
-        ":senderValue": senderNamespace,
-        ":recipientValue": recipientNamespace,
+        ":compositeValue": compositeKey,
+        ":compositeValueReverse": compositeKeyReverse,
       },
       ExpressionAttributeNames: {
-        "#senderNamespace": "senderNamespace",
-        "#recipientNamespace": "recipientNamespace",
+        "#compositeNamespace": "compositeNamespace",
       },
     };
 
-    const paramsForRecipientToSender = {
-      TableName: MESSAGES_TABLE_NAME,
-      IndexName: "SenderRecipientNamespaceIndex",
-      KeyConditionExpression:
-        "#senderNamespace = :recipientValue AND #recipientNamespace = :senderValue",
-      ExpressionAttributeValues: {
-        ":senderValue": senderNamespace,
-        ":recipientValue": recipientNamespace,
-      },
-      ExpressionAttributeNames: {
-        "#senderNamespace": "senderNamespace",
-        "#recipientNamespace": "recipientNamespace",
-      },
-    };
-
-    const [resultFromSender, resultFromRecipient] = await Promise.all([
-      dynamoDb.query(paramsForSenderToRecipient).promise(),
-      dynamoDb.query(paramsForRecipientToSender).promise(),
-    ]);
-
-    return [...resultFromSender.Items, ...resultFromRecipient.Items];
+    const result = await dynamoDb.query(params).promise();
+    return result.Items;
   };
 
   try {
