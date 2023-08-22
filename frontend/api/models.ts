@@ -15,8 +15,8 @@ export interface IMessage {
 export interface IAPI {
   addContact(name: string, email: string): Promise<IContact>;
   getContacts(): Promise<IContact[]>;
-  blockContact(contactID: string): Promise<void>;
-  reportContact(contactID: string, context: string): Promise<void>;
-  addMessage(contactID: string, body: string): Promise<void>;
-  getMessages(contactID: string): Promise<IMessage[]>;
+  blockContact(email: string): Promise<void>;
+  reportContact(email: string, context: string): Promise<void>;
+  addMessage(email: string, body: string): Promise<void>;
+  getMessages(email: string): Promise<IMessage[]>;
 }

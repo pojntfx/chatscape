@@ -52,16 +52,16 @@ Now go to [authentication](./AUTHENTICATION.md) and use the outputs from `make r
 curl -X POST --data '{"email":"max@mustermann.de", "name":"max"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/add-contact"
 ```
 
-**block-contact**: `{"id":"1234"}`
+**block-contact**: `{"email":"max@mustermann.de"}`
 
 ```shell
-curl -X POST --data '{"id":"1234"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/block-contact"
+curl -X POST --data '{"email":"max@mustermann.de"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/block-contact"
 ```
 
-**report-contact**: `{"id":"1234", "report":"Met at a diner"}`
+**report-contact**: `{"email":"max@mustermann.de", "report":"Met at a diner"}`
 
 ```shell
-curl -X POST --data '{"id":"1234", "report":"Met at a diner"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
+curl -X POST --data '{"email":"max@mustermann.de", "report":"Met at a diner"}' -H "Authorization: Bearer ${API_TOKEN}" "${API_URL}/report-contact"
 ```
 
 **get-contacts**:

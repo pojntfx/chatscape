@@ -7,10 +7,7 @@ const CONTACTS_TABLE_NAME = process.env.CONTACTS_TABLE_NAME;
 
 const BodySchema = vali.object(
   {
-    id: vali.string("id not provided", [
-      vali.toTrimmed(),
-      vali.minLength(1, "id is empty"),
-    ]),
+    email: vali.string("email not provided", [vali.email("email not valid")]),
   },
   "invalid request body"
 );
@@ -55,7 +52,7 @@ module.exports.handler = async (event) => {
     const results = await dynamoDb.query(queryParams).promise();
 
     if (results.Items) {
-      const contact = results.Items.find((item) => item.id === body.id);
+      const contact = results.Items.find((item) => item.email === body.email);
 
       if (contact) {
         const updateParams = {

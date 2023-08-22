@@ -31,7 +31,7 @@ describe("Block contact lambda", () => {
 
     const rv = await handler({
       body: JSON.stringify({
-        id: "1234",
+        email: "test@example.com",
       }),
       requestContext: {
         authorizer: {

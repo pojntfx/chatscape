@@ -29,7 +29,7 @@ export class RESTAPI implements IAPI {
       id: newContact.id,
       name: newContact.name,
       email: newContact.email,
-      intro: "Optio, voluptate accus",
+      intro: "New contact",
       avatar: `https://www.gravatar.com/avatar/${md5(
         email.toLowerCase().trim()
       )}?s=300`,
@@ -45,20 +45,30 @@ export class RESTAPI implements IAPI {
 
     const contacts = (await response.json()) as any[];
 
-    return contacts
-      .filter((contact) => !contact.blocked)
-      .map((contact) => ({
-        id: contact.id,
-        name: contact.name,
-        email: contact.email,
-        intro: "Optio, voluptate accus",
-        avatar: `https://www.gravatar.com/avatar/${md5(
-          contact.email.toLowerCase().trim()
-        )}?s=300`,
-      }));
+    return await Promise.all(
+      contacts
+        .filter((contact) => !contact.blocked)
+        .map(async (contact) => {
+          const messages = await this.getMessages(contact.id);
+          const latestMessage = messages[messages.length - 1];
+          const intro = latestMessage
+            ? latestMessage.body.substring(0, 10)
+            : "New contact";
+
+          return {
+            id: contact.id,
+            name: contact.name,
+            email: contact.email,
+            intro: intro,
+            avatar: `https://www.gravatar.com/avatar/${md5(
+              contact.email.toLowerCase().trim()
+            )}?s=300`,
+          };
+        })
+    );
   }
 
-  async blockContact(contactID: string): Promise<void> {
+  async blockContact(email: string): Promise<void> {
     await fetch(`${this.apiURL}/block-contact`, {
       method: "POST",
       headers: {
@@ -66,12 +76,12 @@ export class RESTAPI implements IAPI {
         Authorization: `Bearer ${this.token}`,
       },
       body: JSON.stringify({
-        id: contactID,
+        email: email,
       }),
     });
   }
 
-  async reportContact(contactID: string, context: string): Promise<void> {
+  async reportContact(email: string, context: string): Promise<void> {
     await fetch(`${this.apiURL}/report-contact`, {
       method: "POST",
       headers: {
@@ -79,13 +89,13 @@ export class RESTAPI implements IAPI {
         Authorization: `Bearer ${this.token}`,
       },
       body: JSON.stringify({
-        id: contactID,
+        email: email,
         report: context,
       }),
     });
   }
 
-  async addMessage(contactID: string, body: string): Promise<void> {
+  async addMessage(email: string, body: string): Promise<void> {
     await fetch(`${this.apiURL}/add-message`, {
       method: "POST",
       headers: {
@@ -93,15 +103,15 @@ export class RESTAPI implements IAPI {
         Authorization: `Bearer ${this.token}`,
       },
       body: JSON.stringify({
-        recipientNamespace: contactID,
+        recipientNamespace: email,
         message: body,
       }),
     });
   }
 
-  async getMessages(contactID: string): Promise<IMessage[]> {
+  async getMessages(email: string): Promise<IMessage[]> {
     const response = await fetch(
-      `${this.apiURL}/get-messages?recipientNamespace=${contactID}`,
+      `${this.apiURL}/get-messages?recipientNamespace=${email}`,
       {
         headers: {
           Authorization: `Bearer ${this.token}`,

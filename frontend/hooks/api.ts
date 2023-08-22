@@ -41,7 +41,7 @@ export const useAPI = (apiURL: string) => {
   }, [apiURL, auth]);
 
   useEffect(() => {
-    if (!api || !auth.userData) {
+    if (!api || !auth.userData || !contacts) {
       return;
     }
 
@@ -59,8 +59,13 @@ export const useAPI = (apiURL: string) => {
 
     setMessages(undefined);
 
+    const activeContactEmail = contacts.find((c) => c.id === id)?.email;
+    if (!activeContactEmail) {
+      return;
+    }
+
     api
-      .getMessages(activeContactID)
+      .getMessages(activeContactEmail)
       .then((messages) => setMessages(messages))
       .catch((e) => console.error(e));
   }, [api, contacts, activeContactID, api, auth.userData]);
@@ -109,7 +114,14 @@ export const useAPI = (apiURL: string) => {
 
     messages,
     addMessage: (body: string) => {
-      if (!api) return;
+      if (!api || !contacts) return;
+
+      const activeContactEmail = contacts.find(
+        (c) => c.id === activeContactID
+      )?.email;
+      if (!activeContactEmail) {
+        return;
+      }
 
       // Local
       setMessages((old) =>
@@ -127,10 +139,10 @@ export const useAPI = (apiURL: string) => {
 
       // Remote
       api
-        .addMessage(activeContactID, body)
+        .addMessage(activeContactEmail, body)
         .then(() =>
           api
-            .getMessages(activeContactID)
+            .getMessages(activeContactEmail)
             .then((messages) => setMessages(messages))
             .catch((e) => console.error(e))
         )
@@ -140,7 +152,14 @@ export const useAPI = (apiURL: string) => {
     setActiveContactID,
 
     blockContact: () => {
-      if (!api) return;
+      if (!api || !contacts) return;
+
+      const activeContactEmail = contacts.find(
+        (c) => c.id === activeContactID
+      )?.email;
+      if (!activeContactEmail) {
+        return;
+      }
 
       // Local
       setContacts((contacts) => {
@@ -153,7 +172,7 @@ export const useAPI = (apiURL: string) => {
 
       // Remote
       api
-        .blockContact(activeContactID)
+        .blockContact(activeContactEmail)
         .then(() =>
           api
             .getContacts()
@@ -165,10 +184,17 @@ export const useAPI = (apiURL: string) => {
         .catch((e) => console.error(e));
     },
     reportContact: (context: string) => {
-      if (!api) return;
+      if (!api || !contacts) return;
+
+      const activeContactEmail = contacts.find(
+        (c) => c.id === activeContactID
+      )?.email;
+      if (!activeContactEmail) {
+        return;
+      }
 
       return api
-        .reportContact(activeContactID, context)
+        .reportContact(activeContactEmail, context)
         .catch((e) => console.error(e));
     },
   };

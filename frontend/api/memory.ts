@@ -36,27 +36,25 @@ export class InMemoryAPI implements IAPI {
     return this.contacts;
   }
 
-  async blockContact(contactID: string): Promise<void> {
+  async blockContact(email: string): Promise<void> {
     await this.sleep();
 
-    const index = this.contacts.findIndex(
-      (contact) => contact.id === contactID
-    );
+    const index = this.contacts.findIndex((contact) => contact.email === email);
 
     if (index !== -1) {
       this.contacts.splice(index, 1);
     }
   }
 
-  async reportContact(contactID: string, context: string): Promise<void> {
+  async reportContact(meial: string, context: string): Promise<void> {
     await this.sleep();
   }
 
-  async addMessage(contactID: string, body: string): Promise<void> {
+  async addMessage(email: string, body: string): Promise<void> {
     await this.sleep();
 
-    this.messages.set(contactID, [
-      ...(this.messages.get(contactID) || []),
+    this.messages.set(email, [
+      ...(this.messages.get(email) || []),
       {
         them: false,
         body,
@@ -65,9 +63,9 @@ export class InMemoryAPI implements IAPI {
     ]);
   }
 
-  async getMessages(contactID: string): Promise<IMessage[]> {
+  async getMessages(email: string): Promise<IMessage[]> {
     await this.sleep();
 
-    return this.messages.get(contactID) || [];
+    return this.messages.get(email) || [];
   }
 }
