@@ -15,3 +15,21 @@ if [ "$1" = "test" ]; then
 
     exit 0
 fi
+
+# Build
+if [ "$1" = "build" ]; then
+    # Configure Git
+    git config --global --add safe.directory '*'
+
+    # Add external dependencies
+    apt update
+    apt install -y zip
+
+    # Generate dependencies
+    make depend
+
+    # Run tests
+    make
+
+    exit 0
+fi
