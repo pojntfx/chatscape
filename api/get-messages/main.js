@@ -46,7 +46,6 @@ export const handler = async (event) => {
       },
     };
 
-    // Fetch messages where recipient is the current user and sender is the specified one
     const paramsRecipient = {
       TableName: MESSAGES_TABLE_NAME,
       IndexName: "CompositeNamespaceDateIndex",
