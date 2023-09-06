@@ -14,10 +14,10 @@
 
 ### Messages
 
-- `date`: Timestamp of the message
+- `id`: UUID for the contact.
+- `date`: Timestamp of the message.
 - `body`: Content of the message.
-- `senderNamespace`: Namespace of the message sender.
-- `recipientNamespace`: Namespace of the message receiver.
+- `compositeNamespace`: Combination Namespace of the message sender and recipent.
 
 ## Lambdas
 
