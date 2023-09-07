@@ -14,10 +14,10 @@
 
 ### Messages
 
-- `date`: Timestamp of the message
+- `id`: UUID for the contact.
+- `date`: Timestamp of the message.
 - `body`: Content of the message.
-- `senderNamespace`: Namespace of the message sender.
-- `recipientNamespace`: Namespace of the message receiver.
+- `compositeNamespace`: Combination Namespace of the message sender and recipent.
 
 ## Lambdas
 
@@ -35,7 +35,7 @@
 ### getContacts
 
 - **Path**: `/contacts`
-- **Method**: `POST`
+- **Method**: `GET`
 - **Functionality:**
   - Read namespace from token
   - Query the `Contacts` table for all contacts with the namespace
@@ -66,15 +66,15 @@
 - **Functionality:**
   - Read namespace from token
   - Receive `contactID` and `body` in the request.
-  - Store message in the messages table, with recipientNamespace as the contactID from the request, the sender namespace as the namespace from the token and the body from the request (the date is the current time)
+  - Store message in the messages table, with compositeNamespace - a combination of the senderNamespace and the recipientNamespace (sender:::recipent)
 
 ### getMessages
 
 - **Path**: `/get-messages`
-- **Method**: `POST`
+- **Method**: `GET`
 - **Functionality:**
   - Read namespace from token
   - Receive `contactID` and `body` in the request.
-  - Fetch all messages from the database where the senderNamespace matches the the user's namespace AND the recipientNamespace matches the contactID, OR where the senderNamespace matches the contactID and AND the recipientNamespace matches the user's namespace
+  - Fetch all messages from the database where the compositeNamespace matches (both directions: sender:::recipent and recipent:::sender)
   - Set `them` to true on all of the messages where the senderNamespace is contactID
   - Return the messages
