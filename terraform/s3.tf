@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "spa" {
-  bucket = "chatscape-spa"
+  bucket = "chatscape-frontend"
 }
 
 resource "aws_s3_bucket_ownership_controls" "spa" {
@@ -30,7 +30,7 @@ resource "local_file" "config_json" {
     "authority" : "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.chatscape.id}",
     "apiURL" : aws_api_gateway_deployment.chatscape.invoke_url
   })
-  filename = "${path.module}/frontend/public/config.json"
+  filename = "${path.module}/../frontend/public/config.json"
 }
 
 resource "aws_s3_object" "config_json" {
@@ -46,7 +46,7 @@ resource "aws_s3_object" "config_json" {
 module "template_files" {
   source = "hashicorp/dir/template"
 
-  base_dir = "${path.module}/frontend/out"
+  base_dir = "${path.module}/../frontend/out"
 }
 
 resource "aws_s3_object" "doc_files" {

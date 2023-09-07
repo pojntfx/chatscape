@@ -3,34 +3,12 @@
 ## 1. Setup and Deployment
 
 ```shell
-cat <<'EOT'>~/.aws/config
-[profile GreenGuardianAdministrator-856591169022]
-sso_session = GreenGuardian
-sso_account_id = 856591169022
-sso_role_name = GreenGuardianAdministrator
-region = eu-north-1
+export AWS_ACCESS_KEY_ID=""
+export AWS_SECRET_ACCESS_KEY=""
+export AWS_SESSION_TOKEN=""
+export GITHUB_TOKEN=""
 
-[sso-session GreenGuardian]
-sso_start_url = https://hdm-mi7.awsapps.com/start#
-sso_region = eu-north-1
-sso_registration_scopes = sso:account:access
-
-[profile ChatScapeAdministrator-856591169022]
-sso_session = ChatScape
-sso_account_id = 856591169022
-sso_role_name = ChatScapeAdministrator
-region = eu-north-1
-
-[sso-session ChatScape]
-sso_start_url = https://hdm-mi7.awsapps.com/start#
-sso_region = eu-north-1
-sso_registration_scopes = sso:account:access
-EOT
-
-export AWS_PROFILE=ChatScapeAdministrator-856591169022
-aws sso login
-
-terraform init --backend-config="password=your-github-token"
+terraform -chdir=terraform init --backend-config="${GITHUB_TOKEN}"
 
 make -j$(nproc) depend
 make -j$(nproc) test

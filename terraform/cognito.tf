@@ -10,7 +10,7 @@ resource "aws_api_gateway_authorizer" "cognito" {
 }
 
 resource "aws_cognito_user_pool_domain" "chatscape" {
-  domain       = "chatscape"
+  domain       = "chatscape-users"
   user_pool_id = aws_cognito_user_pool.chatscape.id
 }
 
