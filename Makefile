@@ -20,13 +20,13 @@ test/pwa:
 test: $(addprefix test/js/,$(obj)) test/pwa
 
 run: build
-	terraform apply --auto-approve
+	terraform -chdir=terraform apply --auto-approve
 
 plan: build
-	terraform plan 
+	terraform -chdir=terraform plan 
 
 clean:
-	terraform destroy --auto-approve
+	terraform -chdir=terraform destroy --auto-approve
 	rm -rf out
 
 $(addprefix depend/js/,$(obj)):

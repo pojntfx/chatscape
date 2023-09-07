@@ -36,9 +36,9 @@ jobs:
       - name: Fix permissions for output
         run: sudo chown -R $USER .
       - name: Terraform Init
-        run: terraform init --backend-config="password=${{ secrets.GITHUB_TOKEN }}"
+        run: terraform -chdir=terraform init --backend-config="password=${{ secrets.GITHUB_TOKEN }}"
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform -chdir=terraform plan
       - name: Terraform Apply
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: terraform apply --auto-approve
+        run: terraform -chdir=terraform apply --auto-approve

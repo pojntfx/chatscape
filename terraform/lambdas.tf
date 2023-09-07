@@ -3,8 +3,8 @@ resource "aws_lambda_function" "function" {
   function_name = replace(each.key, "-", "_")
   runtime       = "nodejs18.x"
 
-  filename         = "out/${each.key}.zip"
-  source_code_hash = filebase64sha256("out/${each.key}.zip")
+  filename         = "../out/${each.key}.zip"
+  source_code_hash = filebase64sha256("../out/${each.key}.zip")
   handler          = "main.handler"
 
   role = aws_iam_role.lambda_db.arn
